@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Dashboard - GhanaTrust Bank</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f1f5f9; min-height: 100vh; }
+        .dashboard-header { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); color: white; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 20px rgba(30, 64, 175, 0.3); }
+        .dashboard-header h1 { font-size: 1.5rem; font-weight: 600; }
+        .user-info { display: flex; align-items: center; gap: 1rem; }
+        .user-avatar { width: 45px; height: 45px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .logout-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
+        .logout-btn:hover { background: rgba(255,255,255,0.3); }
+        .dashboard-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .accounts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .account-card { background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); transition: all 0.3s ease; }
+        .account-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); }
+        .account-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+        .account-type { font-size: 0.875rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .account-number { font-size: 0.75rem; color: #94a3b8; font-family: monospace; }
+        .account-balance { font-size: 2rem; font-weight: 700; color: #1e293b; margin: 0.5rem 0; }
+        .account-balance .currency { font-size: 1.25rem; color: #64748b; }
+        .account-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
+        .action-btn { flex: 1; padding: 0.75rem; border: none; border-radius: 8px; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease; }
+        .action-btn.primary { background: #1e40af; color: white; }
+        .action-btn.secondary { background: #f1f5f9; color: #475569; }
+        .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
+        @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: 1fr; } }
+        .transactions-section { background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .section-header h2 { font-size: 1.25rem; color: #1e293b; }
+        .view-all-btn { color: #1e40af; text-decoration: none; font-size: 0.875rem; font-weight: 500; }
+        .transaction-list { display: flex; flex-direction: column; gap: 0.75rem; }
+        .transaction-item { display: flex; align-items: center; justify-content: space-between; padding: 1rem; background: #f8fafc; border-radius: 12px; transition: all 0.2s ease; }
+        .transaction-icon { width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        .transaction-icon.credit { background: #dcfce7; color: #16a34a; }
+        .transaction-icon.debit { background: #fee2e2; color: #dc2626; }
+        .transaction-details h4 { font-size: 0.9375rem; color: #1e293b; margin-bottom: 0.25rem; }
+        .transaction-details p { font-size: 0.75rem; color: #64748b; }
+        .transaction-amount { text-align: right; }
+        .transaction-amount .amount { font-size: 1rem; font-weight: 600; }
+        .transaction-amount .amount.credit { color: #16a34a; }
+        .transaction-amount .amount.debit { color: #dc2626; }
+        .sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
+        .sidebar-card { background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); }
+        .quick-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+        .quick-action-btn { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 1rem; background: #f8fafc; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; text-decoration: none; color: inherit; }
+        .quick-action-btn:hover { background: #e2e8f0; transform: translateY(-2px); }
+        .stat-item { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid #e2e8f0; }
+        .login-prompt { text-align: center; padding: 4rem 2rem; background: white; border-radius: 16px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); margin: 2rem auto; max-width: 500px; }
+        .login-btn { background: #1e40af; color: white; padding: 1rem 2rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.3s ease; }
+        .login-btn:hover { background: #1e3a8a; transform: translateY(-2px); }
+        
+        /* Modal Styles */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; border-radius: 16px; padding: 2rem; max-width: 450px; width: 90%; max-height: 90vh; overflow-y: auto; animation: modalSlide 0.3s ease; }
+        @keyframes modalSlide { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .modal-header h3 { font-size: 1.25rem; color: #1e293b; display: flex; align-items: center; gap: 0.75rem; }
+        .modal-close { background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .modal-close:hover { background: #f1f5f9; color: #1e293b; }
+        .modal-body { margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-size: 0.875rem; font-weight: 500; color: #475569; margin-bottom: 0.5rem; }
+        .form-group input, .form-group select { width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem; transition: all 0.2s; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #1e40af; }
+        .form-group input::placeholder { color: #94a3b8; }
+        .modal-btn { width: 100%; padding: 0.875rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .modal-btn.primary { background: #1e40af; color: white; }
+        .modal-btn.primary:hover { background: #1e3a8a; }
+        .modal-btn.success { background: #10b981; color: white; }
+        .modal-btn.success:hover { background: #059669; }
+        .info-box { background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 1rem; border-radius: 0 8px 8px 0; margin-bottom: 1rem; }
+        .info-box p { font-size: 0.875rem; color: #0369a1; margin: 0; }
+        .bill-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
+        .bill-option { padding: 1rem; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .bill-option:hover, .bill-option.active { border-color: #1e40af; background: #eff6ff; }
+        .bill-option svg { margin-bottom: 0.5rem; }
+        .bill-option span { display: block; font-size: 0.75rem; font-weight: 500; color: #475569; }
+        .success-message { text-align: center; padding: 2rem; }
+        .success-message svg { margin-bottom: 1rem; }
+        .success-message h4 { font-size: 1.25rem; color: #16a34a; margin-bottom: 0.5rem; }
+        .success-message p { color: #64748b; font-size: 0.875rem; }
+    </style>
+</head>
+<body>
+    <header class="dashboard-header">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32">
+                <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+            </svg>
+            <h1>GhanaTrust Bank</h1>
+        </div>
+        <div class="user-info" id="userInfo">
+            <div class="user-avatar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+            </div>
+            <span id="userName">Loading...</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <div id="loginPrompt" class="login-prompt" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="2" width="64" height="64" style="margin-bottom: 1.5rem;">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <h2>Login Required</h2>
+            <p>Please login to view your account dashboard and monitor your transactions.</p>
+            <a href="customer-login.html" class="login-btn">Go to Login</a>
+        </div>
+
+        <div id="dashboardContent" style="display: none;">
+            <div class="accounts-grid" id="accountsGrid"></div>
+            <div class="dashboard-grid">
+                <div class="transactions-section">
+                    <div class="section-header">
+                        <h2>Recent Transactions</h2>
+                        <a href="#" class="view-all-btn">View All</a>
+                    </div>
+                    <div class="transaction-list" id="transactionList"></div>
+                </div>
+                <div class="sidebar">
+                    <div class="sidebar-card">
+                        <h3>Quick Actions</h3>
+                        <div class="quick-actions">
+                            <a href="#" class="quick-action-btn" onclick="handleQuickAction('transfer'); return false;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24" color="#1e40af">
+                                    <line x1="12" y1="19" x2="12" y2="5"></line>
+                                    <polyline points="5 12 12 5 19 12"></polyline>
+                                </svg>
+                                <p>Transfer</p>
+                            </a>
+                            <a href="#" class="quick-action-btn" onclick="handleQuickAction('deposit'); return false;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24" color="#16a34a">
+                                    <circle cx="12" cy="8" r="7"></circle>
+                                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                                </svg>
+                                <p>Deposit</p>
+                            </a>
+                            <a href="#" class="quick-action-btn" onclick="handleQuickAction('airtime'); return false;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24" color="#9333ea">
+                                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                                    <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                                </svg>
+                                <p>Airtime</p>
+                            </a>
+                            <a href="#" class="quick-action-btn" onclick="handleQuickAction('bills'); return false;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24" color="#ea580c">
+                                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                                </svg>
+                                <p>Bills</p>
+                            </a>
+                            <a href="#" class="quick-action-btn" onclick="openContactAdminModal(); return false;" style="grid-column: span 2; background: #fef3c7; border: 2px solid #fcd34d;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24" color="#b45309">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                    <polyline points="22,6 12,13 2,6"></polyline>
+                                </svg>
+                                <p style="color: #b45309; font-weight: 600;">Contact Admin</p>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="sidebar-card">
+                        <h3>This Month</h3>
+                        <div class="stat-item"><span style="color: #64748b;">Total Income</span><span id="totalIncome" style="font-weight: 600;">GH₵0.00</span></div>
+                        <div class="stat-item"><span style="color: #64748b;">Total Expenses</span><span id="totalExpenses" style="font-weight: 600;">GH₵0.00</span></div>
+                        <div class="stat-item"><span style="color: #64748b;">Savings Rate</span><span id="savingsRate" style="font-weight: 600;">0%</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBC6abatrIxH9gFaXQx8Q4gDdu59dU1U8E",
+            authDomain: "live-chat-61efd.firebaseapp.com",
+            databaseURL: "https://live-chat-61efd-default-rtdb.firebaseio.com",
+            projectId: "live-chat-61efd",
+            storageBucket: "live-chat-61efd.firebasestorage.app",
+            messagingSenderId: "1059519432349",
+            appId: "1:1059519432349:web:a40c6fee6357651c6af674",
+            measurementId: "G-W8CFYEYHJ4"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const database = firebase.database();
+
+        let currentUser = null;
+        let userAccounts = [];
+
+        function checkLogin() {
+            const userData = localStorage.getItem('currentUser');
+            if (!userData) {
+                document.getElementById('loginPrompt').style.display = 'block';
+                document.getElementById('dashboardContent').style.display = 'none';
+                document.getElementById('userInfo').style.display = 'none';
+                return;
+            }
+
+            currentUser = JSON.parse(userData);
+            document.getElementById('loginPrompt').style.display = 'none';
+            document.getElementById('dashboardContent').style.display = 'block';
+            document.getElementById('userName').textContent = currentUser.firstName || currentUser.email;
+
+            loadUserAccounts();
+        }
+
+        async function loadUserAccounts() {
+            const accountsGrid = document.getElementById('accountsGrid');
+            
+            if (!currentUser || !currentUser.userId) {
+                // Fallback to sample data if no userId
+                showSampleAccounts();
+                return;
+            }
+
+            try {
+                // Create or get user's accounts in Firebase
+                const userAccountsRef = database.ref('userAccounts/' + currentUser.userId);
+                const snapshot = await userAccountsRef.once('value');
+                
+                if (!snapshot.exists()) {
+                    // Create initial account for new user
+                    const accountData = {
+                        accountType: currentUser.accountType || 'Savings',
+                        accountNumber: 'GTB' + Math.floor(1000000000 + Math.random() * 9000000000),
+                        balance: 0,
+                        createdAt: new Date().toISOString(),
+                        status: 'active'
+                    };
+                    await userAccountsRef.push(accountData);
+                }
+                
+                // Load accounts
+                const accountsSnapshot = await userAccountsRef.once('value');
+                userAccounts = [];
+                accountsSnapshot.forEach((child) => {
+                    userAccounts.push({ id: child.key, ...child.val() });
+                });
+
+                if (userAccounts.length === 0) {
+                    showSampleAccounts();
+                    return;
+                }
+
+                // Display user's accounts
+                accountsGrid.innerHTML = userAccounts.map((account, index) => `
+                    <div class="account-card" onclick="viewAccountDetails('${account.id}')" style="cursor: pointer;">
+                        <div class="account-header">
+                            <div>
+                                <div class="account-type">${account.accountType || 'Savings'} Account</div>
+                                <div class="account-number" id="accNum-${account.id}" style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <span class="masked">**** ${account.accountNumber ? account.accountNumber.slice(-4) : '0000'}</span>
+                                    <span class="full" style="display: none; font-family: monospace; font-weight: 600; color: #1e40af;">${account.accountNumber || 'N/A'}</span>
+                                    <button onclick="event.stopPropagation(); toggleAccountNumber('${account.id}')" style="background: #e0e7ff; border: none; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.7rem; cursor: pointer; color: #1e40af; font-weight: 600;">
+                                        <span id="btnText-${account.id}">Show</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="2" width="24" height="24">
+                                <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                            </svg>
+                        </div>
+                        <div class="account-balance"><span class="currency">GH₵</span>${formatMoney(account.balance || 0)}</div>
+                        <div class="account-actions">
+                            <button class="action-btn primary" onclick="event.stopPropagation(); openTransferModal('${account.id}')">Transfer</button>
+                            <button class="action-btn secondary" onclick="event.stopPropagation(); viewAccountHistory('${account.id}')">History</button>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Load transactions for first account
+                if (userAccounts.length > 0) {
+                    loadTransactions(userAccounts[0].id);
+                }
+
+            } catch (error) {
+                console.error("Error loading accounts:", error);
+                showSampleAccounts();
+            }
+        }
+
+        function showSampleAccounts() {
+            const accountsGrid = document.getElementById('accountsGrid');
+            accountsGrid.innerHTML = `
+                <div class="account-card" onclick="showAddAccountPrompt()">
+                    <div class="account-header">
+                        <div>
+                            <div class="account-type">${currentUser?.accountType || 'Savings'} Account</div>
+                            <div class="account-number">**** ${Math.floor(1000 + Math.random() * 9000)}</div>
+                        </div>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="2" width="24" height="24">
+                            <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                    </div>
+                    <div class="account-balance"><span class="currency">GH₵</span>0.00</div>
+                    <div style="margin-top: 1rem; padding: 0.75rem; background: #fef3c7; border-radius: 8px; text-align: center;">
+                        <span style="font-size: 0.8rem; color: #92400e;">Account pending activation</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadTransactions(accountId) {
+            const transactionList = document.getElementById('transactionList');
+            
+            if (!accountId) {
+                // Show sample transactions
+                const sampleTransactions = [
+                    { type: 'credit', title: 'Account Opening', desc: 'Initial Deposit', amount: '0.00', date: new Date().toLocaleDateString() }
+                ];
+                renderTransactions(sampleTransactions);
+                return;
+            }
+
+            try {
+                const transactionsRef = database.ref('transactions/' + accountId);
+                const snapshot = await transactionsRef.limitToLast(10).once('value');
+                
+                const transactions = [];
+                snapshot.forEach((child) => {
+                    transactions.push(child.val());
+                });
+
+                if (transactions.length === 0) {
+                    transactions.push({ type: 'credit', title: 'Account Opening', desc: 'Welcome to GhanaTrust', amount: '0.00', date: new Date().toLocaleDateString() });
+                }
+
+                renderTransactions(transactions);
+                updateStats(transactions);
+
+            } catch (error) {
+                console.error("Error loading transactions:", error);
+                renderTransactions([{ type: 'credit', title: 'Account Opening', desc: 'Welcome to GhanaTrust', amount: '0.00', date: new Date().toLocaleDateString() }]);
+            }
+        }
+
+        function renderTransactions(transactions) {
+            const transactionList = document.getElementById('transactionList');
+            transactionList.innerHTML = transactions.slice().reverse().map(t => `
+                <div class="transaction-item">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div class="transaction-icon ${t.type}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                                ${t.type === 'credit' 
+                                    ? '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline>'
+                                    : '<line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>'
+                                }
+                            </svg>
+                        </div>
+                        <div class="transaction-details">
+                            <h4>${t.title}</h4>
+                            <p>${t.desc}</p>
+                        </div>
+                    </div>
+                    <div class="transaction-amount">
+                        <div class="amount ${t.type}">${t.type === 'credit' ? '+' : '-'}GH₵${t.amount}</div>
+                        <p style="font-size: 0.75rem; color: #94a3b8;">${t.date}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats(transactions) {
+            let income = 0, expenses = 0;
+            transactions.forEach(t => {
+                const amount = parseFloat(t.amount) || 0;
+                if (t.type === 'credit') income += amount;
+                else expenses += amount;
+            });
+            
+            document.getElementById('totalIncome').textContent = 'GH₵' + formatMoney(income);
+            document.getElementById('totalExpenses').textContent = 'GH₵' + formatMoney(expenses);
+            
+            const savingsRate = income > 0 ? Math.round(((income - expenses) / income) * 100) : 0;
+            document.getElementById('savingsRate').textContent = savingsRate + '%';
+        }
+
+        function formatMoney(amount) {
+            return parseFloat(amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        // Quick Actions
+        function openTransferModal(accountId) {
+            const amount = prompt('Enter amount to transfer (GH₵):');
+            if (amount && !isNaN(amount) && amount > 0) {
+                alert('Transfer feature coming soon! Amount: GH₵' + amount);
+            }
+        }
+
+        function viewAccountHistory(accountId) {
+            loadTransactions(accountId);
+            document.querySelector('.transactions-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function viewAccountDetails(accountId) {
+            const account = userAccounts.find(a => a.id === accountId);
+            if (account) {
+                alert(`Account: ${account.accountType}\nNumber: ${account.accountNumber}\nBalance: GH₵${formatMoney(account.balance || 0)}`);
+            }
+        }
+
+        function showAddAccountPrompt() {
+            alert('Visit any GhanaTrust branch to activate your account with initial deposit.');
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('otpExpiry');
+            window.location.href = 'customer-login.html';
+        }
+
+        function handleQuickAction(action) {
+            switch(action) {
+                case 'transfer':
+                    if (userAccounts.length > 0) {
+                        openTransferModalUI(userAccounts[0]);
+                    } else {
+                        showSuccessModal('Account Not Active', 'Please activate your account first. Visit any GhanaTrust branch.');
+                    }
+                    break;
+                case 'deposit':
+                    if (userAccounts.length > 0) {
+                        document.getElementById('depositAccountNumber').textContent = userAccounts[0].accountNumber || 'GTB0000000000';
+                    }
+                    openModal('depositModal');
+                    break;
+                case 'airtime':
+                    openModal('airtimeModal');
+                    break;
+                case 'bills':
+                    openModal('billsModal');
+                    break;
+            }
+        }
+
+        // Modal Functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Toggle account number visibility (mask/unmask)
+        function toggleAccountNumber(accountId) {
+            const container = document.getElementById(`accNum-${accountId}`);
+            const masked = container.querySelector('.masked');
+            const full = container.querySelector('.full');
+            const btnText = document.getElementById(`btnText-${accountId}`);
+            
+            if (masked.style.display === 'none') {
+                // Currently showing full, switch to masked
+                masked.style.display = 'inline';
+                full.style.display = 'none';
+                btnText.textContent = 'Show';
+            } else {
+                // Currently masked, switch to full
+                masked.style.display = 'none';
+                full.style.display = 'inline';
+                btnText.textContent = 'Hide';
+            }
+        }
+
+        // Contact Admin Functions
+        function openContactAdminModal() {
+            document.getElementById('adminMessageSubject').value = '';
+            document.getElementById('adminMessageBody').value = '';
+            openModal('contactAdminModal');
+        }
+
+        async function sendMessageToAdmin() {
+            const subject = document.getElementById('adminMessageSubject').value.trim();
+            const body = document.getElementById('adminMessageBody').value.trim();
+            const btn = document.querySelector('#contactAdminModal .modal-btn.primary');
+
+            if (!subject || !body) {
+                alert('Please enter both subject and message.');
+                return;
+            }
+
+            if (!currentUser || !currentUser.email) {
+                alert('Please login first.');
+                return;
+            }
+
+            // Debug log
+            console.log('Sending message to admin:', {
+                from: currentUser.email,
+                subject: subject,
+                currentUser: currentUser
+            });
+
+            // Set loading state
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = 'Sending...';
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/api/send-to-admin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        from: currentUser.email,
+                        firstName: currentUser.firstName || 'User',
+                        lastName: currentUser.lastName || '',
+                        subject: subject,
+                        body: body,
+                        accountNumber: currentUser.accountNumber || 'N/A'
+                    })
+                });
+
+                console.log('Server response status:', response.status);
+
+                if (!response.ok) {
+                    throw new Error('Server returned ' + response.status + ': ' + response.statusText);
+                }
+
+                const result = await response.json();
+                console.log('Server result:', result);
+
+                if (result.success) {
+                    closeModal('contactAdminModal');
+                    showSuccessModal('Message Sent', 'Your message has been sent to our support team. We will respond to your email within 24 hours.');
+                    document.getElementById('adminMessageSubject').value = '';
+                    document.getElementById('adminMessageBody').value = '';
+                } else {
+                    alert('Failed to send message: ' + (result.message || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+                alert('Failed to send message. Error: ' + error.message + '\n\nPlease ensure the server is running on http://localhost:3000');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = 'Send Message';
+                }
+            }
+        }
+
+        function openTransferModalUI(account) {
+            document.getElementById('transferFromAccount').textContent = (account.accountType || 'Savings') + ' Account';
+            document.getElementById('transferBalance').textContent = 'GH₵' + formatMoney(account.balance || 0);
+            openModal('transferModal');
+        }
+
+        function processTransfer() {
+            const recipient = document.getElementById('transferRecipient').value;
+            const amount = document.getElementById('transferAmount').value;
+            const name = document.getElementById('transferRecipientName').value;
+
+            if (!recipient || !amount || !name) {
+                showSuccessModal('Error', 'Please fill in all required fields.');
+                return;
+            }
+
+            closeModal('transferModal');
+            showSuccessModal('Transfer Initiated', `GH₵${formatMoney(parseFloat(amount))} transfer to ${name} has been initiated. Reference: GTB${Date.now().toString().slice(-6)}`);
+            
+            // Clear form
+            document.getElementById('transferRecipient').value = '';
+            document.getElementById('transferRecipientName').value = '';
+            document.getElementById('transferAmount').value = '';
+            document.getElementById('transferDesc').value = '';
+        }
+
+        function setAirtimeAmount(amount) {
+            document.getElementById('airtimeAmount').value = amount;
+        }
+
+        function processAirtime() {
+            const phone = document.getElementById('airtimePhone').value;
+            const network = document.getElementById('airtimeNetwork').value;
+            const amount = document.getElementById('airtimeAmount').value;
+
+            if (!phone || !network || !amount) {
+                showSuccessModal('Error', 'Please fill in all fields.');
+                return;
+            }
+
+            closeModal('airtimeModal');
+            showSuccessModal('Airtime Purchased', `GH₵${amount} airtime purchased for ${phone} (${network.toUpperCase()}).`);
+            
+            // Clear form
+            document.getElementById('airtimePhone').value = '';
+            document.getElementById('airtimeNetwork').value = '';
+            document.getElementById('airtimeAmount').value = '';
+        }
+
+        let selectedBillType = '';
+
+        function selectBill(type) {
+            selectedBillType = type;
+            document.querySelectorAll('.bill-option').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            const labels = {
+                'ecg': 'ECG Meter Number',
+                'water': 'GWCL Account Number',
+                'tv': 'Smart Card Number',
+                'school': 'Student ID'
+            };
+            
+            document.getElementById('billAccountLabel').textContent = labels[type];
+            document.getElementById('billForm').style.display = 'block';
+            document.getElementById('billPayBtn').disabled = false;
+        }
+
+        function processBillPayment() {
+            const accountNum = document.getElementById('billAccountNumber').value;
+            const amount = document.getElementById('billAmount').value;
+
+            if (!accountNum || !amount) {
+                showSuccessModal('Error', 'Please fill in all fields.');
+                return;
+            }
+
+            const billNames = { 'ecg': 'ECG Electricity', 'water': 'GWCL Water', 'tv': 'DStv/GOtv', 'school': 'School Fees' };
+
+            closeModal('billsModal');
+            showSuccessModal('Bill Payment Successful', `GH₵${amount} paid for ${billNames[selectedBillType]}. Reference: GTB${Date.now().toString().slice(-6)}`);
+            
+            // Reset form
+            document.getElementById('billAccountNumber').value = '';
+            document.getElementById('billAmount').value = '';
+            document.getElementById('billForm').style.display = 'none';
+            document.getElementById('billPayBtn').disabled = true;
+            document.querySelectorAll('.bill-option').forEach(el => el.classList.remove('active'));
+            selectedBillType = '';
+        }
+
+        function showSuccessModal(title, message) {
+            document.getElementById('successTitle').textContent = title;
+            document.getElementById('successMessage').textContent = message;
+            openModal('successModal');
+        }
+
+        function openTransferModal(accountId) {
+            const account = userAccounts.find(a => a.id === accountId);
+            if (account) {
+                openTransferModalUI(account);
+            }
+        }
+
+        function showAddAccountPrompt() {
+            showSuccessModal('Account Activation', 'Visit any GhanaTrust branch to activate your account with initial deposit.');
+        }
+
+        // Close modals on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay && overlay.id !== 'successModal') {
+                    overlay.classList.remove('active');
+                }
+            });
+        });
+
+        checkLogin();
+    </script>
+
+    <!-- Transfer Modal -->
+    <div class="modal-overlay" id="transferModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="2" width="24" height="24">
+                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                        <polyline points="5 12 12 5 19 12"></polyline>
+                    </svg>
+                    Transfer Money
+                </h3>
+                <button class="modal-close" onclick="closeModal('transferModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="info-box">
+                    <p>Transfer from: <strong id="transferFromAccount">Savings Account</strong></p>
+                    <p>Available Balance: <strong id="transferBalance">GH₵0.00</strong></p>
+                </div>
+                <div class="form-group">
+                    <label>Recipient Account Number</label>
+                    <input type="text" id="transferRecipient" placeholder="Enter account number" maxlength="12">
+                </div>
+                <div class="form-group">
+                    <label>Recipient Name</label>
+                    <input type="text" id="transferRecipientName" placeholder="Enter recipient name">
+                </div>
+                <div class="form-group">
+                    <label>Amount (GH₵)</label>
+                    <input type="number" id="transferAmount" placeholder="0.00" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Description (Optional)</label>
+                    <input type="text" id="transferDesc" placeholder="What's this for?">
+                </div>
+            </div>
+            <button class="modal-btn primary" onclick="processTransfer()">Confirm Transfer</button>
+        </div>
+    </div>
+
+    <!-- Deposit Modal -->
+    <div class="modal-overlay" id="depositModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" width="24" height="24">
+                        <circle cx="12" cy="8" r="7"></circle>
+                        <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                    </svg>
+                    Deposit Money
+                </h3>
+                <button class="modal-close" onclick="closeModal('depositModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="info-box">
+                    <p><strong>Deposit to Account:</strong></p>
+                    <p id="depositAccountNumber" style="font-family: monospace; margin-top: 0.25rem;">GTB0000000000</p>
+                </div>
+                <div style="background: #f0fdf4; border: 2px dashed #10b981; border-radius: 12px; padding: 1.5rem; text-align: center; margin-bottom: 1rem;">
+                    <p style="font-size: 0.875rem; color: #166534; margin-bottom: 0.5rem;"><strong>Mobile Money Deposit</strong></p>
+                    <p style="font-size: 1.5rem; font-weight: 700; color: #15803d;">*718*001#</p>
+                    <p style="font-size: 0.75rem; color: #22c55e; margin-top: 0.5rem;">Dial this code on your phone</p>
+                </div>
+                <p style="font-size: 0.875rem; color: #64748b; text-align: center;">
+                    Or visit any GhanaTrust branch with your ID and account number.
+                </p>
+            </div>
+            <button class="modal-btn success" onclick="closeModal('depositModal')">Got It</button>
+        </div>
+    </div>
+
+    <!-- Airtime Modal -->
+    <div class="modal-overlay" id="airtimeModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#9333ea" stroke-width="2" width="24" height="24">
+                        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                        <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                    </svg>
+                    Buy Airtime
+                </h3>
+                <button class="modal-close" onclick="closeModal('airtimeModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="airtimePhone" placeholder="024 000 0000" maxlength="10">
+                </div>
+                <div class="form-group">
+                    <label>Network</label>
+                    <select id="airtimeNetwork">
+                        <option value="">Select Network</option>
+                        <option value="mtn">MTN</option>
+                        <option value="vodafone">Vodafone</option>
+                        <option value="airteltigo">AirtelTigo</option>
+                        <option value="glo">Glo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Amount (GH₵)</label>
+                    <input type="number" id="airtimeAmount" placeholder="0.00" min="1" max="1000">
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-top: 0.5rem;">
+                    <button onclick="setAirtimeAmount(5)" style="padding: 0.5rem; background: #f1f5f9; border: none; border-radius: 6px; cursor: pointer; font-size: 0.875rem;">GH₵5</button>
+                    <button onclick="setAirtimeAmount(10)" style="padding: 0.5rem; background: #f1f5f9; border: none; border-radius: 6px; cursor: pointer; font-size: 0.875rem;">GH₵10</button>
+                    <button onclick="setAirtimeAmount(20)" style="padding: 0.5rem; background: #f1f5f9; border: none; border-radius: 6px; cursor: pointer; font-size: 0.875rem;">GH₵20</button>
+                    <button onclick="setAirtimeAmount(50)" style="padding: 0.5rem; background: #f1f5f9; border: none; border-radius: 6px; cursor: pointer; font-size: 0.875rem;">GH₵50</button>
+                </div>
+            </div>
+            <button class="modal-btn primary" onclick="processAirtime()">Buy Airtime</button>
+        </div>
+    </div>
+
+    <!-- Bills Modal -->
+    <div class="modal-overlay" id="billsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2" width="24" height="24">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                    </svg>
+                    Pay Bills
+                </h3>
+                <button class="modal-close" onclick="closeModal('billsModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="bill-options">
+                    <div class="bill-option" onclick="selectBill('ecg')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2" width="24" height="24">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                        </svg>
+                        <span>ECG Electric</span>
+                    </div>
+                    <div class="bill-option" onclick="selectBill('water')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" width="24" height="24">
+                            <path d="M12 22a8 8 0 0 0 8-8c0-3.5-2.5-6-6-10-2 2-4 4-4 8"></path>
+                        </svg>
+                        <span>GWCL Water</span>
+                    </div>
+                    <div class="bill-option" onclick="selectBill('tv')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2" width="24" height="24">
+                            <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                            <polyline points="17 2 12 7 7 2"></polyline>
+                        </svg>
+                        <span>DStv/GOtv</span>
+                    </div>
+                    <div class="bill-option" onclick="selectBill('school')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" width="24" height="24">
+                            <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                            <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                        </svg>
+                        <span>School Fees</span>
+                    </div>
+                </div>
+                <div id="billForm" style="display: none;">
+                    <div class="form-group">
+                        <label id="billAccountLabel">Account/ID Number</label>
+                        <input type="text" id="billAccountNumber" placeholder="Enter account number">
+                    </div>
+                    <div class="form-group">
+                        <label>Amount (GH₵)</label>
+                        <input type="number" id="billAmount" placeholder="0.00" min="1">
+                    </div>
+                </div>
+            </div>
+            <button class="modal-btn primary" id="billPayBtn" onclick="processBillPayment()" disabled>Pay Bill</button>
+        </div>
+    </div>
+
+    <!-- Contact Admin Modal -->
+    <div class="modal-overlay" id="contactAdminModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="2" width="24" height="24">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                    Contact Admin
+                </h3>
+                <button class="modal-close" onclick="closeModal('contactAdminModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="info-box">
+                    <p>Send a message to our support team. We'll respond to your registered email within 24 hours.</p>
+                </div>
+                <div class="form-group">
+                    <label>Subject</label>
+                    <input type="text" id="adminMessageSubject" placeholder="Enter message subject">
+                </div>
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea id="adminMessageBody" rows="5" placeholder="Describe your issue or question..." style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem; font-family: inherit; resize: vertical;"></textarea>
+                </div>
+            </div>
+            <button class="modal-btn primary" onclick="sendMessageToAdmin()">Send Message</button>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal">
+            <div class="success-message">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" width="64" height="64">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <h4 id="successTitle">Success!</h4>
+                <p id="successMessage">Your transaction has been processed.</p>
+                <button class="modal-btn success" onclick="closeModal('successModal')" style="margin-top: 1.5rem;">Close</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

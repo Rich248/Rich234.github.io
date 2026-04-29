@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Ghana Trust Bank</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .dashboard-content {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-color: #3b82f6;
+        }
+
+        .stat-card.active-tab-indicator {
+            border-color: #1e40af;
+            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+        }
+        
+        .stat-card h3 {
+            font-size: 2rem;
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .chat-sessions {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        
+        .chat-sessions-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-sessions-header h2 {
+            font-size: 1.25rem;
+            color: #1e293b;
+        }
+        
+        .chat-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .chat-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .chat-item:hover {
+            background: #f8fafc;
+        }
+        
+        .chat-item.active {
+            background: #e0f2fe;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .chat-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .chat-item-id {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.9rem;
+        }
+        
+        .chat-item-time {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+        
+        .chat-item-preview {
+            color: #64748b;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .chat-item-status {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .chat-item-status.active {
+            background: #ecfdf5;
+            color: #10b981;
+        }
+        
+        .chat-item-status.waiting {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+        
+        .chat-detail-panel {
+            position: fixed;
+            top: 0;
+            right: -500px;
+            width: 500px;
+            height: 100%;
+            background: white;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-detail-panel.active {
+            right: 0;
+        }
+        
+        .chat-detail-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .close-detail {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #64748b;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            background: #f8fafc;
+        }
+        
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message.user {
+            align-items: flex-end;
+        }
+        
+        .message.representative {
+            align-items: flex-start;
+        }
+        
+        .message-bubble {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .message.user .message-bubble {
+            background: #3b82f6;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .message.representative .message-bubble {
+            background: white;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-bottom-left-radius: 4px;
+        }
+        
+        .message-time {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 0.25rem;
+        }
+        
+        .chat-input-area {
+            padding: 1rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .chat-input-area input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .chat-input-area input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .chat-input-area button {
+            padding: 0.75rem 1.5rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+        
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+        }
+
+        /* User Management Styles */
+        .users-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+
+        .users-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .users-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .user-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .user-item:hover {
+            background: #f8fafc;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+
+        .user-email {
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        .user-meta {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .user-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .user-status.active {
+            background: #ecfdf5;
+            color: #10b981;
+        }
+
+        .user-status.blocked {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-action {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-reset {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #d97706;
+        }
+
+        .btn-block {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-block:hover {
+            background: #b91c1c;
+        }
+
+        .btn-unblock {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-unblock:hover {
+            background: #059669;
+        }
+
+        .btn-email {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-email:hover {
+            background: #2563eb;
+        }
+
+        /* Email Modal */
+        .email-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .email-modal.active {
+            display: flex;
+        }
+
+        .email-modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow: hidden;
+        }
+
+        .email-modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .email-modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            max-height: 60vh;
+        }
+
+        .email-form-group {
+            margin-bottom: 1rem;
+        }
+
+        .email-form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+
+        .email-form-group input,
+        .email-form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .email-form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .email-modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+
+        .nav-tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .nav-tab.active {
+            color: #1e40af;
+            border-bottom-color: #1e40af;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-header">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="40" height="40">
+                <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+            </svg>
+            <h1 style="margin: 0;">GhanaTrust Bank</h1>
+        </div>
+        <div id="queueBanner" style="display: none; background: #fef3c7; color: #92400e; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; border: 1px solid #fde68a;">
+            ⚠️ New chat in queue!
+        </div>
+        <div id="resolvedBanner" style="display: none; background: #ecfdf5; color: #065f46; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; border: 1px solid #a7f3d0;">
+            ✅ Chat resolved!
+        </div>
+        <div>
+            <span id="connectionStatus" style="margin-right: 1rem;">● Connecting...</span>
+            <button onclick="testDatabaseWrite()" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; margin-right: 0.5rem;">Test DB</button>
+            <button onclick="logout()" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">Logout</button>
+        </div>
+    </div>
+    
+    <div class="dashboard-content">
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('chats')">Live Chat Sessions</button>
+            <button class="nav-tab" onclick="switchTab('users')">User Management</button>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card" id="cardActiveChats" onclick="switchTab('chats')">
+                <h3 id="activeChats">0</h3>
+                <p>Active Chats</p>
+            </div>
+            <div class="stat-card" id="cardTotalMessages" onclick="switchTab('chats')">
+                <h3 id="totalMessages">0</h3>
+                <p>Total Messages</p>
+            </div>
+            <div class="stat-card" id="cardTotalUsers" onclick="switchTab('users')">
+                <h3 id="totalUsers">0</h3>
+                <p>Registered Users</p>
+            </div>
+            <div class="stat-card" id="cardBlockedUsers" onclick="switchTab('users')">
+                <h3 id="blockedUsers">0</h3>
+                <p>Blocked Accounts</p>
+            </div>
+        </div>
+
+        <!-- Refresh Button for Current Tab -->
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
+            <button onclick="refreshCurrentTab()" style="background: #3b82f6; border: none; color: white; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-weight: 500;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <polyline points="1 20 1 14 7 14"></polyline>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                </svg>
+                Refresh Current View
+            </button>
+        </div>
+        
+        <!-- Chats Tab Content -->
+        <div id="chatsTab" class="tab-content active">
+            <div class="chat-sessions">
+                <div class="chat-sessions-header">
+                    <h2>Active Chat Sessions</h2>
+                </div>
+                <div class="chat-list" id="chatList">
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        <p>No active chat sessions</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Tab Content -->
+        <div id="usersTab" class="tab-content">
+            <div class="users-section">
+                <div class="users-header">
+                    <h2>Registered Users</h2>
+                </div>
+                <div class="users-list" id="usersList">
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <p>No registered users found</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Modal -->
+    <div class="email-modal" id="emailModal">
+        <div class="email-modal-content">
+            <div class="email-modal-header">
+                <h3>Send Email to User</h3>
+                <button onclick="closeEmailModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <div class="email-modal-body">
+                <div class="email-form-group">
+                    <label>To:</label>
+                    <input type="email" id="emailTo" readonly>
+                </div>
+                <div class="email-form-group">
+                    <label>Subject:</label>
+                    <input type="text" id="emailSubject" placeholder="Enter email subject">
+                </div>
+                <div class="email-form-group">
+                    <label>Message:</label>
+                    <textarea id="emailBody" placeholder="Enter your message..."></textarea>
+                </div>
+            </div>
+            <div class="email-modal-footer">
+                <button class="btn-secondary" onclick="closeEmailModal()">Cancel</button>
+                <button class="btn-primary" onclick="sendEmailToUser()">Send Email</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Details Modal -->
+    <div class="email-modal" id="accountModal">
+        <div class="email-modal-content" style="max-width: 800px;">
+            <div class="email-modal-header">
+                <h3>Account Details</h3>
+                <button onclick="closeAccountModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <div class="email-modal-body">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div style="background: #f0f9ff; padding: 1rem; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                        <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.25rem;">Current Balance</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #1e40af;" id="accountBalance">GH₵0.00</div>
+                    </div>
+                    <div style="background: #f0fdf4; padding: 1rem; border-radius: 8px; border-left: 4px solid #10b981;">
+                        <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.25rem;">Account Type</div>
+                        <div style="font-size: 1.25rem; font-weight: 600; color: #059669;" id="accountType">Savings</div>
+                    </div>
+                    <div style="background: #fef3c7; padding: 1rem; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                        <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.25rem;">Account Number</div>
+                        <div style="font-size: 1.25rem; font-weight: 600; color: #b45309; font-family: monospace;" id="accountNumber">****0000</div>
+                    </div>
+                </div>
+                
+                <h4 style="margin-bottom: 1rem; color: #1e293b;">Transaction History</h4>
+                <div id="transactionsList" style="max-height: 300px; overflow-y: auto;">
+                    <div class="empty-state" style="padding: 2rem;">
+                        <p>No transactions found</p>
+                    </div>
+                </div>
+            </div>
+            <div class="email-modal-footer">
+                <button class="btn-secondary" onclick="closeAccountModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Reset Modal -->
+    <div class="email-modal" id="passwordModal">
+        <div class="email-modal-content">
+            <div class="email-modal-header">
+                <h3>Reset User Password</h3>
+                <button onclick="closePasswordModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <div class="email-modal-body">
+                <div class="email-form-group">
+                    <label>User Email:</label>
+                    <input type="email" id="resetEmail" readonly>
+                </div>
+                <div class="email-form-group">
+                    <label>New Password:</label>
+                    <input type="text" id="newPassword" placeholder="Enter new password">
+                </div>
+                <p style="color: #64748b; font-size: 0.85rem; margin-top: 0.5rem;">
+                    <strong>Note:</strong> The user will be notified via email about the password change.
+                </p>
+            </div>
+            <div class="email-modal-footer">
+                <button class="btn-secondary" onclick="closePasswordModal()">Cancel</button>
+                <button class="btn-primary" onclick="confirmPasswordReset()">Reset Password</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chat Detail Panel -->
+    <div class="chat-detail-panel" id="chatDetailPanel">
+        <div class="chat-detail-header">
+            <h3 id="currentChatId">Chat Session</h3>
+            <div style="display: flex; gap: 0.5rem;">
+                <button onclick="resolveChat()" style="background: #10b981; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">Resolve</button>
+                <button class="close-detail" onclick="closeChatDetail()">&times;</button>
+            </div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="empty-state">
+                <p>Select a chat to view messages</p>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="adminChatInput" placeholder="Type your response..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendAdminMessage()">Send</button>
+        </div>
+    </div>
+    
+    <script>
+        // Firebase Configuration - REPLACE WITH YOUR FIREBASE CREDENTIALS
+        const firebaseConfig = {
+  apiKey: "AIzaSyBC6abatrIxH9gFaXQx8Q4gDdu59dU1U8E",
+  authDomain: "live-chat-61efd.firebaseapp.com",
+  databaseURL: "https://live-chat-61efd-default-rtdb.firebaseio.com",
+  projectId: "live-chat-61efd",
+  storageBucket: "live-chat-61efd.firebasestorage.app",
+  messagingSenderId: "1059519432349",
+  appId: "1:1059519432349:web:a40c6fee6357651c6af674",
+  measurementId: "G-W8CFYEYHJ4"
+};
+
+        let database;
+        let chatsRef;
+        let currentChatRef = null;
+        let currentChatId = null;
+        let messageListener = null;
+
+        function initFirebase() {
+            try {
+                // Check if Firebase is already initialized
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                database = firebase.database();
+                chatsRef = database.ref('chats');
+                
+                // Listen for new chats
+                chatsRef.on('value', (snapshot) => {
+                    console.log('Chats updated:', snapshot.val());
+                    updateChatList(snapshot);
+                    updateStats(snapshot);
+                });
+                
+                document.getElementById('connectionStatus').innerHTML = '● Connected';
+                document.getElementById('connectionStatus').style.color = '#10b981';
+                
+                console.log('Firebase initialized successfully');
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                document.getElementById('connectionStatus').innerHTML = '● Disconnected';
+                document.getElementById('connectionStatus').style.color = '#ef4444';
+            }
+        }
+
+        function updateChatList(snapshot) {
+            const chatList = document.getElementById('chatList');
+            const chats = snapshot.val();
+            
+            console.log('updateChatList called with:', chats);
+            
+            if (!chats) {
+                chatList.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        <p>No active chat sessions</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            console.log('Number of chats:', Object.keys(chats).length);
+            
+            let html = '';
+            Object.keys(chats).forEach(chatId => {
+                const chat = chats[chatId];
+                console.log('Chat ID:', chatId, 'Chat data:', chat);
+                const messages = chat.messages || {};
+                const messageKeys = Object.keys(messages);
+                const lastMessage = messageKeys.length > 0 ? messages[messageKeys[messageKeys.length - 1]] : null;
+                
+                const preview = lastMessage ? lastMessage.text : 'No messages yet';
+                const time = lastMessage ? new Date(lastMessage.timestamp).toLocaleTimeString() : 'New';
+                
+                html += `
+                    <div class="chat-item" onclick="openChatDetail('${chatId}')">
+                        <div class="chat-item-header">
+                            <span class="chat-item-id">${chatId}</span>
+                            <span class="chat-item-time">${time}</span>
+                        </div>
+                        <div class="chat-item-preview">${preview}</div>
+                        <span class="chat-item-status ${lastMessage && lastMessage.sender === 'user' ? 'waiting' : 'active'}">
+                            ${lastMessage && lastMessage.sender === 'user' ? 'Waiting' : 'Active'}
+                        </span>
+                    </div>
+                `;
+            });
+            
+            chatList.innerHTML = html;
+        }
+
+        function updateStats(snapshot) {
+            const chats = snapshot.val();
+            const waitingChatsElement = document.getElementById('waitingChats');
+            const prevWaitingCount = waitingChatsElement ? (parseInt(waitingChatsElement.textContent) || 0) : 0;
+            
+            if (!chats) {
+                if (document.getElementById('activeChats')) document.getElementById('activeChats').textContent = '0';
+                if (document.getElementById('totalMessages')) document.getElementById('totalMessages').textContent = '0';
+                if (waitingChatsElement) waitingChatsElement.textContent = '0';
+                return;
+            }
+            
+            let totalMessages = 0;
+            let waitingChats = 0;
+            
+            Object.keys(chats).forEach(chatId => {
+                const chat = chats[chatId];
+                const messages = chat.messages || {};
+                totalMessages += Object.keys(messages).length;
+                
+                const messageKeys = Object.keys(messages);
+                if (messageKeys.length > 0) {
+                    const lastMessage = messages[messageKeys[messageKeys.length - 1]];
+                    if (lastMessage.sender === 'user') {
+                        waitingChats++;
+                    }
+                }
+            });
+            
+            if (document.getElementById('activeChats')) document.getElementById('activeChats').textContent = Object.keys(chats).length;
+            if (document.getElementById('totalMessages')) document.getElementById('totalMessages').textContent = totalMessages;
+            if (waitingChatsElement) waitingChatsElement.textContent = waitingChats;
+
+            // Show banner if queue increased
+            if (waitingChats > prevWaitingCount) {
+                showBanner('queueBanner');
+            }
+        }
+
+        function showBanner(id) {
+            const banner = document.getElementById(id);
+            if (banner) {
+                banner.style.display = 'block';
+                setTimeout(() => {
+                    banner.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function resolveChat() {
+            if (!currentChatId) return;
+            
+            if (confirm('Are you sure you want to resolve this chat? It will be removed from active sessions.')) {
+                const chatIdToResolve = currentChatId;
+                database.ref('chats/' + chatIdToResolve).remove()
+                    .then(() => {
+                        showBanner('resolvedBanner');
+                        closeChatDetail();
+                    });
+            }
+        }
+
+        function openChatDetail(chatId) {
+            currentChatId = chatId;
+            currentChatRef = database.ref('chats/' + chatId + '/messages');
+            
+            document.getElementById('currentChatId').textContent = chatId;
+            document.getElementById('chatDetailPanel').classList.add('active');
+            
+            // Load existing messages
+            currentChatRef.once('value', (snapshot) => {
+                const messages = snapshot.val();
+                displayMessages(messages);
+            });
+            
+            // Listen for new messages
+            if (messageListener) {
+                currentChatRef.off('child_added', messageListener);
+            }
+            
+            messageListener = currentChatRef.on('child_added', (snapshot) => {
+                const message = snapshot.val();
+                addMessageToUI(message.text, message.sender, new Date(message.timestamp).toLocaleTimeString());
+            });
+        }
+
+        function closeChatDetail() {
+            document.getElementById('chatDetailPanel').classList.remove('active');
+            if (currentChatRef && messageListener) {
+                currentChatRef.off('child_added', messageListener);
+            }
+            currentChatRef = null;
+            currentChatId = null;
+            messageListener = null;
+        }
+
+        function displayMessages(messages) {
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.innerHTML = '';
+            
+            if (!messages) {
+                messagesContainer.innerHTML = '<div class="empty-state"><p>No messages yet</p></div>';
+                return;
+            }
+            
+            Object.keys(messages).forEach(key => {
+                const message = messages[key];
+                const time = new Date(message.timestamp).toLocaleTimeString();
+                addMessageToUI(message.text, message.sender, time);
+            });
+        }
+
+        function addMessageToUI(text, sender, time) {
+            const messagesContainer = document.getElementById('chatMessages');
+            
+            // Remove empty state if present
+            const emptyState = messagesContainer.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = `
+                <div class="message-bubble">${text}</div>
+                <div class="message-time">${time}</div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function sendAdminMessage() {
+            const input = document.getElementById('adminChatInput');
+            const message = input.value.trim();
+            
+            if (!message || !currentChatRef) return;
+            
+            const newMessageRef = currentChatRef.push();
+            newMessageRef.set({
+                text: message,
+                sender: 'representative',
+                timestamp: Date.now()
+            });
+            
+            input.value = '';
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendAdminMessage();
+            }
+        }
+
+        function refreshChats() {
+            if (chatsRef) {
+                chatsRef.once('value', (snapshot) => {
+                    updateChatList(snapshot);
+                    updateStats(snapshot);
+                });
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('adminAuth');
+                sessionStorage.removeItem('adminAuth');
+                window.location.href = 'admin-login.html';
+            }
+        }
+
+        function checkAuthentication() {
+            const isAuth = localStorage.getItem('adminAuth') || sessionStorage.getItem('adminAuth');
+            if (isAuth !== 'true') {
+                window.location.href = 'admin-login.html';
+            }
+        }
+
+        function testDatabaseWrite() {
+            if (database) {
+                const testRef = database.ref('test');
+                testRef.set({
+                    message: 'Test message from admin',
+                    timestamp: Date.now()
+                }).then(() => {
+                    console.log('Test write successful');
+                    alert('Database write test successful! Check Firebase Console.');
+                }).catch((error) => {
+                    console.error('Test write failed:', error);
+                    alert('Database write failed: ' + error.message);
+                });
+            }
+        }
+
+        // ==========================================
+        // USER MANAGEMENT FUNCTIONS
+        // ==========================================
+
+        let usersRef;
+        let currentUserEmail = null;
+
+        function initUsers() {
+            if (!database) return;
+            usersRef = database.ref('users');
+            loadUsers();
+            
+            // Listen for user changes
+            usersRef.on('value', (snapshot) => {
+                updateUsersList(snapshot);
+                updateUserStats(snapshot);
+            });
+        }
+
+        function loadUsers() {
+            if (!usersRef) return;
+            usersRef.once('value', (snapshot) => {
+                updateUsersList(snapshot);
+                updateUserStats(snapshot);
+            });
+        }
+
+        function updateUsersList(snapshot) {
+            const usersList = document.getElementById('usersList');
+            const users = snapshot.val();
+            
+            if (!users) {
+                usersList.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <p>No registered users found</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            Object.keys(users).forEach(userId => {
+                const user = users[userId];
+                const isBlocked = user.blocked === true;
+                const statusClass = isBlocked ? 'blocked' : 'active';
+                const statusText = isBlocked ? 'Blocked' : 'Active';
+                const blockBtnClass = isBlocked ? 'btn-unblock' : 'btn-block';
+                const blockBtnText = isBlocked ? 'Unblock' : 'Block';
+                const blockAction = isBlocked ? `unblockUser('${userId}')` : `blockUser('${userId}')`;
+                
+                // Mask account number for admin (show only last 4 digits)
+                const accNum = user.accountNumber || 'Not Generated';
+                const maskedAcc = accNum !== 'Not Generated' ? '****' + accNum.slice(-4) : accNum;
+                
+                html += `
+                    <div class="user-item">
+                        <div class="user-info">
+                            <div class="user-name">${user.firstName || ''} ${user.lastName || ''}</div>
+                            <div class="user-email">${user.email || 'No email'}</div>
+                            <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem;">
+                                ${user.accountType || 'Unknown'} | Acc: ${maskedAcc} | Branch: ${user.branch || 'N/A'}
+                            </div>
+                        </div>
+                        <div class="user-meta">
+                            <span class="user-status ${statusClass}">${statusText}</span>
+                            <div class="user-actions">
+                                <button class="btn-action btn-email" onclick="openAccountModal('${userId}')">View Account</button>
+                                <button class="btn-action btn-reset" onclick="openPasswordModal('${user.email}', '${userId}')">Reset Password</button>
+                                <button class="btn-action ${blockBtnClass}" onclick="${blockAction}">${blockBtnText}</button>
+                                <button class="btn-action btn-email" onclick="openEmailModal('${user.email}')">Send Email</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            usersList.innerHTML = html;
+        }
+
+        function updateUserStats(snapshot) {
+            const users = snapshot.val();
+            if (!users) {
+                document.getElementById('totalUsers').textContent = '0';
+                document.getElementById('blockedUsers').textContent = '0';
+                return;
+            }
+            
+            const totalUsers = Object.keys(users).length;
+            let blockedCount = 0;
+            
+            Object.keys(users).forEach(userId => {
+                if (users[userId].blocked === true) {
+                    blockedCount++;
+                }
+            });
+            
+            document.getElementById('totalUsers').textContent = totalUsers;
+            document.getElementById('blockedUsers').textContent = blockedCount;
+        }
+
+        // Tab Switching
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                if (btn.getAttribute('onclick').includes(`'${tab}'`)) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tab + 'Tab').classList.add('active');
+            
+            // Update stat card highlighting
+            document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('active-tab-indicator'));
+            if (tab === 'chats') {
+                document.getElementById('cardActiveChats').classList.add('active-tab-indicator');
+                document.getElementById('cardTotalMessages').classList.add('active-tab-indicator');
+            } else if (tab === 'users') {
+                document.getElementById('cardTotalUsers').classList.add('active-tab-indicator');
+                document.getElementById('cardBlockedUsers').classList.add('active-tab-indicator');
+            }
+            
+            // Load data if switching to tab
+            if (tab === 'users') {
+                loadUsers();
+            } else if (tab === 'chats') {
+                refreshChats();
+            }
+        }
+
+        function refreshCurrentTab() {
+            // Determine which tab is active
+            const usersTab = document.getElementById('usersTab');
+            const chatsTab = document.getElementById('chatsTab');
+            
+            if (usersTab.classList.contains('active')) {
+                loadUsers();
+                alert('User list refreshed!');
+            } else if (chatsTab.classList.contains('active')) {
+                refreshChats();
+                alert('Chat sessions refreshed!');
+            }
+        }
+
+        // Block/Unblock User
+        function blockUser(userId) {
+            if (!confirm('Are you sure you want to block this user? They will not be able to login.')) return;
+            
+            usersRef.child(userId).update({ blocked: true })
+                .then(() => {
+                    alert('User has been blocked successfully.');
+                    // Send notification email
+                    usersRef.child(userId).once('value', (snapshot) => {
+                        const user = snapshot.val();
+                        if (user && user.email) {
+                            notifyUserBlocked(user.email, user.firstName);
+                        }
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error blocking user:', error);
+                    alert('Failed to block user: ' + error.message);
+                });
+        }
+
+        function unblockUser(userId) {
+            if (!confirm('Are you sure you want to unblock this user?')) return;
+            
+            usersRef.child(userId).update({ blocked: false })
+                .then(() => {
+                    alert('User has been unblocked successfully.');
+                })
+                .catch((error) => {
+                    console.error('Error unblocking user:', error);
+                    alert('Failed to unblock user: ' + error.message);
+                });
+        }
+
+        // Account View Functions
+        let currentAccountUserId = null;
+
+        function openAccountModal(userId) {
+            currentAccountUserId = userId;
+            document.getElementById('accountModal').classList.add('active');
+            loadAccountDetails(userId);
+        }
+
+        function closeAccountModal() {
+            document.getElementById('accountModal').classList.remove('active');
+            currentAccountUserId = null;
+        }
+
+        function loadAccountDetails(userId) {
+            // Load user account data
+            usersRef.child(userId).once('value', (snapshot) => {
+                const user = snapshot.val();
+                if (user) {
+                    document.getElementById('accountType').textContent = user.accountType || 'Savings';
+                    document.getElementById('accountBalance').textContent = 'GH₵' + formatMoney(user.balance || 0);
+                    // Mask account number (show only last 4 digits)
+                    const accNum = user.accountNumber || 'Not Available';
+                    const maskedAcc = accNum !== 'Not Available' ? '****' + accNum.slice(-4) : accNum;
+                    document.getElementById('accountNumber').textContent = maskedAcc;
+                }
+            });
+
+            // Load transactions
+            const transactionsRef = database.ref('transactions/' + userId);
+            transactionsRef.once('value', (snapshot) => {
+                const transactions = snapshot.val();
+                displayTransactions(transactions);
+            });
+        }
+
+        function formatMoney(amount) {
+            return parseFloat(amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        function displayTransactions(transactions) {
+            const list = document.getElementById('transactionsList');
+            
+            if (!transactions) {
+                list.innerHTML = `
+                    <div class="empty-state" style="padding: 2rem;">
+                        <p>No transactions found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div style="display: flex; flex-direction: column; gap: 0.5rem;">';
+            
+            Object.keys(transactions).sort().reverse().forEach(key => {
+                const t = transactions[key];
+                const isCredit = t.type === 'credit' || t.amount > 0;
+                const color = isCredit ? '#10b981' : '#dc2626';
+                const sign = isCredit ? '+' : '-';
+                
+                html += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #f8fafc; border-radius: 6px; border-left: 3px solid ${color};">
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 0.9rem;">${t.description || 'Transaction'}</div>
+                            <div style="font-size: 0.75rem; color: #94a3b8;">${new Date(t.timestamp).toLocaleString()}</div>
+                        </div>
+                        <div style="font-weight: 700; color: ${color}; font-size: 1rem;">
+                            ${sign}GH₵${formatMoney(Math.abs(t.amount))}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            list.innerHTML = html;
+        }
+
+        // Password Reset
+        let currentResetUserId = null;
+
+        function openPasswordModal(email, userId) {
+            currentResetUserId = userId;
+            document.getElementById('resetEmail').value = email;
+            document.getElementById('newPassword').value = '';
+            document.getElementById('passwordModal').classList.add('active');
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').classList.remove('active');
+            currentResetUserId = null;
+        }
+
+        function confirmPasswordReset() {
+            const newPassword = document.getElementById('newPassword').value.trim();
+            const email = document.getElementById('resetEmail').value;
+            
+            if (!newPassword || newPassword.length < 6) {
+                alert('Password must be at least 6 characters long.');
+                return;
+            }
+            
+            usersRef.child(currentResetUserId).update({ password: newPassword })
+                .then(() => {
+                    alert('Password has been reset successfully. The user will be notified via email.');
+                    closePasswordModal();
+                    // Send password reset notification email
+                    notifyPasswordReset(email, newPassword);
+                })
+                .catch((error) => {
+                    console.error('Error resetting password:', error);
+                    alert('Failed to reset password: ' + error.message);
+                });
+        }
+
+        // Email Functions
+        function openEmailModal(email) {
+            currentUserEmail = email;
+            document.getElementById('emailTo').value = email;
+            document.getElementById('emailSubject').value = '';
+            document.getElementById('emailBody').value = '';
+            document.getElementById('emailModal').classList.add('active');
+        }
+
+        function closeEmailModal() {
+            document.getElementById('emailModal').classList.remove('active');
+            currentUserEmail = null;
+        }
+
+        async function sendEmailToUser() {
+            const to = document.getElementById('emailTo').value;
+            const subject = document.getElementById('emailSubject').value.trim();
+            const body = document.getElementById('emailBody').value.trim();
+            
+            if (!subject || !body) {
+                alert('Please enter both subject and message.');
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/send-custom-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        to: to,
+                        subject: subject,
+                        body: body
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Email sent successfully!');
+                    closeEmailModal();
+                } else {
+                    alert('Failed to send email: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error sending email:', error);
+                alert('Failed to send email. Please check if the server is running.');
+            }
+        }
+
+        // Notification Emails
+        async function notifyPasswordReset(email, newPassword) {
+            try {
+                await fetch('http://localhost:3000/api/send-custom-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        to: email,
+                        subject: 'Your GhanaTrust Bank Password Has Been Reset',
+                        body: `Dear Valued Customer,\n\nYour password has been reset by the administrator.\n\nYour new password is: ${newPassword}\n\nFor security reasons, please login and change your password immediately.\n\nIf you did not request this change, please contact our support team immediately at support@ghanatrustbank.com or call 030 221 2222.\n\nBest regards,\nGhanaTrust Bank Team`
+                    })
+                });
+            } catch (error) {
+                console.error('Error sending password reset notification:', error);
+            }
+        }
+
+        async function notifyUserBlocked(email, firstName) {
+            try {
+                await fetch('http://localhost:3000/api/send-custom-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        to: email,
+                        subject: 'Important: Your GhanaTrust Bank Account Has Been Suspended',
+                        body: `Dear ${firstName || 'Valued Customer'},\n\nWe regret to inform you that your GhanaTrust Bank account has been temporarily suspended due to security concerns or policy violations.\n\nTo resolve this issue, please contact our support team immediately:\n\n• Email: support@ghanatrustbank.com\n• Phone: 030 221 2222\n• Visit any of our branches\n\nWe apologize for any inconvenience caused.\n\nBest regards,\nGhanaTrust Bank Security Team`
+                    })
+                });
+            } catch (error) {
+                console.error('Error sending block notification:', error);
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuthentication();
+            initFirebase();
+            // Initialize users after a short delay to ensure Firebase is ready
+            setTimeout(initUsers, 1000);
+        });
+    </script>
+</body>
+</html>

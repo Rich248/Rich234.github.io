@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Banking for Your Future - GhanaTrust Bank</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Service Card SVG Icon Styling */
+        .service-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .service-icon:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(30, 58, 138, 0.4);
+        }
+        
+        .service-icon svg {
+            width: 40px;
+            height: 40px;
+            color: white;
+            stroke: white;
+        }
+        
+        /* Slider Dots */
+        .slider-dots {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 12px;
+            border-radius: 20px;
+            -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
+        }
+        
+        .slider-dot {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .slider-dot:hover {
+            background: rgba(30, 58, 138, 0.5) !important;
+            transform: scale(1.3) !important;
+        }
+        .nav-logo{ color:
+            rgba(15, 48, 139, 0.671) ;}
+    </style>
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <a href="index.html" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: inherit;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="40" height="40">
+                            <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <h1 style="margin: 0;">GhanaTrust Bank</h1>
+                    </a>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="index.html" class="nav-link active">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="checking-account.html" class="nav-link">Checking</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="savings-account.html" class="nav-link">Savings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="business-account.html" class="nav-link">Business</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="account-info.html" class="nav-link">Learn More</a>
+                    </li>
+                </ul>
+                <div class="hamburger">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">Secure Banking for Your Future</h1>
+                <p class="hero-subtitle">Experience modern banking solutions tailored to your needs. Trusted by thousands across Ghana.</p>
+                <div class="hero-buttons">
+                    <a href="account-opening-new.html" class="btn btn-primary btn-large">Open Account</a>
+                    <a href="customer-login.html" class="btn btn-secondary btn-large">Login</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="hero-image-container">
+                    <div class="hero-slider">
+                        <img src="lady with tablet.jpg" alt="GhanaTrust Bank Professional Banking Services">
+                        <img src="https://media.istockphoto.com/id/1369041805/photo/hand-holding-3d-rendered-stack-of-ghanaian-cedi-notes-isolated-on-white-background.jpg?s=612x612&w=0&k=20&c=0CqneK4VTzmjcU2OC-56kaXXa2VCPHxQFRN3gUJ47zU=" alt="GhanaTrust Bank Professional Banking Services">
+                        <img src="https://milelion.com/wp-content/uploads/2022/10/trust-bank-image.jpg" alt="GhanaTrust Bank Professional Banking Services">
+                        <img src="growing-plant.png" alt="GhanaTrust Bank Professional Banking Services">
+                        <img src="happy guy.jpg" alt="GhanaTrust Bank Professional Banking Services">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="services">
+        <div class="container">
+            <div class="section-header">
+                <h2>Our Services</h2>
+                <p>Comprehensive banking solutions for individuals and businesses across Ghana</p>
+            </div>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <h3>Personal Banking</h3>
+                    <p>Checking accounts, savings accounts, and personal loans with competitive rates.</p>
+                    <a href="checking-account.html" class="service-link">Learn More &#8594;</a>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                    </div>
+                    <h3>Business Banking</h3>
+                    <p>Merchant services, business loans, and cash management solutions for Ghanaian businesses.</p>
+                    <a href="business-account.html" class="service-link">Learn More &#8594;</a>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+                        </svg>
+                    </div>
+                    <h3>Savings Account</h3>
+                    <p>High-yield savings accounts with up to 15% annual interest and flexible terms.</p>
+                    <a href="savings-account.html" class="service-link">Learn More &#8594;</a>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="20" x2="12" y2="10"></line>
+                            <line x1="18" y1="20" x2="18" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="16"></line>
+                        </svg>
+                    </div>
+                    <h3>Investment Services</h3>
+                    <p>Wealth management, retirement planning, and investment advisory services.</p>
+                    <a href="investment-services.html" class="service-link">Learn More &#8594;</a>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                        </svg>
+                    </div>
+                    <h3>Digital Banking</h3>
+                    <p>24/7 online and mobile banking with advanced security features and mobile money integration.</p>
+                    <a href="digital-banking.html" class="service-link">Learn More &#8594;</a>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                            <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                        </svg>
+                    </div>
+                    <h3>Student Banking</h3>
+                    <p>Special accounts and loans designed for students and young professionals in Ghana.</p>
+                    <a href="student-banking.html" class="service-link">Learn More &#8594;</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>Why Choose GhanaTrust Bank?</h2>
+                    <p>With over 20 years of excellence in Ghanaian banking, we've built our reputation on trust, security, and customer satisfaction.</p>
+                    <div class="stats">
+                        <div class="stat">
+                            <h3>500K+</h3>
+                            <p>Happy Customers</p>
+                        </div>
+                        <div class="stat">
+                            <h3>100+</h3>
+                            <p>Branches Nationwide</p>
+                        </div>
+                        <div class="stat">
+                            <h3>GH¢10B+</h3>
+                            <p>Assets Under Management</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-features">
+                    <div class="feature">
+                        <h4> Bank-Level Security</h4>
+                        <p>Advanced encryption and fraud protection systems</p>
+                    </div>
+                    <div class="feature">
+                        <h4> 24/7 Support</h4>
+                        <p>Round-the-clock customer service via phone, chat, and email</p>
+                    </div>
+                    <div class="feature">
+                        <h4>Global Network</h4>
+                        <p>Access your accounts from anywhere in the world</p>
+                    </div>
+                    <div class="feature">
+                        <h4>Competitive Rates</h4>
+                        <p>Best-in-market interest rates and low fees</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="section-header">
+                <h2>Get in Touch</h2>
+                <p>Have questions? We're here to help you achieve your financial goals</p>
+            </div>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <h4>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px; color: #3b82f6;">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                            </svg>
+                            Call Us
+                        </h4>
+                        <p>030 221 2222<br>024 123 4567</p>
+                    </div>
+                    <div class="contact-item">
+                        <h4>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px; color: #3b82f6;">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                            Email Us
+                        </h4>
+                        <p>info@ghanatrustbank.com<br>support@ghanatrustbank.com</p>
+                    </div>
+                    <div class="contact-item">
+                        <h4>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px; color: #3b82f6;">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            Visit Us
+                        </h4>
+                        <p>Ring Road Central<br>Accra, Ghana</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Trust Bank</h3>
+                    <p>Your trusted banking partner in Ghana. Serving communities with excellence and integrity since 2026.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="account-opening-new.html">Open Account</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="services.html">All Services</a></li>
+                        <li><a href="checking-account.html">Checking Account</a></li>
+                        <li><a href="savings-account.html">Savings Account</a></li>
+                        <li><a href="business-account.html">Business Account</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect With Us</h4>
+                    <ul>
+                        <li><a href="https://facebook.com" target="_blank">Facebook</a></li>
+                        <li><a href="https://twitter.com" target="_blank">Twitter</a></li>
+                        <li><a href="https://instagram.com" target="_blank">Instagram</a></li>
+                        <li><a href="https://linkedin.com" target="_blank">LinkedIn</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="terms-of-service.html">Terms of Service</a></li>
+                        <li><a href="bank-of-ghana-info.html">Bank of Ghana Information</a></li>
+                        <li><a href="security.html">Security</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>About</h4>
+                    <ul>
+                        <li><a href="about-us.html">About Us</a></li>
+                        <li><a href="branches.html">Branch Locations</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="financial-education.html">Financial Education</a></li>
+                        <li><a href="calculators.html">Calculators</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 GhanaTrust Bank. All rights reserved. Bank of Ghana regulated. Member of Ghana Association of Banks.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="slider.js"></script>
+    <script>
+        // Cookie Consent Management
+        function setCookie(name, value, days) {
+            const expires = new Date(Date.now() + days * 864e5).toUTCString();
+            document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/; SameSite=Lax';
+        }
+
+        function getCookie(name) {
+            return document.cookie.split('; ').reduce((r, v) => {
+                const parts = v.split('=');
+                return parts[0] === name ? decodeURIComponent(parts[1]) : r;
+            }, '');
+        }
+
+        function acceptCookies() {
+            setCookie('cookieConsent', 'accepted', 365);
+            document.getElementById('cookieBanner').style.display = 'none';
+        }
+
+        function rejectCookies() {
+            setCookie('cookieConsent', 'rejected', 365);
+            document.getElementById('cookieBanner').style.display = 'none';
+        }
+
+        // Show cookie banner if not yet consented
+        if (!getCookie('cookieConsent')) {
+            document.addEventListener('DOMContentLoaded', function() {
+                const banner = document.getElementById('cookieBanner');
+                if (banner) banner.style.display = 'flex';
+            });
+        }
+    </script>
+
+    <!-- Cookie Consent Banner -->
+    <div id="cookieBanner" style="display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #1e293b; color: white; padding: 1rem 2rem; z-index: 1000; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+        <div style="flex: 1; min-width: 250px;">
+            <p style="margin: 0; font-size: 0.9rem;">We use cookies to enhance your experience. By continuing to visit this site you agree to our use of cookies.</p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+            <button onclick="acceptCookies()" style="background: #3b82f6; color: white; border: none; padding: 0.5rem 1.5rem; border-radius: 6px; cursor: pointer; font-weight: 500;">Accept</button>
+            <button onclick="rejectCookies()" style="background: transparent; color: white; border: 1px solid #64748b; padding: 0.5rem 1.5rem; border-radius: 6px; cursor: pointer; font-weight: 500;">Decline</button>
+        </div>
+    </div>
+
+    <!-- Floating Live Chat Button -->
+    <a href="#" onclick="openChatModal(); return false;" style="position: fixed; bottom: 100px; right: 20px; background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; padding: 1rem 1.5rem; border-radius: 50px; text-decoration: none; font-weight: 600; box-shadow: 0 4px 15px rgba(30, 58, 138, 0.4); display: flex; align-items: center; gap: 0.5rem; z-index: 999; transition: transform 0.3s ease, box-shadow 0.3s ease;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(30, 58, 138, 0.5)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(30, 58, 138, 0.4)';">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <span>Start Live Chat</span>
+    </a>
+
+    <!-- Chat Modal -->
+    <div class="chat-modal" id="chatModal">
+        <div class="chat-content">
+            <div class="chat-header">
+                <h3>Chat with Ghana Trust Bank</h3>
+                <button class="close-chat" onclick="closeChat()">&times;</button>
+            </div>
+            <div class="chat-status">● Online - Representative Available</div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message representative">
+                    <div class="message-bubble">Hello! Welcome to Ghana Trust Bank. How can I help you today?</div>
+                    <div class="message-time">Just now</div>
+                </div>
+            </div>
+            <div class="typing-indicator" id="typingIndicator">Representative is typing...</div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)" oninput="handleTyping()">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes modalSlide {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Chat Modal Styles */
+        .chat-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-modal.active {
+            display: flex;
+        }
+
+        .chat-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .chat-header h3 {
+            margin: 0;
+            color: #1e293b;
+        }
+
+        .close-chat {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            background: #f8fafc;
+            min-height: 300px;
+            max-height: 400px;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message.user {
+            align-items: flex-end;
+        }
+
+        .message.representative {
+            align-items: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .message.user .message-bubble {
+            background: #3b82f6;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.representative .message-bubble {
+            background: white;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 0.25rem;
+        }
+
+        .chat-input-area {
+            padding: 1rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .chat-input-area input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .chat-input-area button {
+            padding: 0.75rem 1.5rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .chat-input-area button:hover {
+            background: #2563eb;
+        }
+
+        .chat-status {
+            padding: 0.5rem 1rem;
+            background: #ecfdf5;
+            color: #10b981;
+            font-size: 0.8rem;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 0.5rem 1rem;
+            color: #64748b;
+            font-size: 0.8rem;
+            font-style: italic;
+        }
+
+        .typing-indicator.active {
+            display: block;
+        }
+    </style>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        function openChatModal() {
+            document.getElementById('chatModal').classList.add('active');
+            initFirebase();
+        }
+
+        function closeChat() {
+            document.getElementById('chatModal').classList.remove('active');
+            localStorage.removeItem('chatSessionId');
+            currentChatId = null;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function handleTyping() {
+            // Optional: Send typing indicator to Firebase
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message to UI
+            addMessage(message, 'user');
+            input.value = '';
+            
+            // Try to send via Firebase
+            if (database && chatRef) {
+                const newMessageRef = chatRef.push();
+                newMessageRef.set({
+                    text: message,
+                    sender: 'user',
+                    timestamp: Date.now()
+                });
+                console.log('Message sent to Firebase:', currentChatId);
+            } else {
+                // Fallback to simulated response
+                simulateResponse(message);
+            }
+        }
+
+        function addMessage(text, sender) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            messageDiv.innerHTML = `
+                <div class="message-bubble">${text}</div>
+                <div class="message-time">${time}</div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function simulateResponse(userMessage) {
+            const typingIndicator = document.getElementById('typingIndicator');
+            typingIndicator.classList.add('active');
+            
+            // Simulate typing delay
+            setTimeout(() => {
+                typingIndicator.classList.remove('active');
+                
+                // Simple response logic based on keywords
+                let response = '';
+                const lowerMessage = userMessage.toLowerCase();
+                
+                if (lowerMessage.includes('account') || lowerMessage.includes('open')) {
+                    response = "I'd be happy to help you open an account! We offer Personal Checking, Personal Savings, Business Starter, Student, Investment Services, and Digital Banking accounts. Which type interests you?";
+                } else if (lowerMessage.includes('checking')) {
+                    response = "Our Personal Checking account has GH¢0 minimum balance, comes with a free Visa Debit Card, and has no monthly maintenance fee. Would you like to proceed with opening one?";
+                } else if (lowerMessage.includes('savings')) {
+                    response = "Our Personal Savings account offers competitive 5% APY, automatic savings tools, and free digital statements. The minimum opening deposit is GH₵200.";
+                } else if (lowerMessage.includes('business')) {
+                    response = "Our Business Starter account is perfect for local businesses with low transaction costs, a mobile merchant portal, and dedicated support line. Minimum deposit is GH₵500.";
+                } else if (lowerMessage.includes('student')) {
+                    response = "Our Student Account is designed for students with GH¢0 minimum balance, free student debit card, and no monthly fees. Perfect for young professionals!";
+                } else if (lowerMessage.includes('branch') || lowerMessage.includes('location')) {
+                    response = "We have 15 branches across Ghana including Accra Central, Kumasi, Takoradi, Tamale, Cape Coast, Sunyani, and Ho. Would you like me to help you find the nearest one?";
+                } else if (lowerMessage.includes('document') || lowerMessage.includes('id')) {
+                    response = "To open an account, you'll need a valid Ghana Card or government-issued photo ID, your Ghana Card Number, proof of address with digital address, and initial deposit information.";
+                } else if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+                    response = "Hello! Welcome to Ghana Trust Bank. I'm here to help you with account opening, banking services, or any questions you may have. How can I assist you today?";
+                } else {
+                    response = "Thank you for your message. I'm here to help with account opening, banking services, and general inquiries. Could you please provide more details about what you need assistance with?";
+                }
+                
+                addMessage(response, 'representative');
+            }, 1500);
+        }
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBC6abatrIxH9gFaXQx8Q4gDdu59dU1U8E",
+            authDomain: "live-chat-61efd.firebaseapp.com",
+            databaseURL: "https://live-chat-61efd-default-rtdb.firebaseio.com",
+            projectId: "live-chat-61efd",
+            storageBucket: "live-chat-61efd.firebasestorage.app",
+            messagingSenderId: "1059519432349",
+            appId: "1:1059519432349:web:a40c6fee6357651c6af674",
+            measurementId: "G-W8CFYEYHJ4"
+        };
+
+        // Initialize Firebase
+        let database;
+        let chatRef;
+        let currentChatId = null;
+
+        function initFirebase() {
+            try {
+                // Check if Firebase is already initialized
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                database = firebase.database();
+                
+                // Generate or retrieve chat session ID
+                currentChatId = localStorage.getItem('chatSessionId');
+                if (!currentChatId) {
+                    currentChatId = 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    localStorage.setItem('chatSessionId', currentChatId);
+                }
+                
+                console.log('Chat session ID:', currentChatId);
+                
+                chatRef = database.ref('chats/' + currentChatId + '/messages');
+                
+                // Listen for new messages
+                chatRef.on('child_added', (snapshot) => {
+                    const message = snapshot.val();
+                    console.log('New message received:', message);
+                    if (message.sender !== 'user') {
+                        addMessage(message.text, 'representative');
+                    }
+                });
+                
+                console.log('Firebase initialized successfully');
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                // Fall back to simulated responses if Firebase fails
+                console.log('Using simulated chat responses');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Account | GhanaTrust Bank</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-dark: #1e3a8a;
+            --secondary: #3b82f6;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --bg-light: #f8fafc;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            background-color: var(--bg-light);
+            line-height: 1.5;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* --- Animated Backdrop Image --- */
+        .page-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .page-backdrop::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(30, 58, 138, 0.88) 100%);
+            z-index: 1;
+        }
+
+        .backdrop-img {
+            width: 110%;
+            height: 110%;
+            object-fit: cover;
+            position: absolute;
+            top: -5%;
+            left: -5%;
+            filter: blur(1px);
+            animation: backdropFloat 30s infinite alternate ease-in-out;
+        }
+
+        @keyframes backdropFloat {
+            0% { transform: scale(1) translate(0, 0); }
+            100% { transform: scale(1.1) translate(-2%, -2%); }
+        }
+
+        /* --- Global Components --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* --- Header --- */
+        .header {
+            background: var(--white);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .logo svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            padding: 4rem 0;
+            text-align: center;
+            color: var(--white);
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .hero p {
+            font-size: 1.125rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* --- Progress Bar --- */
+        .progress-container {
+            margin: -2rem auto 3rem;
+            max-width: 800px;
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .progress-steps::before {
+            content: "";
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e2e8f0;
+            z-index: 1;
+        }
+
+        .step-item {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--white);
+            border: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s;
+            color: var(--text-muted);
+        }
+
+        .step-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .step-item.active .step-circle {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .step-item.active .step-label {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .step-item.completed .step-circle {
+            background: var(--success);
+            border-color: var(--success);
+            color: var(--white);
+        }
+
+        /* --- Main Form Area --- */
+        .application-area {
+            max-width: 900px;
+            margin: 0 auto 5rem;
+        }
+
+        /* --- Account Selection --- */
+        .account-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .account-card {
+            background: var(--white);
+            border: 2px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .account-card:hover {
+            border-color: var(--secondary);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+
+        .account-card.selected {
+            border-color: var(--primary);
+            background: #f0f7ff;
+        }
+
+        .account-card.selected::after {
+            content: "✓";
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 24px;
+            height: 24px;
+            background: var(--primary);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        .account-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .account-card .features {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .account-card .features li {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .account-card .features li::before {
+            content: "•";
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        /* --- Upload Styling --- */
+        .upload-container {
+            border: 2px dashed #cbd5e1;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            text-align: center;
+            background: var(--bg-light);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upload-container:hover {
+            border-color: var(--primary);
+            background: #f1f5f9;
+        }
+
+        .upload-preview {
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: 1rem;
+            border-radius: 0.5rem;
+            display: none;
+        }
+
+        /* --- Review Table --- */
+        .review-section {
+            background: var(--bg-light);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .review-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .review-row:last-child {
+            border-bottom: none;
+        }
+
+        .review-label {
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .review-value {
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        /* --- Application Form --- */
+        .form-panel {
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 3rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .form-panel.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
+
+        /* --- Buttons --- */
+        .btn-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+            border: 1px solid transparent;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border-color: #cbd5e1;
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            background: #f1f5f9;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* --- Success Modal --- */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-body {
+            background: var(--white);
+            border-radius: 1.5rem;
+            padding: 3rem;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+        }
+
+        .success-circle {
+            width: 72px;
+            height: 72px;
+            background: #ecfdf5;
+            color: var(--success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 1.5rem;
+        }
+
+        .ref-box {
+            background: var(--bg-light);
+            border: 1px dashed var(--primary);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .ref-number {
+            font-family: monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 2px;
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 2rem; }
+            .progress-steps .step-label { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+        <div class="page-backdrop">
+            <img src="cdbf0c3497551b26e9101fdc88932b72.jpg" class="backdrop-img" alt="">
+        </div>
+
+        <header class="header">
+            <div class="container header-content">
+                <a href="index.html" class="logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                    <span>GhanaTrust Bank</span>
+                </a>
+                <div class="secure-tag">
+                    <a href="index.html" style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--text-muted); font-size: 0.875rem; padding: 0.5rem 1rem; border: 1px solid var(--border-color); border-radius: 0.5rem; transition: all 0.3s ease;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        <span>Back to Home</span>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <section class="hero">
+            <div class="container">
+                <h1>Let's get your account started</h1>
+                <p>Join the GhanaTrust family in just a few minutes. Fast, secure, and entirely digital.</p>
+            </div>
+        </section>
+
+        <div class="container">
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <div class="progress-steps">
+                    <div class="step-item active" id="step-1-indicator">
+                        <div class="step-circle">1</div>
+                        <div class="step-label">Product</div>
+                    </div>
+                    <div class="step-item" id="step-2-indicator">
+                        <div class="step-circle">2</div>
+                        <div class="step-label">Personal info</div>
+                    </div>
+                    <div class="step-item" id="step-3-indicator">
+                        <div class="step-circle">3</div>
+                        <div class="step-label">Verification</div>
+                    </div>
+                    <div class="step-item" id="step-4-indicator">
+                        <div class="step-circle">4</div>
+                        <div class="step-label">Review</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="application-area">
+                <!-- Step 1: Account Selection -->
+                <div class="form-panel active" id="step-1">
+                    <h2 style="margin-bottom: 2rem; text-align: center;">Choose your account type</h2>
+                    <div class="account-options">
+                        <div class="account-card" onclick="setAccount('Personal Checking')">
+                            <h3>Personal Checking</h3>
+                            <p>Best for daily transactions.</p>
+                            <ul class="features">
+                                <li>GH¢0 Minimum Balance</li>
+                                <li>Free Visa Debit Card</li>
+                                <li>No Monthly Maintenance Fee</li>
+                            </ul>
+                        </div>
+                        <div class="account-card" onclick="setAccount('Personal Savings')">
+                            <h3>Personal Savings</h3>
+                            <p>Build your wealth with high interest.</p>
+                            <ul class="features">
+                                <li>Competitive 5% APY</li>
+                                <li>Automatic Savings Tools</li>
+                                <li>Free Digital Statements</li>
+                            </ul>
+                        </div>
+                        <div class="account-card" onclick="setAccount('Business Starter')">
+                            <h3>Business Starter</h3>
+                            <p>Empower your local business.</p>
+                            <ul class="features">
+                                <li>Low Transaction Costs</li>
+                                <li>Mobile Merchant Portal</li>
+                                <li>Dedicated Support Line</li>
+                            </ul>
+                        </div>
+                        <div class="account-card" onclick="setAccount('Student Account')">
+                            <h3>Student Account</h3>
+                            <p>Perfect for students and young professionals.</p>
+                            <ul class="features">
+                                <li>GH¢0 Minimum Balance</li>
+                                <li>Free Student Debit Card</li>
+                                <li>No Monthly Fees</li>
+                            </ul>
+                        </div>
+                        <div class="account-card" onclick="setAccount('Investment Services')">
+                            <h3>Investment Services</h3>
+                            <p>Grow your wealth with expert investment solutions.</p>
+                            <ul class="features">
+                                <li>Professional Portfolio Management</li>
+                                <li>Mutual Funds & Treasury Bills</li>
+                                <li>Investment Advisory Services</li>
+                            </ul>
+                        </div>
+                        <div class="account-card" onclick="setAccount('Digital Banking')">
+                            <h3>Digital Banking</h3>
+                            <p>Bank anytime, anywhere with our digital platform.</p>
+                            <ul class="features">
+                                <li>Mobile Banking App</li>
+                                <li>Online Bill Payments</li>
+                                <li>Instant Fund Transfers</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="btn-row">
+                        <span></span>
+                        <button class="btn btn-primary" id="btn-next-1" disabled onclick="nextStep(2)">Continue</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Personal Details -->
+                <div class="form-panel" id="step-2">
+                    <h2 style="margin-bottom: 2rem;">Tell us about yourself</h2>
+                    <form id="personalForm" onsubmit="event.preventDefault(); validateStep2();">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>First Name</label>
+                                <input type="text" id="firstName" placeholder="John" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name</label>
+                                <input type="text" id="lastName" placeholder="Doe" required>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>Email Address</label>
+                                <input type="email" id="email" placeholder="john.doe@example.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input type="password" id="password" placeholder="Create a password" oninput="checkPasswordStrength(this.value)" required>
+                                <div id="passwordStrength" style="margin-top: 0.5rem; font-size: 0.875rem; font-weight: 500;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Confirm Password</label>
+                                <input type="password" id="confirmPassword" placeholder="Confirm your password" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Phone Number</label>
+                                <input type="tel" id="phone" placeholder="+233 XX XXX XXXX" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Preferred Branch</label>
+                                <select id="branch" required>
+                                    <option value="" disabled selected>Select a branch</option>
+                                    <option value="Accra Central">Accra Central</option>
+                                    <option value="Airport Residential">Airport Residential</option>
+                                    <option value="East Legon">East Legon</option>
+                                    <option value="Spintex Road">Spintex Road</option>
+                                    <option value="Madina">Madina</option>
+                                    <option value="Tema Community 1">Tema Community 1</option>
+                                    <option value="Kumasi Adum">Kumasi Adum</option>
+                                    <option value="Kumasi City">Kumasi City</option>
+                                    <option value="Takoradi Port">Takoradi Port</option>
+                                    <option value="Takoradi Market Circle">Takoradi Market Circle</option>
+                                    <option value="Tamale High Street">Tamale High Street</option>
+                                    <option value="Tamale Central">Tamale Central</option>
+                                    <option value="Cape Coast Main">Cape Coast Main</option>
+                                    <option value="Sunyani Central">Sunyani Central</option>
+                                    <option value="Ho Central">Ho Central</option>
+                                </select>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>GPS Digital Address</label>
+                                <input type="text" id="gpsAddress" placeholder="GP-XXX-XXXX" maxlength="11" oninput="formatGPS(this)" required>
+                                <small style="color: var(--text-muted); font-size: 0.75rem;">Format: GP-XXX-XXXX (e.g., GP-123-4567)</small>
+                            </div>
+                        </div>
+                        <div class="btn-row">
+                            <button type="button" class="btn btn-outline" onclick="prevStep(1)">Back</button>
+                            <button type="button" class="btn btn-primary" onclick="validateStep2()">Continue</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Step 3: Identity Verification -->
+                <div class="form-panel" id="step-3">
+                    <h2 style="margin-bottom: 1.5rem;">Verify your identity</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 2rem;">Please provide your identification details and upload a passport-sized photo.</p>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Identification Type</label>
+                            <select id="idType" onchange="updateIdPlaceholder()">
+                                <option value="ghana-card">Ghana Card (Recommended)</option>
+                                <option value="voter-id">Voter ID</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>ID Card Number</label>
+                            <input type="text" id="idNumber" placeholder="GHA-XXXXXXXXX-X" maxlength="15" oninput="formatIdNumber(this)" required>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Passport Photo</label>
+                            <div class="upload-container" onclick="document.getElementById('photoInput').click()">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 1rem; color: var(--text-muted);">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                                <p>Click to upload or drag and drop</p>
+                                <p style="font-size: 0.75rem; color: var(--text-muted);">JPG or PNG, max 2MB</p>
+                                <input type="file" id="photoInput" hidden accept="image/*" onchange="handlePhotoUpload(this)">
+                                <img id="photoPreview" class="upload-preview" alt="Preview">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-row">
+                        <button type="button" class="btn btn-outline" onclick="prevStep(2)">Back</button>
+                        <button type="button" class="btn btn-primary" onclick="validateStep3()">Continue to Review</button>
+                    </div>
+                </div>
+
+            <!-- Step 4: Review -->
+            <div class="form-panel" id="step-4">
+                <h2 style="margin-bottom: 1.5rem;">Review your application</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Please double-check your details before final submission.</p>
+
+                <div class="review-section">
+                    <div class="review-row">
+                        <span class="review-label">Account Type</span>
+                        <span class="review-value" id="rev-account"></span>
+                    </div>
+                    <div class="review-row">
+                        <span class="review-label">Full Name</span>
+                        <span class="review-value" id="rev-name"></span>
+                    </div>
+                    <div class="review-row">
+                        <span class="review-label">Email</span>
+                        <span class="review-value" id="rev-email"></span>
+                    </div>
+                    <div class="review-row">
+                        <span class="review-label">Phone</span>
+                        <span class="review-value" id="rev-phone"></span>
+                    </div>
+                    <div class="review-row">
+                        <span class="review-label">Branch</span>
+                        <span class="review-value" id="rev-branch"></span>
+                    </div>
+                    <div class="review-row">
+                        <span class="review-label">GPS Address</span>
+                        <span class="review-value" id="rev-gps"></span>
+                    </div>
+                    <div class="review-row">
+                        <span class="review-label">ID Type</span>
+                        <span class="review-value" id="rev-idtype"></span>
+                    </div>
+                    <div class="review-row" style="border-bottom: none;">
+                        <span class="review-label">ID Number</span>
+                        <span class="review-value" id="rev-idnumber"></span>
+                    </div>
+                </div>
+
+                <label style="display: flex; gap: 1rem; align-items: flex-start; cursor: pointer; margin-bottom: 1.5rem;">
+                    <input type="checkbox" id="terms" style="width: auto; margin-top: 4px;">
+                    <span style="font-size: 0.875rem; color: var(--text-muted);">I confirm that all provided information is accurate and I agree to the <a href="terms-of-service.html" style="color: var(--primary);">Terms and Conditions</a> of GhanaTrust Bank.</span>
+                </label>
+
+                <div class="btn-row">
+                    <button type="button" class="btn btn-outline" onclick="prevStep(3)">Back</button>
+                    <button type="button" class="btn btn-primary" id="submitBtn" onclick="submitApplication()">Confirm & Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal" id="successModal">
+        <div class="modal-body">
+            <div class="success-circle">✓</div>
+            <h2>Application Received!</h2>
+            <p style="color: var(--text-muted); margin-top: 1rem;">Thank you for choosing GhanaTrust Bank. We've sent a confirmation email to <strong id="displayEmail"></strong>.</p>
+            
+            <div class="ref-box">
+                <span style="font-size: 0.75rem; color: var(--text-muted);">REFERENCE NUMBER</span><br>
+                <span class="ref-number" id="refNumber">GTB-XXXXXX</span>
+            </div>
+
+            <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 2rem;">Our verification team will review your application within 24 hours.</p>
+            
+            <button class="btn btn-primary" style="width: 100%;" onclick="window.location.href='index.html'">Go to Home</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBC6abatrIxH9gFaXQx8Q4gDdu59dU1U8E",
+            authDomain: "live-chat-61efd.firebaseapp.com",
+            databaseURL: "https://live-chat-61efd-default-rtdb.firebaseio.com",
+            projectId: "live-chat-61efd",
+            storageBucket: "live-chat-61efd.firebasestorage.app",
+            messagingSenderId: "1059519432349",
+            appId: "1:1059519432349:web:a40c6fee6357651c6af674",
+            measurementId: "G-W8CFYEYHJ4"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Initialize EmailJS - REPLACE WITH YOUR EMAILJS CREDENTIALS
+        // Get these from https://www.emailjs.com/
+        emailjs.init("TU6Bjt38GuhTyp7TC");
+
+        let selectedAccount = "";
+
+        function setAccount(type) {
+            selectedAccount = type;
+            document.querySelectorAll('.account-card').forEach(card => {
+                card.classList.remove('selected');
+                if (card.querySelector('h3').innerText === type) {
+                    card.classList.add('selected');
+                }
+            });
+            document.getElementById('btn-next-1').disabled = false;
+        }
+
+        function updateIdPlaceholder() {
+            const type = document.getElementById('idType').value;
+            const input = document.getElementById('idNumber');
+            
+            if (type === 'ghana-card') {
+                input.placeholder = "GHA-XXXXXXXXX-X";
+            } else if (type === 'voter-id') {
+                input.placeholder = "10-digit Voter ID Number";
+            }
+        }
+
+        function formatGhanaCard(input) {
+            let value = input.value.replace(/[^0-9]/g, '');
+            let formattedValue = '';
+
+            if (value.length > 0) {
+                formattedValue += 'GHA-';
+            }
+            if (value.length > 0) {
+                formattedValue += value.substring(0, 9);
+            }
+            if (value.length > 9) {
+                formattedValue += '-' + value.substring(9, 10);
+            }
+            input.value = formattedValue;
+        }
+
+        function formatIdNumber(input) {
+            const idType = document.getElementById('idType').value;
+            
+            if (idType === 'ghana-card') {
+                let value = input.value.replace(/[^0-9]/g, '');
+                let formattedValue = '';
+
+                if (value.length > 0) {
+                    formattedValue += 'GHA-';
+                }
+                if (value.length > 0) {
+                    formattedValue += value.substring(0, 9);
+                }
+                if (value.length > 9) {
+                    formattedValue += '-' + value.substring(9, 10);
+                }
+                input.value = formattedValue;
+            } else if (idType === 'voter-id') {
+                let value = input.value.replace(/[^0-9]/g, '');
+                input.value = value.substring(0, 10);
+            }
+        }
+
+        function formatGPS(input) {
+            let value = input.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+            let formattedValue = '';
+
+            if (value.length > 0) {
+                formattedValue += value.substring(0, 2);
+            }
+            if (value.length > 2) {
+                formattedValue += '-' + value.substring(2, 5);
+            }
+            if (value.length > 5) {
+                formattedValue += '-' + value.substring(5, 9);
+            }
+            input.value = formattedValue;
+        }
+
+        function handlePhotoUpload(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('photoPreview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function validateStep2() {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const phone = document.getElementById('phone').value;
+            const branch = document.getElementById('branch').value;
+            const gps = document.getElementById('gpsAddress').value;
+
+            if (!firstName || !lastName || !email || !password || !confirmPassword || !phone || !branch || !gps) {
+                alert("Please fill in all details in Step 2.");
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                alert("Passwords do not match. Please try again.");
+                return;
+            }
+
+            if (password.length < 6) {
+                alert("Password must be at least 6 characters long.");
+                return;
+            }
+
+            // Basic GPS format validation (GP-XXX-XXXX)
+            const gpsRegex = /^[A-Z]{2}-[0-9A-Z]{3,4}-[0-9A-Z]{3,4}$/;
+            if (!gpsRegex.test(gps.toUpperCase())) {
+                alert("Please enter a valid GPS Digital Address (e.g., GP-123-4567).");
+                return;
+            }
+            console.log("Step 2 validated, moving to Step 3");
+            nextStep(3);
+        }
+
+        function validateStep3() {
+            const idNumber = document.getElementById('idNumber').value;
+            const photo = document.getElementById('photoInput').files[0];
+
+            if (!idNumber) {
+                alert("Please enter your ID number.");
+                return;
+            }
+            if (!photo) {
+                alert("Please upload your passport photo.");
+                return;
+            }
+            
+            // Populate Review Data
+            document.getElementById('rev-account').innerText = selectedAccount;
+            document.getElementById('rev-name').innerText = document.getElementById('firstName').value + " " + document.getElementById('lastName').value;
+            document.getElementById('rev-email').innerText = document.getElementById('email').value;
+            document.getElementById('rev-phone').innerText = document.getElementById('phone').value;
+            document.getElementById('rev-branch').innerText = document.getElementById('branch').value;
+            document.getElementById('rev-gps').innerText = document.getElementById('gpsAddress').value;
+            document.getElementById('rev-idtype').innerText = document.getElementById('idType').value.replace("-", " ").toUpperCase();
+            document.getElementById('rev-idnumber').innerText = idNumber;
+
+            nextStep(4);
+        }
+
+        function nextStep(step) {
+            // Un-hide panels logic is fine
+            document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+            const targetPanel = document.getElementById('step-' + step);
+            if (targetPanel) {
+                targetPanel.classList.add('active');
+            } else {
+                console.error("Step panel not found:", 'step-' + step);
+            }
+
+            for (let i = 1; i <= 4; i++) {
+                const indicator = document.getElementById('step-' + i + '-indicator');
+                if (!indicator) continue;
+                
+                if (i < step) {
+                    indicator.classList.add('completed');
+                    indicator.classList.remove('active');
+                    indicator.querySelector('.step-circle').innerText = '✓';
+                } else if (i === step) {
+                    indicator.classList.add('active');
+                    indicator.classList.remove('completed');
+                    indicator.querySelector('.step-circle').innerText = i;
+                } else {
+                    indicator.classList.remove('active', 'completed');
+                    indicator.querySelector('.step-circle').innerText = i;
+                }
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function prevStep(step) {
+            nextStep(step);
+        }
+
+        // Password Strength Checker
+        function checkPasswordStrength(password) {
+            const strengthDiv = document.getElementById('passwordStrength');
+            if (!password) {
+                strengthDiv.textContent = '';
+                return;
+            }
+
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (password.length >= 12) strength++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+            if (strength <= 2) {
+                strengthDiv.textContent = 'Weak password - Use at least 8 characters with numbers and symbols';
+                strengthDiv.style.color = '#dc2626';
+            } else if (strength <= 4) {
+                strengthDiv.textContent = 'Medium strength - Add more characters and variety';
+                strengthDiv.style.color = '#f59e0b';
+            } else {
+                strengthDiv.textContent = 'Strong password ✓';
+                strengthDiv.style.color = '#16a34a';
+            }
+        }
+
+        async function submitApplication() {
+            if (!document.getElementById('terms').checked) {
+                alert("Please agree to the Terms and Conditions.");
+                return;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = "Processing...";
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Generate account number (11 digits: bank code + unique number)
+            const accountNumber = '002' + Math.floor(10000000 + Math.random() * 90000000);
+            
+            const userData = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: email,
+                password: password,
+                accountType: selectedAccount,
+                branch: document.getElementById('branch').value,
+                gpsAddress: document.getElementById('gpsAddress').value,
+                idType: document.getElementById('idType').value,
+                idNumber: document.getElementById('idNumber').value,
+                accountNumber: accountNumber,
+                balance: 0,
+                applicationDate: new Date().toISOString(),
+                status: 'pending'
+            };
+
+            try {
+                // Submit to Firebase
+                const usersRef = database.ref('users');
+                await usersRef.push(userData);
+
+                // Send confirmation email via server
+                const refNumber = "GTB-" + Math.floor(100000 + Math.random() * 900000);
+                
+                try {
+                    await fetch('http://localhost:3000/api/send-email', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: email,
+                            firstName: userData.firstName,
+                            lastName: userData.lastName,
+                            accountType: userData.accountType,
+                            applicationDate: new Date().toLocaleDateString()
+                        })
+                    });
+                    console.log("Email sent successfully to:", email);
+                } catch (emailError) {
+                    console.error("Email sending failed:", emailError);
+                }
+
+                // Success
+                document.getElementById('displayEmail').innerText = email;
+                document.getElementById('refNumber').innerText = refNumber;
+                document.getElementById('successModal').classList.add('active');
+                
+                console.log("Success - Account Number:", accountNumber);
+                
+            } catch (err) {
+                alert("An error occurred during submission. Please try again.");
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Confirm & Submit";
+            }
+        }
+    </script>
+</body>
+</html>

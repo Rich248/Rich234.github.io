@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Banking - GhanaTrust Bank</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .page-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .page-backdrop::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.85) 0%, rgba(59, 130, 246, 0.85) 100%);
+            z-index: 1;
+        }
+
+        .backdrop-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            animation: slowZoom 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes slowZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-backdrop">
+        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1920&q=80" class="backdrop-img" alt="Digital banking backdrop">
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <a href="index.html" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: #0a31df;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32">
+                            <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <h2 style="margin: 0;">GhanaTrust Bank</h2>
+                    </a>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+                    <li class="nav-item"><a href="checking-account.html" class="nav-link">Checking</a></li>
+                    <li class="nav-item"><a href="savings-account.html" class="nav-link">Savings</a></li>
+                    <li class="nav-item"><a href="business-account.html" class="nav-link">Business</a></li>
+                    <li class="nav-item"><a href="account-opening-new.html" class="nav-link">Open Account</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); padding: 4rem 0;">
+        <div class="container">
+            <h1 style="color: white; margin-bottom: 1rem;">Digital Banking</h1>
+            <p style="color: rgba(255,255,255,0.9); font-size: 1.2rem;">Bank anytime, anywhere with our secure digital platforms</p>
+        </div>
+    </section>
+
+    <section style="padding: 4rem 0;">
+        <div class="container" style="max-width: 1000px;">
+            <div style="background: white; padding: 3rem; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <h2 style="margin-bottom: 1.5rem; color: #1e3a8a;">Our Digital Banking Features</h2>
+                <p style="margin-bottom: 2rem; line-height: 1.8;">Experience the future of banking with GhanaTrust Bank's comprehensive digital solutions. Manage your finances from anywhere with our secure online and mobile banking platforms.</p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                    <div style="padding: 1.5rem; background: #f8fafc; border-radius: 0.5rem; border-left: 4px solid #3b82f6;">
+                        <h3 style="color: #1e3a8a; margin-bottom: 0.5rem;">Mobile Banking App</h3>
+                        <p style="line-height: 1.6; color: #64748b;">Full-featured mobile app for iOS and Android with biometric login and real-time notifications.</p>
+                    </div>
+                    <div style="padding: 1.5rem; background: #f8fafc; border-radius: 0.5rem; border-left: 4px solid #3b82f6;">
+                        <h3 style="color: #1e3a8a; margin-bottom: 0.5rem;">Online Banking</h3>
+                        <p style="line-height: 1.6; color: #64748b;">Secure web portal for account management, bill payments, and fund transfers.</p>
+                    </div>
+                    <div style="padding: 1.5rem; background: #f8fafc; border-radius: 0.5rem; border-left: 4px solid #3b82f6;">
+                        <h3 style="color: #1e3a8a; margin-bottom: 0.5rem;">Mobile Money Integration</h3>
+                        <p style="line-height: 1.6; color: #64748b;">Seamless integration with MTN, Vodafone, and AirtelTigo mobile money services.</p>
+                    </div>
+                    <div style="padding: 1.5rem; background: #f8fafc; border-radius: 0.5rem; border-left: 4px solid #3b82f6;">
+                        <h3 style="color: #1e3a8a; margin-bottom: 0.5rem;">Bill Payments</h3>
+                        <p style="line-height: 1.6; color: #64748b;">Pay utilities, subscriptions, and other bills directly from your account.</p>
+                    </div>
+                    <div style="padding: 1.5rem; background: #f8fafc; border-radius: 0.5rem; border-left: 4px solid #3b82f6;">
+                        <h3 style="color: #1e3a8a; margin-bottom: 0.5rem;">Instant Transfers</h3>
+                        <p style="line-height: 1.6; color: #64748b;">Transfer funds instantly to any bank account in Ghana.</p>
+                    </div>
+                    <div style="padding: 1.5rem; background: #f8fafc; border-radius: 0.5rem; border-left: 4px solid #3b82f6;">
+                        <h3 style="color: #1e3a8a; margin-bottom: 0.5rem;">Digital Statements</h3>
+                        <p style="line-height: 1.6; color: #64748b;">Access your account statements and transaction history digitally.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: white; padding: 3rem; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <h2 style="margin-bottom: 1.5rem; color: #1e3a8a;">Security First</h2>
+                <ul style="line-height: 1.8; padding-left: 1.5rem;">
+                    <li style="margin-bottom: 1rem;">256-bit encryption for all transactions</li>
+                    <li style="margin-bottom: 1rem;">Two-factor authentication (2FA) for sensitive operations</li>
+                    <li style="margin-bottom: 1rem;">Real-time fraud monitoring and alerts</li>
+                    <li style="margin-bottom: 1rem;">Biometric login (fingerprint, face recognition)</li>
+                    <li style="margin-bottom: 1rem;">Instant card freeze through mobile app</li>
+                    <li style="margin-bottom: 1rem;">Secure messaging with customer support</li>
+                </ul>
+
+                <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e2e8f0;">
+                    <h3 style="color: #1e3a8a; margin-bottom: 1rem;">Get Started with Digital Banking</h3>
+                    <p style="margin-bottom: 1.5rem; line-height: 1.8;">Download our mobile app or register for online banking to start managing your finances digitally. Existing customers can activate digital banking instantly.</p>
+                    <a href="account-opening-new.html" style="display: inline-block; background: #3b82f6; color: white; padding: 0.75rem 2rem; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">Open Account</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Trust Bank</h3>
+                    <p>Your trusted banking partner in Ghana. Serving communities with excellence and integrity since 2026.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="checking-account.html">Checking Account</a></li>
+                        <li><a href="savings-account.html">Savings Account</a></li>
+                        <li><a href="business-account.html">Business Account</a></li>
+                        <li><a href="account-opening-new.html">Open Account</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="terms-of-service.html">Terms of Service</a></li>
+                        <li><a href="security.html">Security</a></li>
+                        <li><a href="faq.html">FAQ</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 GhanaTrust Bank. All rights reserved. Bank of Ghana regulated. Member of Ghana Association of Banks.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

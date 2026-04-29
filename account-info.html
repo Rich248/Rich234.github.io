@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Information - GhanaTrust Bank</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="account.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        .support-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            color: white;
+        }
+        .support-icon svg {
+            stroke: white;
+        }
+        .nav-logo{color:rgb(18, 18, 165)}
+
+        /* Chat Modal Styles */
+        .chat-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-modal.active {
+            display: flex;
+        }
+
+        .chat-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .chat-header h3 {
+            margin: 0;
+            color: #1e293b;
+        }
+
+        .close-chat {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            background: #f8fafc;
+            min-height: 300px;
+            max-height: 400px;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message.user {
+            align-items: flex-end;
+        }
+
+        .message.representative {
+            align-items: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .message.user .message-bubble {
+            background: #3b82f6;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.representative .message-bubble {
+            background: white;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 0.25rem;
+        }
+
+        .chat-input-area {
+            padding: 1rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .chat-input-area input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .chat-input-area button {
+            padding: 0.75rem 1.5rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .chat-input-area button:hover {
+            background: #2563eb;
+        }
+
+        .chat-status {
+            padding: 0.5rem 1rem;
+            background: #ecfdf5;
+            color: #10b981;
+            font-size: 0.8rem;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 0.5rem 1rem;
+            color: #64748b;
+            font-size: 0.8rem;
+            font-style: italic;
+        }
+
+        .typing-indicator.active {
+            display: block;
+        }
+
+        /* Branch Modal Styles */
+        .branch-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .branch-modal.active {
+            display: flex;
+        }
+
+        .branch-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .branch-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .branch-header h3 {
+            margin: 0;
+            color: #1e293b;
+        }
+
+        .close-branch {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .branch-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .branch-item {
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .branch-item:hover {
+            background: #e0f2fe;
+            border-color: #3b82f6;
+        }
+
+        .branch-item h4 {
+            margin: 0 0 0.5rem 0;
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+
+        .branch-item p {
+            margin: 0;
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Header -->
+     <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <a href="index.html" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: inherit;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="40" height="40">
+                            <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <h1 style="margin: 0;">GhanaTrust Bank</h1>
+                    </a>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="index.html" class="nav-link active">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="checking-account.html" class="nav-link">Checking</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="savings-account.html" class="nav-link">Savings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="business-account.html" class="nav-link">Business</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Account Information Section -->
+    <section class="account-info">
+        <div class="container">
+            <div class="info-header">
+                <h1>How to Open Your GhanaTrust Bank Account</h1>
+                <p>Complete guide to opening your new bank account in just a few simple steps</p>
+            </div>
+
+            <div class="info-content">
+                <!-- Quick Start Section -->
+                <div class="quick-start">
+                    <h2>Ready to Get Started?</h2>
+                    <div class="cta-buttons">
+                        <a href="account-opening-new.html" class="btn btn-primary btn-large">Open Account Now</a>
+                        <button class="btn btn-secondary btn-large" onclick="scrollToSection('requirements')">View Requirements</button>
+                    </div>
+                </div>
+
+                <!-- Step by Step Guide -->
+                <div class="guide-section">
+                    <h2>Step-by-Step Account Opening Process</h2>
+                    
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-number">1</div>
+                            <div class="timeline-content">
+                                <h3>Gather Required Documents</h3>
+                                <p>Before you begin, make sure you have all necessary documents ready. This will help streamline the application process.</p>
+                                <ul>
+                                    <li>Valid Ghana Card or government-issued photo ID</li>
+                                    <li>Ghana Card Number</li>
+                                    <li>Proof of address with digital address</li>
+                                    <li>Initial deposit information</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-number">2</div>
+                            <div class="timeline-content">
+                                <h3>Choose Your Account Type</h3>
+                                <p>Select the account that best fits your needs. We offer various options for different banking requirements.</p>
+                                <div class="account-options">
+                                    <div class="option-card">
+                                        <h4>Checking Account</h4>
+                                        <p>Everyday banking with no minimum balance requirements</p>
+                                    </div>
+                                    <div class="option-card">
+                                        <h4>Savings Account</h4>
+                                        <p>High-yield savings to grow your money faster</p>
+                                    </div>
+                                    <div class="option-card">
+                                        <h4>Business Account</h4>
+                                        <p>Specialized accounts for business banking needs</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-number">3</div>
+                            <div class="timeline-content">
+                                <h3>Complete the Application</h3>
+                                <p>Fill out our secure online application form with your personal and contact information. The process typically takes 10-15 minutes.</p>
+                                <div class="application-tips">
+                                    <h4>Application Tips:</h4>
+                                    <ul>
+                                        <li>Double-check all information for accuracy</li>
+                                        <li>Have your documents ready for upload</li>
+                                        <li>Ensure your browser is updated for security</li>
+                                        <li>Use a secure internet connection</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-number">4</div>
+                            <div class="timeline-content">
+                                <h3>Identity Verification</h3>
+                                <p>We'll verify your identity using the documents you provide. This step ensures the security of your account and protects against fraud.</p>
+                                <div class="verification-process">
+                                    <h4>Verification Methods:</h4>
+                                    <ul>
+                                        <li>Document upload (Ghana Card, driver's license, passport)</li>
+                                        <li>Knowledge-based authentication questions</li>
+                                        <li>Address verification</li>
+                                        <li>Electronic signature</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-number">5</div>
+                            <div class="timeline-content">
+                                <h3>Initial Deposit</h3>
+                                <p>Make your initial deposit to activate your account. We offer multiple convenient funding options.</p>
+                                <div class="deposit-options">
+                                    <h4>Funding Options:</h4>
+                                    <ul>
+                                        <li>Debit card transfer</li>
+                                        <li>Mobile money transfer (MTN, Vodafone, AirtelTigo)</li>
+                                        <li>Bank transfer from another bank</li>
+                                        <li>Cash deposit at any GhanaTrust Bank branch</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-number">6</div>
+                            <div class="timeline-content">
+                                <h3>Account Activation</h3>
+                                <p>Once verified and funded, your account will be activated immediately. You'll receive your account details via email.</p>
+                                <div class="activation-details">
+                                    <h4>What You'll Receive:</h4>
+                                    <ul>
+                                        <li>Account number and routing number</li>
+                                        <li>Online banking login credentials</li>
+                                        <li>Debit card ordering information</li>
+                                        <li>Welcome kit with account details</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Requirements Section -->
+                <div id="requirements" class="requirements-section">
+                    <h2>Account Requirements</h2>
+                    
+                    <div class="requirements-grid">
+                        <div class="requirement-card">
+                            <h4>Age Requirement</h4>
+                            <p>You must be at least 18 years old to open an individual account. Minors (under 18) can open accounts with a parent or legal guardian as a joint account holder.</p>
+                        </div>
+
+                        <div class="requirement-card">
+                            <h4>Valid Identification</h4>
+                            <p>One of the following government-issued photo IDs:</p>
+                            <ul>
+                                <li>Ghana Card</li>
+                                <li>Driver's License</li>
+                                <li>Passport</li>
+                                <li>Voter's ID</li>
+                                <li>NHIS Card</li>
+                            </ul>
+                        </div>
+
+                        <div class="requirement-card">
+                            <h4>Ghana Card Number</h4>
+                            <p>A valid Ghana Card Number is required for account opening and tax reporting purposes.</p>
+                        </div>
+
+                        <div class="requirement-card">
+                            <h4>Ghana Address</h4>
+                            <p>You must have a valid Ghanaian residential address with digital address. Proof of address may be required.</p>
+                        </div>
+
+                        <div class="requirement-card">
+                            <h4>Initial Deposit</h4>
+                            <p>Minimum opening deposit requirements vary by account type:</p>
+                            <ul>
+                                <li>Checking: GH₵50 minimum</li>
+                                <li>Savings: GH₵200 minimum</li>
+                                <li>Business: GH₵500 minimum</li>
+                            </ul>
+                        </div>
+
+                        <div class="requirement-card">
+                            <h4>Credit History Check</h4>
+                            <p>We may review your banking history through credit bureaus. Previous negative banking history may affect account approval.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Section -->
+                <div class="faq-section">
+                    <h2>Frequently Asked Questions</h2>
+                    
+                    <div class="faq-list">
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFAQ(this)">
+                                <h4>How long does the account opening process take?</h4>
+                                <span class="faq-toggle">+</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>The online application typically takes 10-15 minutes to complete. Most accounts are approved instantly, and you can start using your account the same day once you make your initial deposit.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFAQ(this)">
+                                <h4>What if I don't have a Ghana Card Number?</h4>
+                                <span class="faq-toggle">+</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>If you don't have a Ghana Card Number, you may be able to open an account with alternative identification options. Contact our customer service team for assistance.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFAQ(this)">
+                                <h4>Can I open an account if I'm not a Ghanaian citizen?</h4>
+                                <span class="faq-toggle">+</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Non-Ghanaian citizens can open accounts with valid identification and proof of address. Additional documentation may be required. Visit a branch location or call customer service for specific requirements.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFAQ(this)">
+                                <h4>Is my money safe at GhanaTrust Bank?</h4>
+                                <span class="faq-toggle">+</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Yes! GhanaTrust Bank is regulated by the Bank of Ghana, which means your deposits are insured up to a certain amount. We also use advanced security measures to protect your information and funds.</p>
+                            </div>
+                        </div>
+
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFAQ(this)">
+                                <h4>What fees should I expect?</h4>
+                                <span class="faq-toggle">+</span>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Many of our accounts have no monthly maintenance fees when you meet minimum balance requirements. We'll provide you with a complete fee schedule before you complete your application.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Support -->
+                <div class="support-section">
+                    <h2>Need Help? We're Here for You!</h2>
+                    <div class="support-options">
+                        <div class="support-card">
+                            <div class="support-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="48" height="48">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                </svg>
+                            </div>
+                            <h4>Call Us</h4>
+                            <p>030 221 2222</p>
+                            <p>Mon-Fri: 8AM-8PM GMT</p>
+                            <p>Sat: 9AM-5PM GMT</p>
+                        </div>
+                        <div class="support-card">
+                            <div class="support-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="48" height="48">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                </svg>
+                            </div>
+                            <h4>Live Chat</h4>
+                            <p>Chat with our representatives</p>
+                            <p>Available 24/7</p>
+                            <button class="btn btn-secondary" onclick="startChat()">Start Chat</button>
+                        </div>
+                        <div class="support-card">
+                            <div class="support-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="48" height="48">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                    <circle cx="12" cy="10" r="3"/>
+                                </svg>
+                            </div>
+                            <h4>Visit a Branch</h4>
+                            <p>15+ locations across Ghana</p>
+                            <button class="btn btn-secondary" onclick="showBranches()">Find Branch</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Ghana Trust Bank</h3>
+                    <p>Your trusted partner in financial growth and security across Ghana.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="services.html">Services</a></li>
+                        <li><a href="about-us.html">About Us</a></li>
+                        <li><a href="index.html#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="terms-of-service.html">Terms of Service</a></li>
+                        <li><a href="bank-of-ghana-info.html">Bank of Ghana Information</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Ghana Trust Bank. All rights reserved. Bank of Ghana regulated. Member of Ghana Association of Banks.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Chat Modal -->
+    <div class="chat-modal" id="chatModal">
+        <div class="chat-content">
+            <div class="chat-header">
+                <h3>Chat with Ghana Trust Bank</h3>
+                <button class="close-chat" onclick="closeChat()">&times;</button>
+            </div>
+            <div class="chat-status">● Online - Representative Available</div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message representative">
+                    <div class="message-bubble">Hello! Welcome to Ghana Trust Bank. How can I help you today?</div>
+                    <div class="message-time">Just now</div>
+                </div>
+            </div>
+            <div class="typing-indicator" id="typingIndicator">Representative is typing...</div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)" oninput="handleTyping()">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Branch Modal -->
+    <div class="branch-modal" id="branchModal">
+        <div class="branch-content">
+            <div class="branch-header">
+                <h3>Our Branch Locations</h3>
+                <button class="close-branch" onclick="closeBranches()">&times;</button>
+            </div>
+            <div class="branch-list">
+                <div class="branch-item">
+                    <h4>Accra Central</h4>
+                    <p>Ring Road Central, Accra</p>
+                </div>
+                <div class="branch-item">
+                    <h4>Airport Residential</h4>
+                    <p>Airport Residential Area, Accra</p>
+                </div>
+                <div class="branch-item">
+                    <h4>East Legon</h4>
+                    <p>East Legon, Accra</p>
+                </div>
+                <div class="branch-item">
+                    <h4>Spintex Road</h4>
+                    <p>Spintex Road, Accra</p>
+                </div>
+                <div class="branch-item">
+                    <h4>Madina</h4>
+                    <p>Madina, Accra</p>
+                </div>
+                <div class="branch-item">
+                    <h4>Tema Community 1</h4>
+                    <p>Community 1, Tema</p>
+                </div>
+                <div class="branch-item">
+                    <h4>Kumasi Adum</h4>
+                    <p>Adum, Kumasi</p>
+                </div>
+                <div class="branch-item">
+                    <h4>Kumasi City</h4>
+                    <p>Kumasi City Center</p>
+                </div>
+                <div class="branch-item">
+                    <h4>Takoradi Port</h4>
+                    <p>Takoradi Port Area</p>
+                </div>
+                <div class="branch-item">
+                    <h4>Takoradi Market Circle</h4>
+                    <p>Market Circle, Takoradi</p>
+                </div>
+                <div class="branch-item">
+                    <h4>Tamale High Street</h4>
+                    <p>High Street, Tamale</p>
+                </div>
+                <div class="branch-item">
+                    <h4>Tamale Central</h4>
+                    <p>Central, Tamale</p>
+                </div>
+                <div class="branch-item">
+                    <h4>Cape Coast Main</h4>
+                    <p>Main Street, Cape Coast</p>
+                </div>
+                <div class="branch-item">
+                    <h4>Sunyani Central</h4>
+                    <p>Central, Sunyani</p>
+                </div>
+                <div class="branch-item">
+                    <h4>Ho Central</h4>
+                    <p>Central, Ho</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function toggleFAQ(element) {
+            const answer = element.nextElementSibling;
+            const toggle = element.querySelector('.faq-toggle');
+            
+            if (answer.style.display === 'block') {
+                answer.style.display = 'none';
+                toggle.textContent = '+';
+            } else {
+                answer.style.display = 'block';
+                toggle.textContent = '-';
+            }
+        }
+
+        function startChat() {
+            document.getElementById('chatModal').classList.add('active');
+        }
+
+        function closeChat() {
+            document.getElementById('chatModal').classList.remove('active');
+            // Clear chat session ID to start fresh next time
+            localStorage.removeItem('chatSessionId');
+            currentChatId = null;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message
+            addMessage(message, 'user');
+            input.value = '';
+            
+            // Simulate representative response
+            simulateResponse(message);
+        }
+
+        function addMessage(text, sender) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            messageDiv.innerHTML = `
+                <div class="message-bubble">${text}</div>
+                <div class="message-time">${time}</div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function simulateResponse(userMessage) {
+            const typingIndicator = document.getElementById('typingIndicator');
+            typingIndicator.classList.add('active');
+            
+            // Simulate typing delay
+            setTimeout(() => {
+                typingIndicator.classList.remove('active');
+                
+                // Simple response logic based on keywords
+                let response = '';
+                const lowerMessage = userMessage.toLowerCase();
+                
+                if (lowerMessage.includes('account') || lowerMessage.includes('open')) {
+                    response = "I'd be happy to help you open an account! We offer Personal Checking, Personal Savings, Business Starter, Student, Investment Services, and Digital Banking accounts. Which type interests you?";
+                } else if (lowerMessage.includes('checking')) {
+                    response = "Our Personal Checking account has GH¢0 minimum balance, comes with a free Visa Debit Card, and has no monthly maintenance fee. Would you like to proceed with opening one?";
+                } else if (lowerMessage.includes('savings')) {
+                    response = "Our Personal Savings account offers competitive 5% APY, automatic savings tools, and free digital statements. The minimum opening deposit is GH₵200.";
+                } else if (lowerMessage.includes('business')) {
+                    response = "Our Business Starter account is perfect for local businesses with low transaction costs, a mobile merchant portal, and dedicated support line. Minimum deposit is GH₵500.";
+                } else if (lowerMessage.includes('student')) {
+                    response = "Our Student Account is designed for students with GH¢0 minimum balance, free student debit card, and no monthly fees. Perfect for young professionals!";
+                } else if (lowerMessage.includes('branch') || lowerMessage.includes('location')) {
+                    response = "We have 15 branches across Ghana including Accra Central, Kumasi, Takoradi, Tamale, Cape Coast, Sunyani, and Ho. Would you like me to help you find the nearest one?";
+                } else if (lowerMessage.includes('document') || lowerMessage.includes('id')) {
+                    response = "To open an account, you'll need a valid Ghana Card or government-issued photo ID, your Ghana Card Number, proof of address with digital address, and initial deposit information.";
+                } else if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+                    response = "Hello! Welcome to Ghana Trust Bank. I'm here to help you with account opening, banking services, or any questions you may have. How can I assist you today?";
+                } else {
+                    response = "Thank you for your message. I'm here to help with account opening, banking services, and general inquiries. Could you please provide more details about what you need assistance with?";
+                }
+                
+                addMessage(response, 'representative');
+            }, 1500);
+        }
+
+        function showBranches() {
+            document.getElementById('branchModal').classList.add('active');
+        }
+
+        function closeBranches() {
+            document.getElementById('branchModal').classList.remove('active');
+        }
+
+        // Firebase Configuration - REPLACE WITH YOUR FIREBASE CREDENTIALS
+        const firebaseConfig = {
+  apiKey: "AIzaSyBC6abatrIxH9gFaXQx8Q4gDdu59dU1U8E",
+  authDomain: "live-chat-61efd.firebaseapp.com",
+  databaseURL: "https://live-chat-61efd-default-rtdb.firebaseio.com",
+  projectId: "live-chat-61efd",
+  storageBucket: "live-chat-61efd.firebasestorage.app",
+  messagingSenderId: "1059519432349",
+  appId: "1:1059519432349:web:a40c6fee6357651c6af674",
+  measurementId: "G-W8CFYEYHJ4"
+};
+
+        // Initialize Firebase
+        let database;
+        let chatRef;
+        let currentChatId = null;
+
+        function initFirebase() {
+            try {
+                // Check if Firebase is already initialized
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                database = firebase.database();
+                
+                // Generate or retrieve chat session ID
+                currentChatId = localStorage.getItem('chatSessionId');
+                if (!currentChatId) {
+                    currentChatId = 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    localStorage.setItem('chatSessionId', currentChatId);
+                }
+                
+                console.log('Chat session ID:', currentChatId);
+                
+                chatRef = database.ref('chats/' + currentChatId + '/messages');
+                
+                // Listen for new messages
+                chatRef.on('child_added', (snapshot) => {
+                    const message = snapshot.val();
+                    console.log('New message received:', message);
+                    if (message.sender !== 'user') {
+                        addMessage(message.text, 'representative');
+                    }
+                });
+                
+                console.log('Firebase initialized successfully');
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                // Fall back to simulated responses if Firebase fails
+                console.log('Using simulated chat responses');
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message to UI
+            addMessage(message, 'user');
+            input.value = '';
+            
+            // Try to send via Firebase
+            if (database && chatRef) {
+                const newMessageRef = chatRef.push();
+                newMessageRef.set({
+                    text: message,
+                    sender: 'user',
+                    timestamp: Date.now()
+                });
+                console.log('Message sent to Firebase:', currentChatId);
+            } else {
+                // Fallback to simulated response
+                simulateResponse(message);
+            }
+        }
+
+        // Initialize Firebase on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initFirebase();
+        });
+
+        // Close all FAQ answers initially
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.faq-answer').forEach(answer => {
+                answer.style.display = 'none';
+            });
+            
+            // Mobile menu functionality
+            const hamburger = document.querySelector('.hamburger');
+            const navMenu = document.querySelector('.nav-menu');
+            
+            hamburger.addEventListener('click', () => {
+                hamburger.classList.toggle('active');
+                navMenu.classList.toggle('active');
+            });
+            
+            // Close mobile menu when clicking on a link
+            document.querySelectorAll('.nav-link').forEach(n => n.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+            }));
+        });
+    </script>
+</body>
+</html>

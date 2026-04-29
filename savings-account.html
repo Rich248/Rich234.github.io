@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Savings Account - Trust Bank</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .page-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .page-backdrop::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(78, 205, 196, 0.85) 0%, rgba(68, 160, 141, 0.85) 100%);
+            z-index: 1;
+        }
+
+        .backdrop-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            animation: slowZoom 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes slowZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        .account-hero {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .account-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-50%); }
+        }
+        
+        .account-hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .account-hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .account-hero p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .interest-highlight {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 2rem;
+            border-radius: 16px;
+            margin: 2rem 0;
+        }
+        
+        .interest-rate {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+        
+        .interest-rate-label {
+            font-size: 1.25rem;
+            opacity: 0.9;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-primary-large {
+            background: white;
+            color: #4ecdc4;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary-large:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-secondary-large {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-secondary-large:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .features-section {
+            padding: 4rem 2rem;
+            background: #f8fafc;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-icon svg {
+            width: 30px;
+            height: 30px;
+            color: white;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+        
+        .feature-card p {
+            color: #64748b;
+            line-height: 1.6;
+        }
+        
+        .calculator-section {
+            padding: 4rem 2rem;
+            background: white;
+        }
+        
+        .calculator-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .calculator-container h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #1e293b;
+        }
+        
+        .calculator-input {
+            margin-bottom: 1.5rem;
+        }
+        
+        .calculator-input label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #475569;
+            font-weight: 500;
+        }
+        
+        .calculator-input input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .calculator-input input:focus {
+            outline: none;
+            border-color: #4ecdc4;
+            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+        }
+        
+        .calculator-result {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #4ecdc4;
+        }
+        
+        .calculator-result h3 {
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+        
+        .result-amount {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #4ecdc4;
+            margin-bottom: 0.5rem;
+        }
+        
+        .result-period {
+            color: #64748b;
+            font-size: 1rem;
+        }
+        
+        .benefits-section {
+            padding: 4rem 2rem;
+            background: #f8fafc;
+        }
+        
+        .benefits-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .benefits-container h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #1e293b;
+        }
+        
+        .benefits-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .benefit-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .benefit-icon {
+            width: 40px;
+            height: 40px;
+            background: #4ecdc4;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .benefit-icon svg {
+            width: 20px;
+            height: 20px;
+            color: white;
+        }
+        
+        .benefit-content h4 {
+            margin-bottom: 0.5rem;
+            color: #1e293b;
+        }
+        
+        .benefit-content p {
+            color: #64748b;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        @media (max-width: 768px) {
+            .account-hero h1 {
+                font-size: 2rem;
+            }
+            
+            .interest-rate {
+                font-size: 3rem;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .benefits-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-backdrop">
+        <img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1920&q=80" class="backdrop-img" alt="Savings backdrop">
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <a href="index.html" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: #0a31df;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32">
+                            <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <h2 style="margin: 0;">GhanaTrust Bank</h2>
+                    </a>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="index.html" class="nav-link">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="checking-account.html" class="nav-link">Checking</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="savings-account.html" class="nav-link active">Savings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="business-account.html" class="nav-link">Business</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="account-opening-new.html" class="nav-link">Open Account</a>
+                    </li>
+                </ul>
+                <div class="nav-actions">
+                    <a href="login.html" class="btn btn-secondary">Login</a>
+            
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Account Hero Section -->
+    <section class="account-hero">
+        <div class="account-hero-content">
+            <h1>Personal Savings Account</h1>
+            <p>Grow your money securely with our competitive interest rates and flexible savings options designed for your financial goals</p>
+            
+            <div class="interest-highlight">
+                <div class="interest-rate">15%</div>
+                <div class="interest-rate-label">Annual Interest Rate</div>
+                <div style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8;">One of the highest rates in Ghana!</div>
+            </div>
+            
+        
+                <a href="#calculator" class="btn-secondary-large">Calculate Earnings</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Calculator Section -->
+    <section class="calculator-section" id="calculator">
+        <div class="calculator-container">
+            <h2>Calculate Your Savings Growth</h2>
+            <div class="calculator-input">
+                <label for="savings-amount">Initial Deposit (GH¢)</label>
+                <input type="number" id="savings-amount" placeholder="1000" min="0" step="100">
+            </div>
+            <div class="calculator-input">
+                <label for="monthly-deposit">Monthly Deposit (GH¢)</label>
+                <input type="number" id="monthly-deposit" placeholder="500" min="0" step="50">
+            </div>
+            <div class="calculator-input">
+                <label for="savings-period">Savings Period (Years)</label>
+                <input type="number" id="savings-period" placeholder="1" min="1" max="10" step="1">
+            </div>
+            <div class="calculator-result">
+                <h3>Your Total After <span id="result-years">1</span> Year(s)</h3>
+                <div class="result-amount">GH¢ <span id="result-amount">1,150</span></div>
+                <div class="result-period">Including interest earned</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+                    </svg>
+                </div>
+                <h3>High Interest Rates</h3>
+                <p>Enjoy up to 15% annual interest rate, one of the most competitive rates available in Ghana's banking sector.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 100 100">
+                        <text x="50%" y="50%" 
+                              font-family="Arial, sans-serif" 
+                              font-weight="bold"
+                              font-size="90" 
+                              text-anchor="middle" 
+                              dominant-baseline="middle" 
+                              fill="white">
+                            ₵
+                        </text>
+                    </svg>
+                </div>
+                <h3>No Monthly Fees</h3>
+                <p>Grow your savings without worrying about monthly maintenance fees eating into your hard-earned money.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="4" width="20" height="16" rx="2"/>
+                        <path d="M7 15h.01M12 15h.01M17 15h.01"/>
+                    </svg>
+                </div>
+                <h3>Automatic Savings</h3>
+                <p>Set up automatic transfers from your checking account to build your savings effortlessly.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </div>
+                <h3>Quarterly Payouts</h3>
+                <p>Receive interest payments quarterly, allowing you to see your money grow regularly throughout the year.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                    </svg>
+                </div>
+                <h3>Flexible Access</h3>
+                <p>Access your savings when needed while still earning interest. No lock-in periods or withdrawal penalties.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                </div>
+                <h3>Secure & Insured</h3>
+                <p>Your savings are protected by Bank of Ghana deposit insurance, giving you peace of mind for your money.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="benefits-section">
+        <div class="benefits-container">
+            <h2>Why Choose Our Savings Account?</h2>
+            <div class="benefits-list">
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    </div>
+                    <div class="benefit-content">
+                        <h4>Competitive Interest</h4>
+                        <p>Earn up to 15% annually, helping your money grow faster than traditional savings accounts.</p>
+                    </div>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    </div>
+                    <div class="benefit-content">
+                        <h4>No Hidden Charges</h4>
+                        <p>Transparent banking with no monthly fees, no transaction fees, and no minimum balance requirements.</p>
+                    </div>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    </div>
+                    <div class="benefit-content">
+                        <h4>Easy Online Management</h4>
+                        <p>Manage your savings through our mobile app or online banking platform 24/7.</p>
+                    </div>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    </div>
+                    <div class="benefit-content">
+                        <h4>Goal-Based Savings</h4>
+                        <p>Create multiple savings goals for different purposes and track your progress towards each goal.</p>
+                    </div>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    </div>
+                    <div class="benefit-content">
+                        <h4>Emergency Fund Builder</h4>
+                        <p>Build your emergency fund with our smart savings tools and automatic round-up features.</p>
+                    </div>
+                </div>
+                
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    </div>
+                    <div class="benefit-content">
+                        <h4>Expert Financial Advice</h4>
+                        <p>Get personalized savings advice from our financial experts to help you reach your goals faster.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Trust Bank</h3>
+                    <p>Your trusted banking partner in Ghana. Serving communities with excellence and integrity since 2026.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="checking-account.html">Checking Account</a></li>
+                        <li><a href="savings-account.html">Savings Account</a></li>
+                        <li><a href="business-account.html">Business Account</a></li>
+                        <li><a href="account-opening-new.html">Open Account</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="index.html#services">Mobile Banking</a></li>
+                        <li><a href="index.html#services">Online Banking</a></li>
+                        <li><a href="atm-services.html">ATM Services</a></li>
+                        <li><a href="index.html#services">International Transfers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect With Us</h4>
+                    <ul>
+                        <li><a href="https://facebook.com" target="_blank">Facebook</a></li>
+                        <li><a href="https://twitter.com" target="_blank">Twitter</a></li>
+                        <li><a href="https://instagram.com" target="_blank">Instagram</a></li>
+                        <li><a href="https://linkedin.com" target="_blank">LinkedIn</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Trust Bank. All rights reserved. Bank of Ghana regulated. Member of Ghana Association of Banks.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Savings Calculator
+        function calculateSavings() {
+            const principal = parseFloat(document.getElementById('savings-amount').value) || 0;
+            const monthlyDeposit = parseFloat(document.getElementById('monthly-deposit').value) || 0;
+            const years = parseFloat(document.getElementById('savings-period').value) || 1;
+            
+            const annualRate = 0.15; // 15% annual interest
+            const monthlyRate = annualRate / 12;
+            const months = years * 12;
+            
+            // Calculate compound interest with monthly deposits
+            let total = principal;
+            for (let i = 0; i < months; i++) {
+                total = total * (1 + monthlyRate) + monthlyDeposit;
+            }
+            
+            // Update display
+            document.getElementById('result-years').textContent = years;
+            document.getElementById('result-amount').textContent = total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
+        // Add event listeners
+        document.getElementById('savings-amount').addEventListener('input', calculateSavings);
+        document.getElementById('monthly-deposit').addEventListener('input', calculateSavings);
+        document.getElementById('savings-period').addEventListener('input', calculateSavings);
+        
+        // Calculate initial values
+        calculateSavings();
+    </script>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Branch Locations - GhanaTrust Bank</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .page-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .page-backdrop::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.85) 0%, rgba(59, 130, 246, 0.85) 100%);
+            z-index: 1;
+        }
+
+        .backdrop-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            animation: slowZoom 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes slowZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        .branches-container {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .branches-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+
+        .branches-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .branches-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .search-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .region-section {
+            margin-bottom: 3rem;
+        }
+
+        .region-title {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .branches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .branch-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .branch-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .branch-card h3 {
+            color: #1e3a8a;
+            margin-bottom: 0.75rem;
+        }
+
+        .branch-card p {
+            color: #64748b;
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .branch-card .hours {
+            font-size: 0.875rem;
+            color: #10b981;
+            margin-top: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-backdrop">
+        <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&q=80" class="backdrop-img" alt="Branch backdrop">
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <a href="index.html" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: #0a31df;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32">
+                            <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <h2 style="margin: 0;">GhanaTrust Bank</h2>
+                    </a>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+                    <li class="nav-item"><a href="checking-account.html" class="nav-link">Checking</a></li>
+                    <li class="nav-item"><a href="savings-account.html" class="nav-link">Savings</a></li>
+                    <li class="nav-item"><a href="business-account.html" class="nav-link">Business</a></li>
+                    <li class="nav-item"><a href="account-opening-new.html" class="nav-link">Open Account</a></li>
+                    <li class="nav-item"><a href="login.html" class="nav-link">Login</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <div class="branches-container">
+        <div class="branches-header">
+            <h1>Our Branch Locations</h1>
+            <p>Find a GhanaTrust Bank branch near you across Ghana</p>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="branchSearch" placeholder="Search by city, region, or branch name..." onkeyup="filterBranches()">
+        </div>
+
+        <div class="region-section">
+            <h2 class="region-title">Greater Accra Region</h2>
+            <div class="branches-grid">
+                <div class="branch-card">
+                    <h3>Head Office - Accra</h3>
+                    <p>23 Independence Avenue, Accra</p>
+                    <p>Phone: +233 30 212 3456</p>
+                    <p class="hours">Mon-Fri: 8AM-5PM | Sat: 9AM-1PM</p>
+                </div>
+                <div class="branch-card">
+                    <h3>Airport City Branch</h3>
+                    <p>Spintex Road, Airport City, Accra</p>
+                    <p>Phone: +233 30 277 8901</p>
+                    <p class="hours">Mon-Fri: 8AM-5PM | Sat: 9AM-1PM</p>
+                </div>
+                <div class="branch-card">
+                    <h3>Makola Market Branch</h3>
+                    <p>Central Market Area, Accra</p>
+                    <p>Phone: +233 30 266 1234</p>
+                    <p class="hours">Mon-Fri: 8AM-5PM | Sat: 9AM-1PM</p>
+                </div>
+                <div class="branch-card">
+                    <h3>Tema Branch</h3>
+                    <p>Community 4, Tema</p>
+                    <p>Phone: +233 22 212 3456</p>
+                    <p class="hours">Mon-Fri: 8AM-5PM | Sat: 9AM-1PM</p>
+                </div>
+                <div class="branch-card">
+                    <h3>Madina Branch</h3>
+                    <p>Madina Zongo Junction, Accra</p>
+                    <p>Phone: +233 30 250 6789</p>
+                    <p class="hours">Mon-Fri: 8AM-5PM | Sat: 9AM-1PM</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="region-section">
+            <h2 class="region-title">Ashanti Region</h2>
+            <div class="branches-grid">
+                <div class="branch-card">
+                    <h3>Kumasi Main Branch</h3>
+                    <p>Adum, Kumasi</p>
+                    <p>Phone: +233 32 212 3456</p>
+                    <p class="hours">Mon-Fri: 8AM-5PM | Sat: 9AM-1PM</p>
+                </div>
+                <div class="branch-card">
+                    <h3>KNUST Branch</h3>
+                    <p>KNUST Campus, Kumasi</p>
+                    <p>Phone: +233 32 220 9876</p>
+                    <p class="hours">Mon-Fri: 8AM-5PM | Sat: 9AM-1PM</p>
+                </div>
+                <div class="branch-card">
+                    <h3>Konongo Branch</h3>
+                    <p>Main Street, Konongo</p>
+                    <p>Phone: +233 32 245 6789</p>
+                    <p class="hours">Mon-Fri: 8AM-5PM | Sat: 9AM-1PM</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="region-section">
+            <h2 class="region-title">Western Region</h2>
+            <div class="branches-grid">
+                <div class="branch-card">
+                    <h3>Takoradi Main Branch</h3>
+                    <p>Market Circle, Takoradi</p>
+                    <p>Phone: +233 31 212 3456</p>
+                    <p class="hours">Mon-Fri: 8AM-5PM | Sat: 9AM-1PM</p>
+                </div>
+                <div class="branch-card">
+                    <h3>Sekondi Branch</h3>
+                    <p>Harbour Area, Sekondi</p>
+                    <p>Phone: +233 31 220 1234</p>
+                    <p class="hours">Mon-Fri: 8AM-5PM | Sat: 9AM-1PM</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="region-section">
+            <h2 class="region-title">Northern Region</h2>
+            <div class="branches-grid">
+                <div class="branch-card">
+                    <h3>Tamale Main Branch</h3>
+                    <p>Central Market, Tamale</p>
+                    <p>Phone: +233 37 212 3456</p>
+                    <p class="hours">Mon-Fri: 8AM-5PM | Sat: 9AM-1PM</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function filterBranches() {
+            const searchInput = document.getElementById('branchSearch').value.toLowerCase();
+            const branchCards = document.querySelectorAll('.branch-card');
+            
+            branchCards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (text.includes(searchInput)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
