@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Education - GhanaTrust Bank</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .page-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .page-backdrop::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.9) 0%, rgba(30, 58, 138, 0.95) 100%);
+            z-index: 1;
+        }
+        .backdrop-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            animation: slowZoom 20s ease-in-out infinite alternate;
+        }
+        @keyframes slowZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+        .education-hero {
+            padding: 6rem 2rem 4rem;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+        .education-hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .education-hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .education-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .education-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .education-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+        .education-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        .education-icon svg {
+            width: 32px;
+            height: 32px;
+            color: white;
+        }
+        .education-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+        .education-card p {
+            color: #64748b;
+            line-height: 1.6;
+        }
+        .education-card a {
+            display: inline-block;
+            margin-top: 1rem;
+            color: #1e40af;
+            font-weight: 500;
+            text-decoration: none;
+        }
+        .education-card a:hover {
+            text-decoration: underline;
+        }
+        .tips-section {
+            background: #f8fafc;
+            padding: 4rem 2rem;
+        }
+        .tips-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .tips-container h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 3rem;
+            color: #1e293b;
+        }
+        .tip-item {
+            display: flex;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        .tip-number {
+            width: 40px;
+            height: 40px;
+            background: #1e40af;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .tip-content h4 {
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+        .tip-content p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-backdrop">
+        <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);"></div>
+    </div>
+
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <a href="index.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 0.75rem;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="40" height="40">
+                            <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <h1 style="margin: 0;">GhanaTrust Bank</h1>
+                    </a>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="account-opening-new.html" class="nav-link">Open Account</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <section class="education-hero">
+        <h1>Financial Education</h1>
+        <p>Empower yourself with knowledge to make smarter financial decisions and build a secure future</p>
+    </section>
+
+    <section class="education-grid">
+        <div class="education-card">
+            <div class="education-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                </svg>
+            </div>
+            <h3>Personal Banking 101</h3>
+            <p>Learn the basics of managing your accounts, understanding fees, and maximizing your banking benefits.</p>
+            
+        </div>
+        <div class="education-card">
+            <div class="education-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M16 8h-6a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h6"></path>
+                    <path d="M12 12h.01"></path>
+                </svg>
+            </div>
+            <h3>Saving Strategies</h3>
+            <p>Discover effective methods to build your savings, from emergency funds to long-term wealth accumulation.</p>
+           
+        </div>
+        <div class="education-card">
+            <div class="education-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 100 100">
+                        <text x="50%" y="50%" 
+                              font-family="Arial, sans-serif" 
+                              font-weight="bold"
+                              font-size="90" 
+                              text-anchor="middle" 
+                              dominant-baseline="middle" 
+                              fill="white">
+                            ¢
+                        </text>
+                        </svg>  
+            </div>
+            <h3>Credit & Loans</h3>
+            <p>Understanding credit scores, managing debt responsibly, and accessing credit when you need it.</p>
+          
+        </div>
+        <div class="education-card">
+            <div class="education-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+            <h3>Investment Basics</h3>
+            <p>Introduction to investment options available in Ghana and how to grow your wealth over time.</p>
+         
+        </div>
+    </section>
+
+    <section class="tips-section">
+        <div class="tips-container">
+            <h2>Quick Financial Tips</h2>
+            <div class="tip-item">
+                <div class="tip-number">1</div>
+                <div class="tip-content">
+                    <h4>Create a Budget</h4>
+                    <p>Track your income and expenses to understand where your money goes and identify areas for savings.</p>
+                </div>
+            </div>
+            <div class="tip-item">
+                <div class="tip-number">2</div>
+                <div class="tip-content">
+                    <h4>Build an Emergency Fund</h4>
+                    <p>Save 3-6 months of expenses in an easily accessible account for unexpected situations.</p>
+                </div>
+            </div>
+            <div class="tip-item">
+                <div class="tip-number">3</div>
+                <div class="tip-content">
+                    <h4>Pay Yourself First</h4>
+                    <p>Set up automatic transfers to your savings account on payday before spending on other things.</p>
+                </div>
+            </div>
+            <div class="tip-item">
+                <div class="tip-number">4</div>
+                <div class="tip-content">
+                    <h4>Understand Interest Rates</h4>
+                    <p>Know the difference between saving and borrowing rates to make informed financial decisions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>GhanaTrust Bank</h3>
+                    <p>Your trusted banking partner in Ghana.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="account-opening-new.html">Open Account</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="terms-of-service.html">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 GhanaTrust Bank. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Form</title>
+</head>
+<body>
+    <h1>Test Phone and Ghana Card Formatting</h1>
+    
+    <label>Phone Number:</label><br>
+    <input type="tel" id="phone" placeholder="+233 XXXXXXXXX" style="width: 300px; padding: 10px; margin: 10px 0;"><br><br>
+    
+    <label>Ghana Card:</label><br>
+    <input type="text" id="ghanaCard" placeholder="GHA-XXXXXXX-X" style="width: 300px; padding: 10px; margin: 10px 0;"><br><br>
+    
+    <button onclick="testValues()">Test Values</button>
+    <div id="result" style="margin-top: 20px; padding: 10px; background: #f0f0f0;"></div>
+    
+    <script>
+        // Phone formatting
+        const phoneInput = document.getElementById('phone');
+        phoneInput.setAttribute('maxlength', '15');
+        
+        phoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.startsWith('233')) {
+                value = value.slice(3);
+            }
+            if (value.startsWith('0') && value.length > 1) {
+                value = value.slice(1);
+            }
+            if (value.length > 9) {
+                value = value.slice(0, 9);
+            }
+            e.target.value = value.length > 0 ? '+233 ' + value : '';
+        });
+        
+        // Ghana Card formatting
+        const ghanaCardInput = document.getElementById('ghanaCard');
+        ghanaCardInput.setAttribute('maxlength', '14');
+        
+        ghanaCardInput.addEventListener('input', function(e) {
+            let value = e.target.value.toUpperCase().replace(/[^GHA0-9-]/g, '');
+            value = value.replace(/-/g, '');
+            
+            if (value.length >= 4 && value.length <= 10) {
+                value = value.slice(0, 3) + '-' + value.slice(3);
+            } else if (value.length >= 11) {
+                value = value.slice(0, 3) + '-' + value.slice(3, 10) + '-' + value.slice(10, 11);
+            }
+            if (value.length > 14) {
+                value = value.slice(0, 14);
+            }
+            e.target.value = value;
+        });
+        
+        function testValues() {
+            const phone = document.getElementById('phone').value;
+            const ghanaCard = document.getElementById('ghanaCard').value;
+            
+            const phoneRegex = /^\+233\s\d{9}$/;
+            const ghanaCardRegex = /^GHA-\d{7}-\d{1}$/;
+            
+            const result = document.getElementById('result');
+            result.innerHTML = `
+                <strong>Phone:</strong> ${phone} - ${phoneRegex.test(phone) ? '✅ Valid' : '❌ Invalid'}<br>
+                <strong>Ghana Card:</strong> ${ghanaCard} - ${ghanaCardRegex.test(ghanaCard) ? '✅ Valid' : '❌ Invalid'}
+            `;
+        }
+    </script>
+</body>
+</html>

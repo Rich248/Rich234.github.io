@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank of Ghana Information - GhanaTrust Bank</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .page-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .page-backdrop::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.85) 0%, rgba(59, 130, 246, 0.85) 100%);
+            z-index: 1;
+        }
+
+        .backdrop-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            animation: slowZoom 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes slowZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        .bog-container {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .bog-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+
+        .bog-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .bog-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .bog-section {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .bog-section h2 {
+            color: #1e3a8a;
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+        }
+
+        .bog-section p {
+            color: #64748b;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        .bog-section ul {
+            color: #64748b;
+            line-height: 1.8;
+            margin-left: 1.5rem;
+        }
+
+        .bog-section li {
+            margin-bottom: 0.5rem;
+        }
+
+        .info-card {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #1e3a8a;
+        }
+
+        .info-card h3 {
+            color: #1e3a8a;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-card p {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-backdrop">
+        <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&q=80" class="backdrop-img" alt="Bank of Ghana backdrop">
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <a href="index.html" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: #0a31df;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32">
+                            <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <h2 style="margin: 0;">GhanaTrust Bank</h2>
+                    </a>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+                    <li class="nav-item"><a href="checking-account.html" class="nav-link">Checking</a></li>
+                    <li class="nav-item"><a href="savings-account.html" class="nav-link">Savings</a></li>
+                    <li class="nav-item"><a href="business-account.html" class="nav-link">Business</a></li>
+                    <li class="nav-item"><a href="account-opening-new.html" class="nav-link">Open Account</a></li>
+                    <li class="nav-item"><a href="login.html" class="nav-link">Login</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <div class="bog-container">
+        <div class="bog-header">
+            <h1>Bank of Ghana Information</h1>
+            <p>Understanding Ghana's central bank and banking regulations</p>
+        </div>
+
+        <div class="bog-section">
+            <h2>About the Bank of Ghana</h2>
+            <p>The Bank of Ghana (BoG) is the central bank of Ghana and is responsible for the monetary policy and financial stability of the country. Established in 1957, the Bank of Ghana serves as the nation's primary financial authority and regulator.</p>
+            <p>As a regulated financial institution, GhanaTrust Bank operates under the supervision and guidelines set forth by the Bank of Ghana to ensure the safety and security of our customers' funds and the stability of Ghana's financial system.</p>
+        </div>
+
+        <div class="bog-section">
+            <h2>Key Functions of the Bank of Ghana</h2>
+            <ul>
+                <li>Formulating and implementing monetary policy to maintain price stability</li>
+                <li>Issuing and regulating the Ghanaian currency (the Ghana Cedi - GH¢)</li>
+                <li>Licensing and supervising banks and other financial institutions</li>
+                <li>Promoting the development of Ghana's financial system</li>
+                <li>Managing the country's foreign exchange reserves</li>
+                <li>Acting as banker and financial advisor to the government</li>
+                <li>Promoting financial inclusion and literacy across Ghana</li>
+            </ul>
+        </div>
+
+        <div class="bog-section">
+            <h2>Your Protection as a Customer</h2>
+            <div class="info-card">
+                <h3>Deposit Protection</h3>
+                <p>The Bank of Ghana ensures that all licensed banks maintain adequate capital and liquidity to protect depositors' funds. GhanaTrust Bank adheres to all regulatory requirements to safeguard your deposits.</p>
+            </div>
+            <div class="info-card">
+                <h3>Regulatory Oversight</h3>
+                <p>Regular inspections and audits by the Bank of Ghana ensure that GhanaTrust Bank operates in compliance with all banking regulations and best practices.</p>
+            </div>
+            <div class="info-card">
+                <h3>Consumer Protection</h3>
+                <p>The Bank of Ghana has established consumer protection guidelines that GhanaTrust Bank follows to ensure fair treatment of all customers and transparent banking practices.</p>
+            </div>
+        </div>
+
+        <div class="bog-section">
+            <h2>Bank of Ghana Contact Information</h2>
+            <div class="info-card">
+                <h3>Head Office</h3>
+                <p>Bank of Ghana, P.O. Box GP 2748, Accra, Ghana</p>
+            </div>
+            <div class="info-card">
+                <h3>Phone</h3>
+                <p>+233 30 266 2262 / +233 30 266 2263</p>
+            </div>
+            <div class="info-card">
+                <h3>Website</h3>
+                <p><a href="https://www.bog.gov.gh" target="_blank" style="color: #3b82f6; text-decoration: none;">www.bog.gov.gh</a></p>
+            </div>
+            <div class="info-card">
+                <h3>Email</h3>
+                <p>info@bog.gov.gh</p>
+            </div>
+        </div>
+
+        <div class="bog-section">
+            <h2>Ghana Association of Banks</h2>
+            <p>GhanaTrust Bank is a proud member of the Ghana Association of Banks (GAB), the industry body that represents the interests of banks in Ghana. GAB works closely with the Bank of Ghana to develop policies that promote a stable and efficient banking sector.</p>
+            <p>Through our membership in GAB, we stay informed about industry developments, best practices, and regulatory changes that benefit our customers and the broader Ghanaian economy.</p>
+        </div>
+
+        <div class="bog-section">
+            <h2>Important Banking Regulations</h2>
+            <p>GhanaTrust Bank operates in full compliance with key banking regulations including:</p>
+            <ul>
+                <li>Banks and Specialized Deposit-Taking Institutions Act, 2016 (Act 930)</li>
+                <li>Companies Act, 2019 (Act 992)</li>
+                <li>Data Protection Act, 2012 (Act 843)</li>
+                <li>Anti-Money Laundering Act, 2020 (Act 1044)</li>
+                <li>Bank of Ghana's regulatory notices and directives</li>
+            </ul>
+        </div>
+
+        <div class="bog-section">
+            <h2>Commitment to Compliance</h2>
+            <p>At GhanaTrust Bank, we are committed to maintaining the highest standards of regulatory compliance. Our dedicated compliance team ensures that we adhere to all Bank of Ghana regulations and international best practices in banking operations.</p>
+            <p>We regularly update our policies and procedures to reflect changes in the regulatory environment, ensuring that our customers always receive services that meet or exceed regulatory requirements.</p>
+        </div>
+    </div>
+</body>
+</html>

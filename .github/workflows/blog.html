@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking Blog - GhanaTrust Bank</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .page-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .page-backdrop::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080"><defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23667eea"/><stop offset="50%" style="stop-color:%23764ba2"/><stop offset="100%" style="stop-color:%23f093fb"/></linearGradient></defs><rect fill="url(%23g1)" width="1920" height="1080"/><circle cx="200" cy="200" r="150" fill="%23ffffff" opacity="0.05"><animate attributeName="cy" values="200;800;200" dur="20s" repeatCount="indefinite"/></circle><circle cx="1600" cy="300" r="200" fill="%23ffffff" opacity="0.03"><animate attributeName="cx" values="1600;1400;1600" dur="15s" repeatCount="indefinite"/></circle><circle cx="900" cy="700" r="100" fill="%23ffffff" opacity="0.04"><animate attributeName="r" values="100;150;100" dur="10s" repeatCount="indefinite"/></circle></svg>');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            animation: bgZoom 30s ease-in-out infinite alternate;
+            z-index: 1;
+        }
+        @keyframes bgZoom {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .blog-hero {
+            padding: 6rem 2rem 4rem;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+        .blog-hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .blog-hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .blog-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .blog-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+        .blog-image {
+            height: 200px;
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .blog-image svg {
+            width: 64px;
+            height: 64px;
+            color: white;
+        }
+        .blog-content {
+            padding: 1.5rem;
+        }
+        .blog-category {
+            display: inline-block;
+            background: #f3e8ff;
+            color: #7c3aed;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        .blog-content h3 {
+            font-size: 1.25rem;
+            color: #1e293b;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+        .blog-content p {
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        .blog-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        .blog-date {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+        .read-more {
+            color: #7c3aed;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        .read-more:hover {
+            text-decoration: underline;
+        }
+        .newsletter-section {
+            background: #f8fafc;
+            padding: 4rem 2rem;
+        }
+        .newsletter-container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .newsletter-container h2 {
+            font-size: 1.75rem;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+        .newsletter-container p {
+            color: #64748b;
+            margin-bottom: 1.5rem;
+        }
+        .newsletter-form {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+        }
+        .newsletter-form input {
+            flex: 1;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .newsletter-form button {
+            padding: 0.875rem 1.5rem;
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+        .modal-overlay.active { display: flex; }
+        .blog-modal {
+            background: white;
+            border-radius: 20px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlide 0.3s ease;
+        }
+        @keyframes modalSlide {
+            from { opacity: 0; transform: translateY(-30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .modal-header-content h2 {
+            font-size: 1.5rem;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+        .modal-header-content .category {
+            display: inline-block;
+            background: #f3e8ff;
+            color: #7c3aed;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.75rem;
+            color: #64748b;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .modal-close:hover { background: #f1f5f9; color: #1e293b; }
+        .modal-body {
+            padding: 1.5rem;
+        }
+        .modal-body p {
+            color: #475569;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+        .reviews-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #e2e8f0;
+        }
+        .reviews-section h3 {
+            font-size: 1.125rem;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .review-card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .reviewer-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.9375rem;
+        }
+        .review-stars {
+            color: #f59e0b;
+            font-size: 0.875rem;
+        }
+        .review-location {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+        .review-text {
+            font-size: 0.875rem;
+            color: #475569;
+            line-height: 1.6;
+        }
+        .comments-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #e2e8f0;
+        }
+        .comments-section h3 {
+            font-size: 1.125rem;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+        .comment-form {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .comment-form input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.875rem;
+        }
+        .comment-form button {
+            padding: 0.75rem 1.25rem;
+            background: #1e40af;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .comment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .comment-item {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        .comment-author {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+        .comment-time {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+        }
+        .comment-text {
+            font-size: 0.875rem;
+            color: #475569;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-backdrop">
+        <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);"></div>
+    </div>
+
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <a href="index.html" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 0.75rem;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="40" height="40">
+                            <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <h1 style="margin: 0;">GhanaTrust Bank</h1>
+                    </a>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="account-opening-new.html" class="nav-link">Open Account</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <section class="blog-hero">
+        <h1>Banking Blog</h1>
+        <p>Stay informed with the latest banking news, tips, and financial insights</p>
+    </section>
+
+    <section class="blog-grid">
+        <article class="blog-card">
+            <div class="blog-image" style="background: url('https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=600&q=80') center/cover no-repeat;">
+            </div>
+            <div class="blog-content">
+                <span class="blog-category">Security</span>
+                <h3>How to Protect Your Bank Account from Fraud</h3>
+                <p>Learn essential security tips to keep your finances safe in the digital age.</p>
+                <div class="blog-meta">
+                    <span class="blog-date">January 20, 2026</span>
+                    <a href="#" class="read-more" onclick="openBlogModal(1); return false;">Read More →</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="blog-card">
+            <div class="blog-image" style="background: url('https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=600&q=80') center/cover no-repeat;">
+            </div>
+            <div class="blog-content">
+                <span class="blog-category">Savings</span>
+                <h3>5 Proven Strategies to Build Your Savings</h3>
+                <p>Discover effective methods to grow your savings faster in 2026.</p>
+                <div class="blog-meta">
+                    <span class="blog-date">January 15, 2026</span>
+                    <a href="#" class="read-more" onclick="openBlogModal(2); return false;">Read More →</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="blog-card">
+            <div class="blog-image" style="background: url('https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&q=80') center/cover no-repeat;">
+            </div>
+            <div class="blog-content">
+                <span class="blog-category">Digital Banking</span>
+                <h3>The Future of Mobile Banking in Ghana</h3>
+                <p>Explore how mobile banking is transforming the financial landscape.</p>
+                <div class="blog-meta">
+                    <span class="blog-date">January 10, 2026</span>
+                    <a href="#" class="read-more" onclick="openBlogModal(3); return false;">Read More →</a>
+                </div>
+            </div>
+        </article>
+    </section>
+
+    <section class="newsletter-section">
+        <div class="newsletter-container">
+            <h2>Subscribe to Our Newsletter</h2>
+            <p>Get the latest financial tips and banking news delivered to your inbox</p>
+            <form class="newsletter-form" onsubmit="handleSubscribe(event)">
+                <input type="email" id="subscribeEmail" placeholder="Enter your email" required>
+                <button type="submit" id="subscribeBtn">Subscribe</button>
+            </form>
+            <div id="subscribeAlert" style="display: none; margin-top: 1rem; padding: 1rem; border-radius: 8px; font-weight: 500;"></div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>GhanaTrust Bank</h3>
+                    <p>Your trusted banking partner in Ghana.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="account-opening-new.html">Open Account</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="terms-of-service.html">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 GhanaTrust Bank. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Blog Modal -->
+    <div class="modal-overlay" id="blogModal">
+        <div class="blog-modal">
+            <div class="modal-header">
+                <div class="modal-header-content">
+                    <h2 id="modalTitle">Article Title</h2>
+                    <span class="category" id="modalCategory">Category</span>
+                </div>
+                <button class="modal-close" onclick="closeBlogModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="modalContent">
+                    <p>Article content goes here...</p>
+                </div>
+                
+                <!-- Ghanaian Reviews Section -->
+                <div class="reviews-section">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" width="20" height="20">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                        Ghanaian Customer Reviews
+                    </h3>
+                    <div id="modalReviews">
+                        <!-- Reviews populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <!-- Comments Section -->
+                <div class="comments-section">
+                    <h3>Comments</h3>
+                    <form class="comment-form" onsubmit="addComment(event)">
+                        <input type="text" id="commentInput" placeholder="Share your thoughts..." required>
+                        <button type="submit">Post</button>
+                    </form>
+                    <div class="comment-list" id="commentList">
+                        <!-- Comments populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Blog Content Data
+        const blogData = {
+            1: {
+                title: "How to Protect Your Bank Account from Fraud",
+                category: "Security",
+                content: `
+                    <p>In today's digital age, protecting your bank account from fraud is more important than ever. Cybercriminals are constantly developing new techniques to steal financial information, but with the right precautions, you can keep your money safe.</p>
+                    <p><strong>Key Security Tips:</strong></p>
+                    <p>1. Never share your PIN or password with anyone, including bank staff. Legitimate banks will never ask for your full password.</p>
+                    <p>2. Enable two-factor authentication on all your banking apps. This adds an extra layer of security beyond just your password.</p>
+                    <p>3. Regularly monitor your account statements for any unauthorized transactions. Report suspicious activity immediately.</p>
+                    <p>4. Be cautious of phishing emails and SMS messages. Always verify the sender before clicking any links.</p>
+                    <p>5. Use strong, unique passwords for each banking platform and change them periodically.</p>
+                    <p>6. Keep your banking apps updated to ensure you have the latest security patches.</p>
+                `,
+                reviews: [
+                    { name: "Kwame Asante", location: "Accra, Greater Accra", stars: "★★★★★", text: "This article helped me catch a suspicious transaction on my account! I immediately called GhanaTrust and they helped secure my account. Very helpful tips!" },
+                    { name: "Abena Mensah", location: "Kumasi, Ashanti Region", stars: "★★★★★", text: "I didn't know about two-factor authentication before. Set it up on my GhanaTrust app and now I feel much safer. Thanks for the education!" },
+                    { name: "Yaw Boateng", location: "Takoradi, Western Region", stars: "★★★★☆", text: "Good advice. I wish they also mentioned how to identify fake bank calls. Some fraudsters sound very convincing over the phone." }
+                ],
+                comments: [
+                    { author: "Akosua A.", time: "2 hours ago", text: "Very timely article! Just received a suspicious SMS yesterday claiming to be from my bank." },
+                    { author: "Kofi B.", time: "5 hours ago", text: "Can you do a follow-up on what to do if we suspect fraud has already happened?" }
+                ]
+            },
+            2: {
+                title: "5 Proven Strategies to Build Your Savings",
+                category: "Savings",
+                content: `
+                    <p>Building savings is a cornerstone of financial stability, yet many Ghanaians struggle to set money aside consistently. Whether you're saving for a new home, your children's education, or retirement, these proven strategies will help you reach your goals faster.</p>
+                    <p><strong>Strategy 1: Pay Yourself First</strong></p>
+                    <p>Before paying any bills, transfer a portion of your income to savings. Even GH₵50 per month adds up to GH₵600 per year, plus interest.</p>
+                    <p><strong>Strategy 2: Use the 50/30/20 Rule</strong></p>
+                    <p>Allocate 50% of income to needs, 30% to wants, and 20% to savings and debt repayment. This simple framework helps maintain balance.</p>
+                    <p><strong>Strategy 3: Automate Your Savings</strong></p>
+                    <p>Set up automatic transfers from your current account to your savings account on payday. GhanaTrust offers standing order services for this purpose.</p>
+                    <p><strong>Strategy 4: Cut Unnecessary Expenses</strong></p>
+                    <p>Review your monthly spending and identify areas where you can reduce costs. Small daily savings compound over time.</p>
+                    <p><strong>Strategy 5: Take Advantage of High-Interest Accounts</strong></p>
+                    <p>GhanaTrust offers competitive interest rates on savings accounts. Shop around for the best rates to maximize your returns.</p>
+                `,
+                reviews: [
+                    { name: "Adwoa Owusu", location: "Sunyani, Bono Region", stars: "★★★★★", text: "The 'pay yourself first' tip changed my life! I've saved GH₵2,000 in just 6 months using this method. GhanaTrust's automatic transfer feature makes it so easy." },
+                    { name: "Emmanuel Agyeman", location: "Tamale, Northern Region", stars: "★★★★★", text: "As a teacher with modest income, I thought saving was impossible. The 50/30/20 rule showed me I could start small. Now I have an emergency fund!" },
+                    { name: "Grace Osei", location: "Cape Coast, Central Region", stars: "★★★★☆", text: "Great strategies. I wish there was more emphasis on Susu savings clubs - many Ghanaians still prefer traditional group savings methods." },
+                    { name: "Michael Addo", location: "Koforidua, Eastern Region", stars: "★★★★★", text: "Opened a GhanaTrust savings account after reading this. The interest rates are actually better than my previous bank. Recommend!" }
+                ],
+                comments: [
+                    { author: "Sarah M.", time: "1 hour ago", text: "The 50/30/20 rule is game-changing! Never thought about budgeting this way before." },
+                    { author: "Daniel K.", time: "3 hours ago", text: "Does GhanaTrust have a mobile app feature for automatic savings?" },
+                    { author: "Patricia O.", time: "1 day ago", text: "I've been doing Susu for years but this article convinced me to try formal banking too. Best of both worlds!" }
+                ]
+            },
+            3: {
+                title: "The Future of Mobile Banking in Ghana",
+                category: "Digital Banking",
+                content: `
+                    <p>Mobile banking is revolutionizing how Ghanaians manage their finances. From the bustling markets of Accra to the rural communities in the North, mobile banking is breaking down barriers and bringing financial services to every corner of the country.</p>
+                    <p><strong>The Mobile Banking Revolution</strong></p>
+                    <p>With smartphone penetration exceeding 50% and mobile money services like MTN MoMo becoming ubiquitous, Ghana is leading the way in digital financial inclusion in West Africa.</p>
+                    <p><strong>Key Trends:</strong></p>
+                    <p>• <strong>Biometric Security:</strong> Fingerprint and facial recognition are making banking more secure and accessible, especially for those who struggle with traditional passwords.</p>
+                    <p>• <strong>AI-Powered Customer Service:</strong> Chatbots and virtual assistants are providing 24/7 support, answering questions in local languages including Twi, Ga, and Ewe.</p>
+                    <p>• <strong>Cross-Border Payments:</strong> New partnerships are making it easier and cheaper to send money to family abroad, crucial for many Ghanaian households.</p>
+                    <p>• <strong>Micro-Investment Platforms:</strong> Apps that allow users to invest small amounts in stocks, bonds, and even gold are democratizing wealth building.</p>
+                    <p>• <strong>Blockchain Integration:</strong> Some banks are exploring blockchain for faster, more transparent transactions and to reduce fraud.</p>
+                    <p>GhanaTrust Bank is at the forefront of this transformation, continuously upgrading our digital platforms to serve you better. Our goal is simple: banking that works for every Ghanaian, everywhere.</p>
+                `,
+                reviews: [
+                    { name: "Josephine Ankomah", location: "Ho, Volta Region", stars: "★★★★★", text: "The GhanaTrust mobile app has changed how I do business. I can check my account anywhere, even in my village shop. Technology is amazing!" },
+                    { name: "Isaac Kwofie", location: "Wa, Upper West Region", stars: "★★★★★", text: "Finally a bank that understands rural customers! The biometric login is perfect for my elderly mother who couldn't remember passwords." },
+                    { name: "Comfort Adjei", location: "Techiman, Bono East", stars: "★★★★☆", text: "Good progress but network connectivity in some rural areas still makes mobile banking challenging. Hope the telecom companies improve coverage." },
+                    { name: "Richard Addo", location: "Tema, Greater Accra", stars: "★★★★★", text: "The AI chatbot helped me resolve an issue at 2am when I couldn't reach a human agent. Very impressed with GhanaTrust's tech!" }
+                ],
+                comments: [
+                    { author: "Nana Y.", time: "30 minutes ago", text: "Would love to see Twi language support in the app. That would really help many Ghanaians!" },
+                    { author: "Samuel T.", time: "2 hours ago", text: "GhanaTrust's app is so much better than the competition. Clean interface and fast transactions." },
+                    { author: "Linda P.", time: "4 hours ago", text: "Can we get dark mode in the app? Would be easier on the eyes for night banking!" },
+                    { author: "Kwesi M.", time: "1 day ago", text: "Blockchain in Ghanaian banking? That's exciting! Hope it reduces transaction fees too." }
+                ]
+            }
+        };
+
+        let currentBlogId = null;
+        let currentComments = [];
+
+        function openBlogModal(blogId) {
+            currentBlogId = blogId;
+            const data = blogData[blogId];
+            
+            document.getElementById('modalTitle').textContent = data.title;
+            document.getElementById('modalCategory').textContent = data.category;
+            document.getElementById('modalContent').innerHTML = data.content;
+            
+            // Populate reviews
+            const reviewsHtml = data.reviews.map(review => `
+                <div class="review-card">
+                    <div class="review-header">
+                        <span class="reviewer-name">${review.name}</span>
+                        <span class="review-stars">${review.stars}</span>
+                    </div>
+                    <div class="review-location">📍 ${review.location}</div>
+                    <div class="review-text">"${review.text}"</div>
+                </div>
+            `).join('');
+            document.getElementById('modalReviews').innerHTML = reviewsHtml;
+            
+            // Load comments
+            currentComments = [...data.comments];
+            renderComments();
+            
+            document.getElementById('blogModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeBlogModal() {
+            document.getElementById('blogModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+            currentBlogId = null;
+        }
+
+        function renderComments() {
+            const commentsHtml = currentComments.map(comment => `
+                <div class="comment-item">
+                    <div class="comment-author">${comment.author}</div>
+                    <div class="comment-time">${comment.time}</div>
+                    <div class="comment-text">${comment.text}</div>
+                </div>
+            `).join('');
+            document.getElementById('commentList').innerHTML = commentsHtml;
+        }
+
+        function addComment(event) {
+            event.preventDefault();
+            const input = document.getElementById('commentInput');
+            const text = input.value.trim();
+            
+            if (text && currentBlogId) {
+                currentComments.unshift({
+                    author: "You",
+                    time: "Just now",
+                    text: text
+                });
+                renderComments();
+                input.value = '';
+            }
+        }
+
+        // Subscription handler - sends email to admin
+        async function handleSubscribe(event) {
+            event.preventDefault();
+            const email = document.getElementById('subscribeEmail').value.trim();
+            const btn = document.getElementById('subscribeBtn');
+            const alert = document.getElementById('subscribeAlert');
+
+            if (!email) {
+                showAlert('Please enter a valid email address.', 'error');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Subscribing...';
+
+            try {
+                const response = await fetch('http://localhost:3000/api/send-to-admin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        from: email,
+                        firstName: 'Blog',
+                        lastName: 'Subscriber',
+                        subject: 'New Blog Subscription',
+                        body: `A new user has subscribed to the GhanaTrust Bank blog newsletter.\n\nSubscriber Email: ${email}\n\nPlease add this email to the newsletter mailing list.`,
+                        accountNumber: 'N/A - Newsletter Subscription'
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('Thank you for subscribing! You will receive our latest updates at ' + email, 'success');
+                    document.getElementById('subscribeEmail').value = '';
+                } else {
+                    showAlert('Subscription failed. Please try again later.', 'error');
+                }
+            } catch (error) {
+                console.error('Subscription error:', error);
+                showAlert('Unable to subscribe. Please check your connection and try again.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Subscribe';
+            }
+        }
+
+        function showAlert(message, type) {
+            const alert = document.getElementById('subscribeAlert');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            if (type === 'success') {
+                alert.style.background = '#dcfce7';
+                alert.style.color = '#166534';
+                alert.style.border = '1px solid #86efac';
+            } else {
+                alert.style.background = '#fee2e2';
+                alert.style.color = '#991b1b';
+                alert.style.border = '1px solid #fca5a5';
+            }
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        // Close modal on overlay click
+        document.getElementById('blogModal').addEventListener('click', (e) => {
+            if (e.target.id === 'blogModal') {
+                closeBlogModal();
+            }
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeBlogModal();
+            }
+        });
+    </script>
+</body>
+</html>
