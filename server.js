@@ -6,24 +6,62 @@ const nodemailer = require('nodemailer');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(cors());
+// Middleware - Allow CORS from your frontends
+const allowedOrigins = [
+    'https://rich248.github.io',  // GitHub Pages
+    'https://rich234-github-io.onrender.com', // If you keep this
+    'https://ghanatrust-bank-frontend.onrender.com' // Your new Render frontend
+];
+
+app.use(cors({
+    origin: function(origin, callback) {
+        // Allow requests with no origin (like mobile apps, curl, etc.)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
+            callback(null, true);
+        } else {
+            console.log('CORS blocked from:', origin);
+            callback(null, true); // Temporarily allow all for debugging
+        }
+    },
+    methods: ['GET', 'POST'],
+    credentials: true
+}));
 app.use(express.json());
 
-// Email configuration using Gmail SMTP
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // Use TLS
-    requireTLS: true,
-    auth: {
-        user: process.env.EMAIL_USER || 'cwesyrizy49957@gmail.com',
-        pass: process.env.EMAIL_PASS || 'jzkhhvcraniyfhzj'
-    },
-    tls: {
-        rejectUnauthorized: false
+// Brevo API configuration
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
+const emailFrom = process.env.EMAIL_USER || 'cwesyrizy49957@gmail.com';
+
+// Function to send email via Brevo API
+async function sendBrevoEmail(to, subject, htmlContent, textContent = '') {
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+            'accept': 'application/json',
+            'api-key': BREVO_API_KEY,
+            'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+            sender: {
+                name: 'GhanaTrust Bank',
+                email: emailFrom
+            },
+            to: [{ email: to }],
+            subject: subject,
+            htmlContent: htmlContent,
+            textContent: textContent || htmlContent.replace(/<[^>]*>/g, '')
+        })
+    });
+    
+    if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Brevo API error: ${error}`);
     }
-});
+    
+    return await response.json();
+}
 
 // API endpoint to send confirmation email
 app.post('/api/send-email', async (req, res) => {
@@ -35,7 +73,7 @@ app.post('/api/send-email', async (req, res) => {
         }
 
         const mailOptions = {
-            from: 'cwesyrizy49957@gmail.com',
+            from: emailFrom,
             to: email,
             subject: 'Account Application Confirmation - GhanaTrust Bank',
             html: `
@@ -135,7 +173,7 @@ app.post('/api/send-email', async (req, res) => {
             `
         };
 
-        const info = await transporter.sendMail(mailOptions);
+        const info = await sendBrevoEmail(email, mailOptions.subject, mailOptions.html);
         console.log(`Email sent to: ${email}`);
         console.log(`Message ID: ${info.messageId}`);
         
@@ -163,7 +201,7 @@ app.post('/api/send-otp', async (req, res) => {
         }
 
         const mailOptions = {
-            from: 'cwesyrizy49957@gmail.com',
+            from: emailFrom,
             to: email,
             subject: 'Your Login OTP - GhanaTrust Bank',
             html: `
@@ -240,7 +278,7 @@ app.post('/api/send-otp', async (req, res) => {
             `
         };
 
-        const info = await transporter.sendMail(mailOptions);
+        const info = await sendBrevoEmail(email, mailOptions.subject, mailOptions.html);
         console.log(`OTP email sent to: ${email}`);
         console.log(`Message ID: ${info.messageId}`);
         
@@ -268,7 +306,7 @@ app.post('/api/send-custom-email', async (req, res) => {
         }
 
         const mailOptions = {
-            from: 'cwesyrizy49957@gmail.com',
+            from: emailFrom,
             to: to,
             subject: subject,
             text: body,
@@ -317,7 +355,7 @@ app.post('/api/send-to-admin', async (req, res) => {
         }
 
         const mailOptions = {
-            from: 'cwesyrizy49957@gmail.com',
+            from: emailFrom,
             to: 'cwesyrizy49957@gmail.com', // Admin email
             replyTo: from,
             subject: `[User Support] ${subject}`,
@@ -347,7 +385,7 @@ app.post('/api/send-to-admin', async (req, res) => {
             `
         };
 
-        const info = await transporter.sendMail(mailOptions);
+        const info = await sendBrevoEmail('cwesyrizy49957@gmail.com', mailOptions.subject, mailOptions.html);
         console.log(`Support email from ${from} sent to admin`);
         console.log(`Message ID: ${info.messageId}`);
         
@@ -365,21 +403,26 @@ app.post('/api/send-to-admin', async (req, res) => {
     }
 });
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'OK', message: 'Server is running' });
+// Serve frontend files (optional - if you want backend to serve frontend too)
+const path = require('path');
+app.use(express.static(path.join(__dirname, '..')));
+
+// Root endpoint - serve index.html
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
 
-// Verify transporter connection on startup
-transporter.verify(function(error, success) {
-    if (error) {
-        console.log('Email transporter verification error:', error);
-        console.log('Email User:', process.env.EMAIL_USER || 'cwesyrizy49957@gmail.com');
-        console.log('Email Pass set:', process.env.EMAIL_PASS ? 'Yes' : 'No (using fallback)');
-    } else {
-        console.log('Email server is ready to send messages');
-    }
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'OK', message: 'Server is running', email: process.env.EMAIL_USER ? 'configured' : 'not configured' });
 });
+
+// Verify Brevo API key is configured
+if (!BREVO_API_KEY) {
+    console.log('Warning: BREVO_API_KEY not set. Emails will not work.');
+} else {
+    console.log('Brevo API key configured. Email server ready.');
+}
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
