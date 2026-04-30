@@ -273,7 +273,7 @@ app.post('/api/send-otp', async (req, res) => {
                             <p style="color: #64748b; font-size: 14px; margin: 0;">&copy; 2026 GhanaTrust Bank. All rights reserved.</p>
                             <p style="color: #94a3b8; font-size: 12px; margin: 10px 0 0 0;">Bank of Ghana regulated. Member of Ghana Association of Banks.</p>
                         </div>
-                    </div>
+                    </div>  
                 </div>
             `
         };
