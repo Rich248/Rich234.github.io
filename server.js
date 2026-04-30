@@ -10,12 +10,18 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Email configuration using Gmail (completely free with App Password)
+// Email configuration using Gmail SMTP
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // Use TLS
+    requireTLS: true,
     auth: {
         user: process.env.EMAIL_USER || 'cwesyrizy49957@gmail.com',
         pass: process.env.EMAIL_PASS || 'yinjonmrvymodibs'
+    },
+    tls: {
+        rejectUnauthorized: false
     }
 });
 
@@ -362,6 +368,17 @@ app.post('/api/send-to-admin', async (req, res) => {
 // Health check endpoint
 app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', message: 'Server is running' });
+});
+
+// Verify transporter connection on startup
+transporter.verify(function(error, success) {
+    if (error) {
+        console.log('Email transporter verification error:', error);
+        console.log('Email User:', process.env.EMAIL_USER || 'cwesyrizy49957@gmail.com');
+        console.log('Email Pass set:', process.env.EMAIL_PASS ? 'Yes' : 'No (using fallback)');
+    } else {
+        console.log('Email server is ready to send messages');
+    }
 });
 
 app.listen(PORT, () => {
