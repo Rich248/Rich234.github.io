@@ -518,7 +518,7 @@
             }
 
             try {
-                const response = await fetch('http://localhost:3000/api/send-to-admin', {
+                const response = await fetch('https://rich234-github-io.onrender.com/api/send-to-admin', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -552,7 +552,7 @@
                 }
             } catch (error) {
                 console.error('Error sending message:', error);
-                alert('Failed to send message. Error: ' + error.message + '\n\nPlease ensure the server is running on http://localhost:3000');
+                alert('Failed to send message. Error: ' + error.message + '\n\nPlease try again later or contact support.');
             } finally {
                 if (btn) {
                     btn.disabled = false;
