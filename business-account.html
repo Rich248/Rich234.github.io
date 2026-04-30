@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Business Banking Account - Trust Bank</title>
+    <title>Personal Savings Account - Trust Bank</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,7 +26,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(240, 147, 251, 0.85) 0%, rgba(245, 87, 108, 0.85) 100%);
+            background: linear-gradient(135deg, rgba(78, 205, 196, 0.85) 0%, rgba(68, 160, 141, 0.85) 100%);
             z-index: 1;
         }
 
@@ -43,12 +43,26 @@
         }
 
         .account-hero {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
             color: white;
-            padding: 4rem 2rem;
+            padding: 6rem 2rem 4rem;
             text-align: center;
             position: relative;
             overflow: hidden;
+            margin-top: 70px;
+        }
+
+        @media (max-width: 768px) {
+            .account-hero {
+                padding: 5rem 1.5rem 3rem;
+                margin-top: 60px;
+            }
+            .account-hero h1 {
+                font-size: 2rem;
+            }
+            .account-hero p {
+                font-size: 1rem;
+            }
         }
         
         .account-hero::before {
@@ -67,15 +81,12 @@
             50% { transform: translateX(-50%) translateY(-50%); }
         }
         
-       .account-hero {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    color: white;
-    padding: 4rem 2rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    margin-top: 80px;  /* Add this line to move it down */
-}
+        .account-hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
         
         .account-hero h1 {
             font-size: 3rem;
@@ -89,24 +100,23 @@
             opacity: 0.9;
         }
         
-        .premium-badge {
+        .interest-highlight {
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.3);
-            padding: 1.5rem;
+            padding: 2rem;
             border-radius: 16px;
             margin: 2rem 0;
-            display: inline-block;
         }
         
-        .premium-badge h3 {
-            margin: 0 0 0.5rem 0;
-            font-size: 1.5rem;
+        .interest-rate {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
         }
         
-        .premium-badge p {
-            margin: 0;
-            font-size: 1rem;
+        .interest-rate-label {
+            font-size: 1.25rem;
             opacity: 0.9;
         }
         
@@ -119,7 +129,7 @@
         
         .btn-primary-large {
             background: white;
-            color: #f093fb;
+            color: #4ecdc4;
             padding: 1rem 2rem;
             border-radius: 12px;
             text-decoration: none;
@@ -181,7 +191,7 @@
         .feature-icon {
             width: 60px;
             height: 60px;
-            background: linear-gradient(135deg, #f093fb, #f5576c);
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -206,70 +216,75 @@
             line-height: 1.6;
         }
         
-        .services-section {
+        .calculator-section {
             padding: 4rem 2rem;
             background: white;
         }
         
-        .services-container {
-            max-width: 1200px;
+        .calculator-container {
+            max-width: 600px;
             margin: 0 auto;
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
         }
         
-        .services-container h2 {
+        .calculator-container h2 {
             text-align: center;
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
             color: #1e293b;
         }
         
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
+        .calculator-input {
+            margin-bottom: 1.5rem;
         }
         
-        .service-card {
-            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-            padding: 2rem;
-            border-radius: 16px;
-            text-align: center;
+        .calculator-input label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #475569;
+            font-weight: 500;
+        }
+        
+        .calculator-input input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
             transition: all 0.3s ease;
-            border: 2px solid transparent;
         }
         
-        .service-card:hover {
-            border-color: #f093fb;
-            transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(240, 147, 251, 0.2);
+        .calculator-input input:focus {
+            outline: none;
+            border-color: #4ecdc4;
+            box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
         }
         
-        .service-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #f093fb, #f5576c);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
+        .calculator-result {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #4ecdc4;
         }
         
-        .service-icon svg {
-            width: 40px;
-            height: 40px;
-            color: white;
-        }
-        
-        .service-card h3 {
-            font-size: 1.25rem;
-            margin-bottom: 1rem;
+        .calculator-result h3 {
             color: #1e293b;
+            margin-bottom: 1rem;
         }
         
-        .service-card p {
+        .result-amount {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #4ecdc4;
+            margin-bottom: 0.5rem;
+        }
+        
+        .result-period {
             color: #64748b;
-            line-height: 1.6;
+            font-size: 1rem;
         }
         
         .benefits-section {
@@ -313,7 +328,7 @@
         .benefit-icon {
             width: 40px;
             height: 40px;
-            background: #f093fb;
+            background: #4ecdc4;
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -338,61 +353,13 @@
             line-height: 1.5;
         }
         
-        .contact-section {
-            padding: 4rem 2rem;
-            background: white;
-        }
-        
-        .contact-container {
-            max-width: 800px;
-            margin: 0 auto;
-            text-align: center;
-        }
-        
-        .contact-container h2 {
-            font-size: 2.5rem;
-            margin-bottom: 2rem;
-            color: #1e293b;
-        }
-        
-        .contact-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-        
-        .contact-option {
-            background: #f8fafc;
-            padding: 2rem;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
-        
-        .contact-option:hover {
-            background: #f1f5f9;
-            transform: translateY(-2px);
-        }
-        
-        .contact-option h3 {
-            margin-bottom: 1rem;
-            color: #1e293b;
-        }
-        
-        .contact-option a {
-            color: #f093fb;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-        
-        .contact-option a:hover {
-            text-decoration: underline;
-        }
-        
         @media (max-width: 768px) {
             .account-hero h1 {
                 font-size: 2rem;
+            }
+            
+            .interest-rate {
+                font-size: 3rem;
             }
             
             .cta-buttons {
@@ -404,22 +371,15 @@
                 grid-template-columns: 1fr;
             }
             
-            .services-grid {
-                grid-template-columns: 1fr;
-            }
-            
             .benefits-list {
                 grid-template-columns: 1fr;
             }
-        }
-        .nav-logo h2 {
-            color: #0a31df;
         }
     </style>
 </head>
 <body>
     <div class="page-backdrop">
-        <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&q=80" class="backdrop-img" alt="Business backdrop">
+        <img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1920&q=80" class="backdrop-img" alt="Savings backdrop">
     </div>
 
     <!-- Navigation Header -->
@@ -443,10 +403,10 @@
                         <a href="checking-account.html" class="nav-link">Checking</a>
                     </li>
                     <li class="nav-item">
-                        <a href="savings-account.html" class="nav-link">Savings</a>
+                        <a href="savings-account.html" class="nav-link active">Savings</a>
                     </li>
                     <li class="nav-item">
-                        <a href="business-account.html" class="nav-link active">Business</a>
+                        <a href="business-account.html" class="nav-link">Business</a>
                     </li>
                     <li class="nav-item">
                         <a href="account-opening-new.html" class="nav-link">Open Account</a>
@@ -454,6 +414,7 @@
                 </ul>
                 <div class="nav-actions">
                     <a href="login.html" class="btn btn-secondary">Login</a>
+            
                 </div>
             </div>
         </nav>
@@ -462,92 +423,41 @@
     <!-- Account Hero Section -->
     <section class="account-hero">
         <div class="account-hero-content">
-            <h1>Business Banking Account</h1>
-            <p>Comprehensive banking solutions designed to help your business thrive with dedicated support and advanced financial tools</p>
+            <h1>Personal Savings Account</h1>
+            <p>Grow your money securely with our competitive interest rates and flexible savings options designed for your financial goals</p>
             
-            <div class="premium-badge">
-                <h3>Premium Business Banking</h3>
-                <p>GH¢50/month • Dedicated Relationship Manager • Advanced Features</p>
+            <div class="interest-highlight">
+                <div class="interest-rate">15%</div>
+                <div class="interest-rate-label">Annual Interest Rate</div>
+                <div style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8;">One of the highest rates in Ghana!</div>
             </div>
             
-            <div class="cta-buttons">
-                <a href="account-opening-new.html" class="btn-primary-large">
-                    <span>Grow Your Business</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                        <polyline points="12 5 19 12 12 19"/>
-                    </svg>
-                </a>
-                <a href="#services" class="btn-secondary-large">Explore Services</a>
+        
+                <a href="#calculator" class="btn-secondary-large">Calculate Earnings</a>
             </div>
         </div>
     </section>
 
-    <!-- Services Section -->
-    <section class="services-section" id="services">
-        <div class="services-container">
-            <h2>Our Business Services</h2>
-            <div class="services-grid">
-                <div class="service-card">
-                    <div class="service-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                    </div>
-                    <h3>Personal Banking</h3>
-                    <p>Checking accounts, savings accounts, and personal loans with competitive rates.</p>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                        </svg>
-                    </div>
-                    <h3>Business Banking</h3>
-                    <p>Merchant services, business loans, and cash management solutions for Ghanaian businesses.</p>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
-                        </svg>
-                    </div>
-                    <h3>Savings Account</h3>
-                    <p>High-yield savings accounts with up to 15% annual interest and flexible terms.</p>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="12" y1="20" x2="12" y2="10"></line>
-                            <line x1="18" y1="20" x2="18" y2="4"></line>
-                            <line x1="6" y1="20" x2="6" y2="16"></line>
-                        </svg>
-                    </div>
-                    <h3>Investment Services</h3>
-                    <p>Wealth management, retirement planning, and investment advisory services.</p>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
-                            <line x1="12" y1="18" x2="12.01" y2="18"></line>
-                        </svg>
-                    </div>
-                    <h3>Digital Banking</h3>
-                    <p>24/7 online and mobile banking with advanced security features and mobile money integration.</p>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
-                            <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
-                        </svg>
-                    </div>
-                    <h3>Student Banking</h3>
-                    <p>Special accounts and loans designed for students and young professionals in Ghana.</p>
-                </div>
+    <!-- Calculator Section -->
+    <section class="calculator-section" id="calculator">
+        <div class="calculator-container">
+            <h2>Calculate Your Savings Growth</h2>
+            <div class="calculator-input">
+                <label for="savings-amount">Initial Deposit (GH¢)</label>
+                <input type="number" id="savings-amount" placeholder="1000" min="0" step="100">
+            </div>
+            <div class="calculator-input">
+                <label for="monthly-deposit">Monthly Deposit (GH¢)</label>
+                <input type="number" id="monthly-deposit" placeholder="500" min="0" step="50">
+            </div>
+            <div class="calculator-input">
+                <label for="savings-period">Savings Period (Years)</label>
+                <input type="number" id="savings-period" placeholder="1" min="1" max="10" step="1">
+            </div>
+            <div class="calculator-result">
+                <h3>Your Total After <span id="result-years">1</span> Year(s)</h3>
+                <div class="result-amount">GH¢ <span id="result-amount">1,150</span></div>
+                <div class="result-period">Including interest earned</div>
             </div>
         </div>
     </section>
@@ -558,23 +468,13 @@
             <div class="feature-card">
                 <div class="feature-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
+                        <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
                     </svg>
                 </div>
-                <h3>Relationship Manager</h3>
-                <p>Get personalized service from a dedicated relationship manager who understands your business needs and provides tailored solutions.</p>
+                <h3>High Interest Rates</h3>
+                <p>Enjoy up to 15% annual interest rate, one of the most competitive rates available in Ghana's banking sector.</p>
             </div>
             
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                    </svg>
-                </div>
-                <h3>Advanced Security</h3>
-                <p>Enterprise-grade security features including two-factor authentication, transaction monitoring, and fraud prevention systems.</p>
-            </div>
             <div class="feature-card">
                 <div class="feature-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 100 100">
@@ -589,20 +489,19 @@
                         </text>
                     </svg>
                 </div>
-                <h3>Competitive Rates</h3>
-                <p>Enjoy preferential rates on business loans, overdraft facilities, and foreign exchange services designed for businesses.</p>
+                <h3>No Monthly Fees</h3>
+                <p>Grow your savings without worrying about monthly maintenance fees eating into your hard-earned money.</p>
             </div>
             
             <div class="feature-card">
                 <div class="feature-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                        <line x1="9" y1="9" x2="15" y2="9"/>
-                        <line x1="9" y1="15" x2="15" y2="15"/>
+                        <rect x="2" y="4" width="20" height="16" rx="2"/>
+                        <path d="M7 15h.01M12 15h.01M17 15h.01"/>
                     </svg>
                 </div>
-                <h3>Online Banking</h3>
-                <p>Advanced business online banking platform with multi-user access, transaction approvals, and comprehensive reporting tools.</p>
+                <h3>Automatic Savings</h3>
+                <p>Set up automatic transfers from your checking account to build your savings effortlessly.</p>
             </div>
             
             <div class="feature-card">
@@ -612,22 +511,28 @@
                         <polyline points="12 6 12 12 16 14"/>
                     </svg>
                 </div>
-                <h3>24/7 Support</h3>
-                <p>Round-the-clock business banking support with dedicated phone lines, priority service, and quick resolution of issues.</p>
+                <h3>Quarterly Payouts</h3>
+                <p>Receive interest payments quarterly, allowing you to see your money grow regularly throughout the year.</p>
             </div>
             
             <div class="feature-card">
                 <div class="feature-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                        <line x1="16" y1="13" x2="8" y2="13"/>
-                        <line x1="16" y1="17" x2="8" y2="17"/>
-                        <polyline points="10 9 9 9 8 9"/>
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
                     </svg>
                 </div>
-                <h3>Business Analytics</h3>
-                <p>Detailed financial reporting, cash flow analysis, and business intelligence tools to help you make informed decisions.</p>
+                <h3>Flexible Access</h3>
+                <p>Access your savings when needed while still earning interest. No lock-in periods or withdrawal penalties.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                </div>
+                <h3>Secure & Insured</h3>
+                <p>Your savings are protected by Bank of Ghana deposit insurance, giving you peace of mind for your money.</p>
             </div>
         </div>
     </section>
@@ -635,7 +540,7 @@
     <!-- Benefits Section -->
     <section class="benefits-section">
         <div class="benefits-container">
-            <h2>Why Choose Our Business Banking?</h2>
+            <h2>Why Choose Our Savings Account?</h2>
             <div class="benefits-list">
                 <div class="benefit-item">
                     <div class="benefit-icon">
@@ -644,8 +549,8 @@
                         </svg>
                     </div>
                     <div class="benefit-content">
-                        <h4>Dedicated Support</h4>
-                        <p>Personal relationship manager providing tailored advice and priority service for your business needs.</p>
+                        <h4>Competitive Interest</h4>
+                        <p>Earn up to 15% annually, helping your money grow faster than traditional savings accounts.</p>
                     </div>
                 </div>
                 
@@ -656,8 +561,8 @@
                         </svg>
                     </div>
                     <div class="benefit-content">
-                        <h4>Competitive Pricing</h4>
-                        <p>Transparent fee structure with no hidden charges and competitive rates on all business services.</p>
+                        <h4>No Hidden Charges</h4>
+                        <p>Transparent banking with no monthly fees, no transaction fees, and no minimum balance requirements.</p>
                     </div>
                 </div>
                 
@@ -668,8 +573,8 @@
                         </svg>
                     </div>
                     <div class="benefit-content">
-                        <h4>Scalable Solutions</h4>
-                        <p>Banking solutions that grow with your business, from startups to established enterprises.</p>
+                        <h4>Easy Online Management</h4>
+                        <p>Manage your savings through our mobile app or online banking platform 24/7.</p>
                     </div>
                 </div>
                 
@@ -680,8 +585,8 @@
                         </svg>
                     </div>
                     <div class="benefit-content">
-                        <h4>Advanced Technology</h4>
-                        <p>State-of-the-art digital banking platform with features designed specifically for business operations.</p>
+                        <h4>Goal-Based Savings</h4>
+                        <p>Create multiple savings goals for different purposes and track your progress towards each goal.</p>
                     </div>
                 </div>
                 
@@ -692,8 +597,8 @@
                         </svg>
                     </div>
                     <div class="benefit-content">
-                        <h4>Financial Expertise</h4>
-                        <p>Access to financial experts and business advisors to help you optimize your financial strategy.</p>
+                        <h4>Emergency Fund Builder</h4>
+                        <p>Build your emergency fund with our smart savings tools and automatic round-up features.</p>
                     </div>
                 </div>
                 
@@ -704,48 +609,10 @@
                         </svg>
                     </div>
                     <div class="benefit-content">
-                        <h4>Network Benefits</h4>
-                        <p>Connect with other businesses through our networking events and partnership opportunities.</p>
+                        <h4>Expert Financial Advice</h4>
+                        <p>Get personalized savings advice from our financial experts to help you reach your goals faster.</p>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section class="contact-section">
-        <div class="contact-container">
-            <h2>Ready to Grow Your Business?</h2>
-            <p style="font-size: 1.25rem; color: #64748b; margin-bottom: 2rem;">Contact our business banking team to get started</p>
-            
-            <div class="contact-options">
-                <div class="contact-option">
-                    <h3>📞 Call Us</h3>
-                    <a href="tel:+233302123456">+233 30 212 3456</a>
-                    <p style="margin-top: 0.5rem; color: #64748b; font-size: 0.9rem;">Mon-Fri, 8AM-6PM</p>
-                </div>
-                
-                <div class="contact-option">
-                    <h3>✉️ Email Us</h3>
-                    <a href="mailto:business@trustbank.com.gh">business@trustbank.com.gh</a>
-                    <p style="margin-top: 0.5rem; color: #64748b; font-size: 0.9rem;">Response within 24 hours</p>
-                </div>
-                
-                <div class="contact-option">
-                    <h3>📍 Visit Us</h3>
-                    <a href="#">Find a Branch</a>
-                    <p style="margin-top: 0.5rem; color: #64748b; font-size: 0.9rem;">20+ locations nationwide</p>
-                </div>
-            </div>
-            
-            <div style="margin-top: 3rem;">
-                <a href="account-opening-new.html" class="btn btn-primary-large">
-                    <span>Open Business Account</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                        <polyline points="12 5 19 12 12 19"/>
-                    </svg>
-                </a>
             </div>
         </div>
     </section>
@@ -771,10 +638,10 @@
                 <div class="footer-section">
                     <h4>Services</h4>
                     <ul>
-                        <li><a href="mobile-banking.html">Mobile Banking</a></li>
-                        <li><a href="online-banking.html">Online Banking</a></li>
+                        <li><a href="index.html#services">Mobile Banking</a></li>
+                        <li><a href="index.html#services">Online Banking</a></li>
                         <li><a href="atm-services.html">ATM Services</a></li>
-                        <li><a href="international-transfers.html">International Transfers</a></li>
+                        <li><a href="index.html#services">International Transfers</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
@@ -794,5 +661,35 @@
     </footer>
 
     <script src="script.js"></script>
+    <script>
+        // Savings Calculator
+        function calculateSavings() {
+            const principal = parseFloat(document.getElementById('savings-amount').value) || 0;
+            const monthlyDeposit = parseFloat(document.getElementById('monthly-deposit').value) || 0;
+            const years = parseFloat(document.getElementById('savings-period').value) || 1;
+            
+            const annualRate = 0.15; // 15% annual interest
+            const monthlyRate = annualRate / 12;
+            const months = years * 12;
+            
+            // Calculate compound interest with monthly deposits
+            let total = principal;
+            for (let i = 0; i < months; i++) {
+                total = total * (1 + monthlyRate) + monthlyDeposit;
+            }
+            
+            // Update display
+            document.getElementById('result-years').textContent = years;
+            document.getElementById('result-amount').textContent = total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
+        // Add event listeners
+        document.getElementById('savings-amount').addEventListener('input', calculateSavings);
+        document.getElementById('monthly-deposit').addEventListener('input', calculateSavings);
+        document.getElementById('savings-period').addEventListener('input', calculateSavings);
+        
+        // Calculate initial values
+        calculateSavings();
+    </script>
 </body>
 </html>
