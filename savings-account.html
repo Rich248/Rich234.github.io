@@ -45,10 +45,24 @@
         .account-hero {
             background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
             color: white;
-            padding: 4rem 2rem;
+            padding: 6rem 2rem 4rem;
             text-align: center;
             position: relative;
             overflow: hidden;
+            margin-top: 70px;
+        }
+
+        @media (max-width: 768px) {
+            .account-hero {
+                padding: 5rem 1.5rem 3rem;
+                margin-top: 60px;
+            }
+            .account-hero h1 {
+                font-size: 2rem;
+            }
+            .account-hero p {
+                font-size: 1rem;
+            }
         }
         
         .account-hero::before {
@@ -677,5 +691,12 @@
         // Calculate initial values
         calculateSavings();
     </script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- Ghana Trust Bank Live Chat Widget -->
+    <script src="chat.js"></script>
 </body>
 </html>
