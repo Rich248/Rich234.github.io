@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Services - GhanaTrust Bank</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .page-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .page-backdrop::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.9) 0%, rgba(59, 130, 246, 0.9) 100%);
+            z-index: 1;
+        }
+
+        .backdrop-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            animation: slowZoom 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes slowZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        .loans-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .loans-hero {
+            text-align: center;
+            color: white;
+            padding: 3rem 0;
+        }
+
+        .loans-hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .loans-hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .loan-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .loan-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .loan-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+
+        .loan-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+        }
+
+        .loan-icon svg {
+            width: 40px;
+            height: 40px;
+        }
+
+        .loan-card h3 {
+            color: #1e3a8a;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .loan-rate {
+            display: inline-block;
+            background: #dcfce7;
+            color: #166534;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .loan-details {
+            list-style: none;
+            padding: 0;
+            margin: 1.5rem 0;
+        }
+
+        .loan-details li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e5e7eb;
+            color: #4b5563;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .loan-details li:last-child {
+            border-bottom: none;
+        }
+
+        .loan-details li::before {
+            content: '✓';
+            color: #22c55e;
+            font-weight: bold;
+        }
+
+        .apply-btn {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .apply-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .requirements-section {
+            background: white;
+            border-radius: 1rem;
+            padding: 3rem;
+            margin: 3rem 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .requirements-section h2 {
+            color: #1e3a8a;
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .requirements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .requirement-box {
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 0.75rem;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .requirement-box h4 {
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .requirement-box ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .requirement-box li {
+            padding: 0.5rem 0;
+            color: #4b5563;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .requirement-box li::before {
+            content: '•';
+            color: #3b82f6;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .process-section {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            border-radius: 1rem;
+            padding: 3rem;
+            margin: 3rem 0;
+            color: white;
+        }
+
+        .process-section h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .process-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .process-step {
+            text-align: center;
+            padding: 1.5rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 0.75rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: white;
+            color: #1e3a8a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0 auto 1rem;
+        }
+
+        .calculator-section {
+            background: white;
+            border-radius: 1rem;
+            padding: 3rem;
+            margin: 3rem 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .calculator-section h2 {
+            color: #1e3a8a;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .calculator-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .result-box {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f0fdf4;
+            border: 2px solid #22c55e;
+            border-radius: 0.75rem;
+            display: none;
+        }
+
+        .result-box.show {
+            display: block;
+        }
+
+        .contact-cta {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 1rem;
+            margin: 3rem 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .contact-cta h2 {
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+        }
+
+        .contact-cta p {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-phone {
+            font-size: 2rem;
+            color: #1e3a8a;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .loans-hero h1 {
+                font-size: 2rem;
+            }
+
+            .loan-types {
+                grid-template-columns: 1fr;
+            }
+
+            .requirements-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .process-steps {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-backdrop">
+        <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1920&q=80" class="backdrop-img" alt="Loans backdrop">
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <a href="index.html" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: #0a31df;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32">
+                            <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <h2 style="margin: 0;">GhanaTrust Bank</h2>
+                    </a>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+                    <li class="nav-item"><a href="checking-account.html" class="nav-link">Checking</a></li>
+                    <li class="nav-item"><a href="savings-account.html" class="nav-link">Savings</a></li>
+                    <li class="nav-item"><a href="business-account.html" class="nav-link">Business</a></li>
+                    <li class="nav-item"><a href="loans.html" class="nav-link active">Loans</a></li>
+                    <li class="nav-item"><a href="account-opening-new.html" class="nav-link">Open Account</a></li>
+                    <li class="nav-item"><a href="login.html" class="nav-link">Login</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <div class="loans-container">
+        <!-- Hero Section -->
+        <div class="loans-hero">
+            <h1>Loan Services</h1>
+            <p>Flexible financing solutions to help you achieve your personal and business goals. Competitive rates, quick approval, and personalized service.</p>
+        </div>
+
+        <!-- Loan Types -->
+        <div class="loan-types">
+            <!-- Personal Loan -->
+            <div class="loan-card">
+                <div class="loan-icon">
+                    <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="32" cy="22" r="12" fill="rgba(255,255,255,0.2)"/>
+                        <path d="M32 38v12" stroke-width="3"/>
+                        <path d="M20 44h24" stroke-width="3"/>
+                        <path d="M16 50h32" stroke-width="3"/>
+                        <circle cx="32" cy="22" r="8" fill="white" fill-opacity="0.3"/>
+                    </svg>
+                </div>
+                <h3>Personal Loan</h3>
+                <span class="loan-rate">From 18% p.a.</span>
+                <ul class="loan-details">
+                    <li>Amount: GH₵1,000 - GH₵100,000</li>
+                    <li>Tenure: 6 months - 5 years</li>
+                    <li>No collateral for qualifying customers</li>
+                    <li>Quick approval process</li>
+                    <li>Flexible repayment options</li>
+                </ul>
+                <a href="loan-application.html?type=personal" class="apply-btn">Apply Now</a>
+            </div>
+
+            <!-- Salary Loan -->
+            <div class="loan-card">
+                <div class="loan-icon">
+                    <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="12" y="20" width="40" height="28" rx="3" fill="rgba(255,255,255,0.2)"/>
+                        <path d="M22 28h20" stroke-width="2.5"/>
+                        <path d="M22 34h16" stroke-width="2.5"/>
+                        <circle cx="42" cy="38" r="4" fill="white" fill-opacity="0.4"/>
+                        <path d="M20 16h24" stroke-width="2" stroke-dasharray="4 2"/>
+                        <path d="M24 12h16" stroke-width="2"/>
+                    </svg>
+                </div>
+                <h3>Salary Loan</h3>
+                <span class="loan-rate">From 15% p.a.</span>
+                <ul class="loan-details">
+                    <li>For salaried workers only</li>
+                    <li>Up to 6 months gross salary</li>
+                    <li>No collateral required</li>
+                    <li>Approval in 24-48 hours</li>
+                    <li>Automatic salary deduction</li>
+                </ul>
+                <a href="loan-application.html?type=salary" class="apply-btn">Apply Now</a>
+            </div>
+
+            <!-- Business Loan -->
+            <div class="loan-card">
+                <div class="loan-icon">
+                    <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="8" y="28" width="48" height="28" rx="3" fill="rgba(255,255,255,0.2)"/>
+                        <rect x="20" y="12" width="24" height="16" rx="2" fill="white" fill-opacity="0.3"/>
+                        <path d="M28 20h8" stroke-width="2.5"/>
+                        <path d="M32 16v8" stroke-width="2.5"/>
+                        <rect x="16" y="36" width="12" height="12" rx="1" fill="white" fill-opacity="0.2"/>
+                        <rect x="36" y="36" width="12" height="12" rx="1" fill="white" fill-opacity="0.2"/>
+                        <circle cx="44" cy="30" r="3" fill="white" fill-opacity="0.4"/>
+                    </svg>
+                </div>
+                <h3>Business Loan</h3>
+                <span class="loan-rate">From 15% p.a.</span>
+                <ul class="loan-details">
+                    <li>Amount: GH₵10,000 - GH₵500,000</li>
+                    <li>Working capital financing</li>
+                    <li>Equipment & machinery loans</li>
+                    <li>Flexible repayment up to 3 years</li>
+                    <li>Trade finance available</li>
+                </ul>
+                <a href="loan-application.html?type=business" class="apply-btn">Apply Now</a>
+            </div>
+
+            <!-- Emergency Loan -->
+            <div class="loan-card">
+                <div class="loan-icon">
+                    <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="32" cy="32" r="22" fill="rgba(255,255,255,0.2)"/>
+                        <circle cx="32" cy="32" r="18" stroke-width="1.5"/>
+                        <path d="M32 20v14" stroke-width="4" stroke-linecap="round"/>
+                        <circle cx="32" cy="46" r="3" fill="white"/>
+                        <path d="M20 16l4 4" stroke-width="2"/>
+                        <path d="M44 16l-4 4" stroke-width="2"/>
+                        <path d="M20 48l4-4" stroke-width="2"/>
+                        <path d="M44 48l-4-4" stroke-width="2"/>
+                    </svg>
+                </div>
+                <h3>Emergency Loan</h3>
+                <span class="loan-rate">From 20% p.a.</span>
+                <ul class="loan-details">
+                    <li>Amount: GH₵500 - GH₵5,000</li>
+                    <li>Same-day approval</li>
+                    <li>Short tenure: 1-6 months</li>
+                    <li>Minimal documentation</li>
+                    <li>Fast disbursement</li>
+                </ul>
+                <a href="loan-application.html?type=emergency" class="apply-btn">Apply Now</a>
+            </div>
+        </div>
+
+        <!-- Requirements Section -->
+        <div class="requirements-section">
+            <h2>Loan Requirements</h2>
+            <div class="requirements-grid">
+                <div class="requirement-box">
+                    <h4>Personal Loan Requirements</h4>
+                    <ul>
+                        <li>Valid Ghana Card</li>
+                        <li>GTB account (6+ months old)</li>
+                        <li>Proof of income (payslips)</li>
+                        <li>Bank statements (6 months)</li>
+                        <li>2 guarantors with GTB accounts</li>
+                        <li>Completed loan application</li>
+                    </ul>
+                </div>
+
+                <div class="requirement-box">
+                    <h4>Business Loan Requirements</h4>
+                    <ul>
+                        <li>Business registration documents</li>
+                        <li>Financial statements (2 years)</li>
+                        <li>Business bank statements (12 months)</li>
+                        <li>Cash flow projections</li>
+                        <li>Collateral (depending on amount)</li>
+                        <li>Business plan</li>
+                    </ul>
+                </div>
+
+                <div class="requirement-box">
+                    <h4>Emergency Loan Requirements</h4>
+                    <ul>
+                        <li>Valid Ghana Card</li>
+                        <li>GTB account holder</li>
+                        <li>Proof of regular income</li>
+                        <li>One guarantor</li>
+                        <li>Completed application form</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Application Process -->
+        <div class="process-section">
+            <h2>How to Apply</h2>
+            <div class="process-steps">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <h4>Visit Branch</h4>
+                    <p>Go to any Ghana Trust Bank branch</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <h4>Submit Documents</h4>
+                    <p>Complete application with required documents</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <h4>Assessment</h4>
+                    <p>Credit team reviews your application</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">4</div>
+                    <h4>Approval</h4>
+                    <p>Receive decision and disbursement</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loan Calculator -->
+        <div class="calculator-section">
+            <h2>Loan Calculator</h2>
+            <div class="calculator-form">
+                <div class="form-group">
+                    <label for="loanAmount">Loan Amount (GH₵)</label>
+                    <input type="number" id="loanAmount" placeholder="e.g., 10000" min="500" max="500000">
+                </div>
+                <div class="form-group">
+                    <label for="loanType">Loan Type</label>
+                    <select id="loanType">
+                        <option value="18">Personal Loan (18% p.a.)</option>
+                        <option value="15">Salary Loan (15% p.a.)</option>
+                        <option value="15">Business Loan (15% p.a.)</option>
+                        <option value="20">Emergency Loan (20% p.a.)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="loanTerm">Loan Term (Months)</label>
+                    <input type="number" id="loanTerm" placeholder="e.g., 12" min="1" max="60">
+                </div>
+                <button class="calculate-btn" onclick="calculateLoan()">Calculate Repayment</button>
+
+                <div class="result-box" id="resultBox">
+                    <h4>Estimated Monthly Payment</h4>
+                    <p style="font-size: 2rem; color: #166534; font-weight: bold; margin: 0.5rem 0;">GH₵<span id="monthlyPayment">0</span></p>
+                    <p style="color: #6b7280; margin: 0;">Total Interest: GH₵<span id="totalInterest">0</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact CTA -->
+        <div class="contact-cta">
+            <h2>Ready to Apply?</h2>
+            <p>Visit any Ghana Trust Bank branch or call us to speak with a loan officer</p>
+            <a href="tel:0302212222" class="cta-phone">030 221 2222</a>
+            <p style="margin-top: 1rem; color: #6b7280;">Mon-Fri: 8AM-5PM | Sat: 9AM-1PM</p>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <!-- Ghana Trust Bank Live Chat Widget -->
+    <script src="chat.js"></script>
+
+    <script>
+        function calculateLoan() {
+            const amount = parseFloat(document.getElementById('loanAmount').value);
+            const rate = parseFloat(document.getElementById('loanType').value) / 100 / 12;
+            const term = parseInt(document.getElementById('loanTerm').value);
+
+            if (!amount || !term || amount <= 0 || term <= 0) {
+                alert('Please enter valid loan amount and term');
+                return;
+            }
+
+            // Calculate monthly payment using loan formula
+            const monthlyPayment = (amount * rate * Math.pow(1 + rate, term)) / (Math.pow(1 + rate, term) - 1);
+            const totalPayment = monthlyPayment * term;
+            const totalInterest = totalPayment - amount;
+
+            document.getElementById('monthlyPayment').textContent = monthlyPayment.toFixed(2);
+            document.getElementById('totalInterest').textContent = totalInterest.toFixed(2);
+            document.getElementById('resultBox').classList.add('show');
+        }
+    </script>
+</body>
+</html>
