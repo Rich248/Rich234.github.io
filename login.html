@@ -175,12 +175,27 @@
             font-weight: bold;
             border: 2px solid #cbd5e1;
             border-radius: 0.5rem;
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
         }
 
         .code-input:focus {
             outline: none;
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Mobile-specific adjustments */
+        @media (max-width: 480px) {
+            .code-input {
+                width: 2.5rem;
+                height: 2.5rem;
+                font-size: 1.25rem;
+            }
+
+            .code-input-group {
+                gap: 0.35rem;
+            }
         }
 
         .back-link {
@@ -274,12 +289,12 @@
             <div class="form-group">
                 <label>Reset Code</label>
                 <div class="code-input-group">
-                    <input type="text" class="code-input" maxlength="1" data-index="0" oninput="handleCodeInput(this, 0)" onkeydown="handleCodeKeydown(event, 0)">
-                    <input type="text" class="code-input" maxlength="1" data-index="1" oninput="handleCodeInput(this, 1)" onkeydown="handleCodeKeydown(event, 1)">
-                    <input type="text" class="code-input" maxlength="1" data-index="2" oninput="handleCodeInput(this, 2)" onkeydown="handleCodeKeydown(event, 2)">
-                    <input type="text" class="code-input" maxlength="1" data-index="3" oninput="handleCodeInput(this, 3)" onkeydown="handleCodeKeydown(event, 3)">
-                    <input type="text" class="code-input" maxlength="1" data-index="4" oninput="handleCodeInput(this, 4)" onkeydown="handleCodeKeydown(event, 4)">
-                    <input type="text" class="code-input" maxlength="1" data-index="5" oninput="handleCodeInput(this, 5)" onkeydown="handleCodeKeydown(event, 5)">
+                    <input type="text" class="code-input" maxlength="1" data-index="0" inputmode="numeric" pattern="[0-9]*" oninput="handleCodeInput(this, 0)" onkeydown="handleCodeKeydown(event, 0)">
+                    <input type="text" class="code-input" maxlength="1" data-index="1" inputmode="numeric" pattern="[0-9]*" oninput="handleCodeInput(this, 1)" onkeydown="handleCodeKeydown(event, 1)">
+                    <input type="text" class="code-input" maxlength="1" data-index="2" inputmode="numeric" pattern="[0-9]*" oninput="handleCodeInput(this, 2)" onkeydown="handleCodeKeydown(event, 2)">
+                    <input type="text" class="code-input" maxlength="1" data-index="3" inputmode="numeric" pattern="[0-9]*" oninput="handleCodeInput(this, 3)" onkeydown="handleCodeKeydown(event, 3)">
+                    <input type="text" class="code-input" maxlength="1" data-index="4" inputmode="numeric" pattern="[0-9]*" oninput="handleCodeInput(this, 4)" onkeydown="handleCodeKeydown(event, 4)">
+                    <input type="text" class="code-input" maxlength="1" data-index="5" inputmode="numeric" pattern="[0-9]*" oninput="handleCodeInput(this, 5)" onkeydown="handleCodeKeydown(event, 5)">
                 </div>
                 <input type="hidden" id="fullResetCode">
             </div>
@@ -446,13 +461,17 @@
         function handleCodeInput(input, index) {
             // Only allow numbers
             input.value = input.value.replace(/[^0-9]/g, '');
-            
+
             // Move to next input if value entered
             if (input.value && index < 5) {
                 const nextInput = document.querySelector(`[data-index="${index + 1}"]`);
-                if (nextInput) nextInput.focus();
+                if (nextInput) {
+                    nextInput.focus();
+                    // On mobile, ensure the input is focused properly
+                    setTimeout(() => nextInput.focus(), 10);
+                }
             }
-            
+
             // Update full code
             updateFullResetCode();
         }
@@ -461,9 +480,41 @@
             // Move to previous input on backspace if empty
             if (event.key === 'Backspace' && !event.target.value && index > 0) {
                 const prevInput = document.querySelector(`[data-index="${index - 1}"]`);
-                if (prevInput) prevInput.focus();
+                if (prevInput) {
+                    prevInput.focus();
+                    // Clear the previous input on backspace
+                    prevInput.value = '';
+                    updateFullResetCode();
+                }
             }
         }
+
+        // Add paste handler for OTP code
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeInputs = document.querySelectorAll('.code-input');
+            codeInputs.forEach((input, index) => {
+                input.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '');
+                    const inputs = document.querySelectorAll('.code-input');
+
+                    for (let i = 0; i < Math.min(pastedData.length, 6); i++) {
+                        if (inputs[index + i]) {
+                            inputs[index + i].value = pastedData[i];
+                        }
+                    }
+                    updateFullResetCode();
+
+                    // Focus the next empty input or the last filled one
+                    const nextEmpty = Array.from(inputs).findIndex(inp => !inp.value);
+                    if (nextEmpty !== -1) {
+                        inputs[nextEmpty].focus();
+                    } else {
+                        inputs[5].focus();
+                    }
+                });
+            });
+        });
 
         function updateFullResetCode() {
             const inputs = document.querySelectorAll('.code-input');
