@@ -456,6 +456,10 @@
         </div>
     </footer>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
     <!-- Blog Modal -->
     <div class="modal-overlay" id="blogModal">
         <div class="blog-modal">
@@ -500,6 +504,28 @@
     </div>
 
     <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBC6abatrIxH9gFaXQx8Q4gDdu59dU1U8E",
+            authDomain: "live-chat-61efd.firebaseapp.com",
+            databaseURL: "https://live-chat-61efd-default-rtdb.firebaseio.com",
+            projectId: "live-chat-61efd",
+            storageBucket: "live-chat-61efd.firebasestorage.app",
+            messagingSenderId: "1059519432349",
+            appId: "1:1059519432349:web:a40c6fee6357651c6af674",
+            measurementId: "G-W8CFYEYHJ4"
+        };
+
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        // API Server URL - dynamically determine based on environment
+        const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000'
+            : window.location.origin; // Use same origin for live hosting
+
         // Blog Content Data
         const blogData = {
             1: {
@@ -664,7 +690,7 @@
             btn.textContent = 'Subscribing...';
 
             try {
-                const response = await fetch('http://localhost:3000/api/send-to-admin', {
+                const response = await fetch(`${API_BASE_URL}/api/send-to-admin`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
