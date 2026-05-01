@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Application - GhanaTrust Bank</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .page-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .page-backdrop::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.9) 0%, rgba(59, 130, 246, 0.9) 100%);
+            z-index: 1;
+        }
+
+        .backdrop-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            animation: slowZoom 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes slowZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        .application-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .application-header {
+            text-align: center;
+            color: white;
+            padding: 3rem 0;
+        }
+
+        .application-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .application-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .application-form {
+            background: white;
+            border-radius: 1rem;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+
+        .form-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .form-section h3 {
+            color: #1e3a8a;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+        }
+
+        .checkbox-group input {
+            width: auto;
+            margin-top: 0.25rem;
+        }
+
+        .checkbox-group label {
+            color: #4b5563;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .success-message {
+            display: none;
+            background: #dcfce7;
+            border: 2px solid #22c55e;
+            color: #166534;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .home-link {
+            display: inline-block;
+            margin-top: 1rem;
+            color: #166534;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        .home-link:hover {
+            color: #14532d;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .application-form {
+                padding: 2rem 1.5rem;
+            }
+
+            .application-header h1 {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-backdrop">
+        <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1920&q=80" class="backdrop-img" alt="Loan application backdrop">
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <a href="index.html" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: #0a31df;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32">
+                            <rect x="2" y="7" width="20" height="14" rx="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <h2 style="margin: 0;">GhanaTrust Bank</h2>
+                    </a>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+                    <li class="nav-item"><a href="checking-account.html" class="nav-link">Checking</a></li>
+                    <li class="nav-item"><a href="savings-account.html" class="nav-link">Savings</a></li>
+                    <li class="nav-item"><a href="loans.html" class="nav-link active">Loans</a></li>
+                    <li class="nav-item"><a href="login.html" class="nav-link">Login</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <div class="application-container">
+        <div class="application-header">
+            <h1>Loan Application</h1>
+            <p>Fill out the form below to apply for your loan. Our team will review your application and contact you within 24-48 hours.</p>
+        </div>
+
+        <form class="application-form" id="loanForm">
+            <!-- Loan Details -->
+            <div class="form-section">
+                <h3>Loan Details</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="loanType">Loan Type *</label>
+                        <select id="loanType" name="loanType" required>
+                            <option value="">Select Loan Type</option>
+                            <option value="personal">Personal Loan</option>
+                            <option value="salary">Salary Loan</option>
+                            <option value="business">Business Loan</option>
+                            <option value="emergency">Emergency Loan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="loanAmount">Loan Amount (GH₵) *</label>
+                        <input type="number" id="loanAmount" name="loanAmount" min="500" max="500000" placeholder="e.g., 10000" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="loanTerm">Loan Term (Months) *</label>
+                        <select id="loanTerm" name="loanTerm" required>
+                            <option value="">Select Term</option>
+                            <option value="3">3 Months</option>
+                            <option value="6">6 Months</option>
+                            <option value="12">12 Months</option>
+                            <option value="24">24 Months</option>
+                            <option value="36">36 Months</option>
+                            <option value="48">48 Months</option>
+                            <option value="60">60 Months</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="purpose">Purpose of Loan *</label>
+                        <input type="text" id="purpose" name="purpose" placeholder="e.g., Business expansion, Medical expenses" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Information -->
+            <div class="form-section">
+                <h3>Personal Information</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">First Name *</label>
+                        <input type="text" id="firstName" name="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name *</label>
+                        <input type="text" id="lastName" name="lastName" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ghanaCard">Ghana Card Number *</label>
+                        <input type="text" id="ghanaCard" name="ghanaCard" placeholder="GHA-XXXXXXXXX-X" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dob">Date of Birth *</label>
+                        <input type="date" id="dob" name="dob" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="phone">Phone Number *</label>
+                        <input type="tel" id="phone" name="phone" placeholder="024 XXX XXXX" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" placeholder="your@email.com" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employment Information -->
+            <div class="form-section">
+                <h3>Employment Information</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="employment">Employment Status *</label>
+                        <select id="employment" name="employment" required>
+                            <option value="">Select Status</option>
+                            <option value="employed">Employed</option>
+                            <option value="self-employed">Self-Employed</option>
+                            <option value="business-owner">Business Owner</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="employer">Employer/Business Name</label>
+                        <input type="text" id="employer" name="employer" placeholder="Company or business name">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="monthlyIncome">Monthly Income (GH₵) *</label>
+                        <input type="number" id="monthlyIncome" name="monthlyIncome" placeholder="e.g., 5000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="employmentDuration">Employment Duration</label>
+                        <select id="employmentDuration" name="employmentDuration">
+                            <option value="">Select Duration</option>
+                            <option value="less-than-1">Less than 1 year</option>
+                            <option value="1-2">1-2 years</option>
+                            <option value="2-5">2-5 years</option>
+                            <option value="5-plus">5+ years</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address -->
+            <div class="form-section">
+                <h3>Address Information</h3>
+                <div class="form-group">
+                    <label for="address">Residential Address *</label>
+                    <textarea id="address" name="address" placeholder="Street address, City, Region" required></textarea>
+                </div>
+            </div>
+
+            <!-- Declaration -->
+            <div class="form-section">
+                <h3>Declaration</h3>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="declaration" name="declaration" required>
+                    <label for="declaration">I declare that the information provided above is true and accurate to the best of my knowledge. I authorize Ghana Trust Bank to verify any information provided and to obtain credit reports. I understand that providing false information may result in rejection of this application and possible legal action.</label>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Submit Application</button>
+
+            <div class="success-message" id="successMessage">
+                <h3>✓ Application Submitted Successfully!</h3>
+                <p>Thank you for applying. Our loan team will review your application and contact you within 24-48 hours.</p>
+                <p>Application Reference: <strong id="referenceNumber"></strong></p>
+                <div class="email-confirmation" style="background: #f0fdf4; border-left: 4px solid #22c55e; padding: 1rem; margin: 1rem 0; border-radius: 0 8px 8px 0;">
+                    <p style="margin: 0; color: #166534;"><strong>📧 Confirmation emails sent!</strong></p>
+                    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #15803d;">A confirmation email has been sent to your email address. Please check your inbox.</p>
+                </div>
+                <a href="index.html" class="home-link">Return to Home</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <!-- Ghana Trust Bank Live Chat Widget -->
+    <script src="chat.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBC6abatrIxH9gFaXQx8Q4gDdu59dU1U8E",
+            authDomain: "live-chat-61efd.firebaseapp.com",
+            databaseURL: "https://live-chat-61efd-default-rtdb.firebaseio.com",
+            projectId: "live-chat-61efd",
+            storageBucket: "live-chat-61efd.firebasestorage.app",
+            messagingSenderId: "1059519432349",
+            appId: "1:1059519432349:web:a40c6fee6357651c6af674",
+            measurementId: "G-W8CFYEYHJ4"
+        };
+
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const database = firebase.database();
+
+        // API Server URL - dynamically determine based on environment
+        const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000'
+            : window.location.origin; // Use same origin for live hosting
+
+        // Pre-select loan type from URL parameter
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const loanType = urlParams.get('type');
+            if (loanType) {
+                document.getElementById('loanType').value = loanType;
+            }
+        });
+
+        // Function to check if server is running
+        async function checkServerHealth() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/health`);
+                const data = await response.json();
+                console.log('Server health check:', data);
+                return data.status === 'OK';
+            } catch (error) {
+                console.error('Server health check failed:', error);
+                return false;
+            }
+        }
+
+        // Form submission
+        document.getElementById('loanForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Get submit button and show loading state
+            const submitBtn = document.querySelector('.submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting... Please wait';
+
+            // Generate reference number
+            const reference = 'LOAN-' + Date.now().toString(36).toUpperCase();
+            document.getElementById('referenceNumber').textContent = reference;
+
+            // Collect form data
+            const formData = {
+                reference: reference,
+                loanType: document.getElementById('loanType').value,
+                loanAmount: document.getElementById('loanAmount').value,
+                loanTerm: document.getElementById('loanTerm').value,
+                loanPurpose: document.getElementById('loanPurpose').value,
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                ghanaCard: document.getElementById('ghanaCard').value,
+                dob: document.getElementById('dob').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                employment: document.getElementById('employment').value,
+                employer: document.getElementById('employer').value,
+                monthlyIncome: document.getElementById('monthlyIncome').value,
+                employmentDuration: document.getElementById('employmentDuration').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                region: document.getElementById('region').value,
+                status: 'pending',
+                submittedAt: new Date().toISOString()
+            };
+
+            // Save to Firebase for admin review
+            database.ref('loanApplications/' + reference).set(formData)
+                .then(async () => {
+                    console.log('Loan application saved to admin dashboard');
+
+                    // Check server health before sending emails
+                    const serverRunning = await checkServerHealth();
+                    if (!serverRunning) {
+                        console.warn('Server is not running, skipping email sending');
+                        alert('Your loan application has been saved successfully!\n\nHowever, email notifications could not be sent because the email server is temporarily unavailable. The admin will still see your application in the dashboard.\n\nReference Number: ' + reference);
+                        document.getElementById('successMessage').classList.add('show');
+                        document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
+                        document.getElementById('loanForm').reset();
+                        return;
+                    }
+
+                    // Send both emails and wait for completion
+                    const adminEmailPromise = sendAdminNotification(formData);
+                    const userEmailPromise = sendLoanConfirmationEmail(formData);
+
+                    return Promise.all([adminEmailPromise, userEmailPromise]);
+                })
+                .then(() => {
+                    console.log('Both confirmation emails sent successfully');
+
+                    // Show success message
+                    document.getElementById('successMessage').classList.add('show');
+
+                    // Scroll to success message
+                    document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
+
+                    // Reset form after successful submission
+                    document.getElementById('loanForm').reset();
+                })
+                .catch((error) => {
+                    console.error('Error in application submission:', error);
+                    alert('Error: ' + error.message + '\n\nPlease check your internet connection and try again, or contact support at 030 221 2222.');
+                })
+                .finally(() => {
+                    // Re-enable submit button
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit Application';
+                });
+        });
+
+        // Send admin notification email
+        function sendAdminNotification(formData) {
+            return new Promise((resolve) => {
+                const loanTypeDisplay = formData.loanType.charAt(0).toUpperCase() + formData.loanType.slice(1);
+                const adminEmailData = {
+                    to: 'ads24a00010y@ait.edu.gh',
+                    subject: `New Loan Application - ${loanTypeDisplay} Loan (${formData.reference})`,
+                    body: `Dear Admin,
+
+A new loan application has been submitted and requires your review.
+
+APPLICANT INFORMATION:
+- Name: ${formData.firstName} ${formData.lastName}
+- Email: ${formData.email}
+- Phone: ${formData.phone}
+- Ghana Card: ${formData.ghanaCard}
+- Date of Birth: ${formData.dob}
+
+LOAN DETAILS:
+- Reference Number: ${formData.reference}
+- Loan Type: ${loanTypeDisplay} Loan
+- Amount Requested: GH₵${formData.loanAmount}
+- Term: ${formData.loanTerm} months
+- Purpose: ${formData.loanPurpose || 'Not specified'}
+
+EMPLOYMENT INFORMATION:
+- Employment Status: ${formData.employment}
+- Employer: ${formData.employer || 'N/A'}
+- Monthly Income: GH₵${formData.monthlyIncome}
+- Employment Duration: ${formData.employmentDuration || 'N/A'}
+
+ADDRESS:
+${formData.address}, ${formData.city}, ${formData.region}
+
+Submitted on: ${new Date(formData.submittedAt).toLocaleString()}
+
+Please review this application in the admin dashboard.
+
+Ghana Trust Bank System`,
+                    html: `<h3>New Loan Application Received</h3>
+<p>A new loan application has been submitted and requires your review.</p>
+
+<h4>APPLICANT INFORMATION:</h4>
+<table style="border-collapse: collapse; width: 100%;">
+<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Name:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${formData.firstName} ${formData.lastName}</td></tr>
+<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Email:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${formData.email}</td></tr>
+<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Phone:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${formData.phone}</td></tr>
+<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Ghana Card:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${formData.ghanaCard}</td></tr>
+</table>
+
+<h4>LOAN DETAILS:</h4>
+<table style="border-collapse: collapse; width: 100%;">
+<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Reference Number:</strong></td><td style="padding: 8px; border: 1px solid #ddd;"><strong>${formData.reference}</strong></td></tr>
+<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Loan Type:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${loanTypeDisplay} Loan</td></tr>
+<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Amount:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">GH₵${formData.loanAmount}</td></tr>
+<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Term:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${formData.loanTerm} months</td></tr>
+<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Purpose:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${formData.loanPurpose || 'Not specified'}</td></tr>
+</table>
+
+<p><em>Submitted on: ${new Date(formData.submittedAt).toLocaleString()}</em></p>
+<p>Please review this application in the <a href="admin-dashboard.html">admin dashboard</a>.</p>`
+                };
+
+                fetch(`${API_BASE_URL}/api/send-custom-email`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(adminEmailData)
+                })
+                .then(() => {
+                    console.log('Admin notification email sent');
+                    resolve();
+                })
+                .catch(error => {
+                    console.error('Error sending admin notification:', error);
+                    resolve(); // Resolve anyway to not block user experience
+                });
+            });
+        }
+
+        // Send loan confirmation email to user
+        function sendLoanConfirmationEmail(formData) {
+            return new Promise((resolve) => {
+                const loanTypeDisplay = formData.loanType.charAt(0).toUpperCase() + formData.loanType.slice(1);
+                const monthlyPayment = (parseFloat(formData.loanAmount) / parseInt(formData.loanTerm)).toFixed(2);
+
+                const emailData = {
+                    to: formData.email,
+                    subject: `Loan Application Received - ${loanTypeDisplay} Loan | Ghana Trust Bank`,
+                    body: `Dear ${formData.firstName} ${formData.lastName},
+
+Thank you for submitting your ${loanTypeDisplay} Loan application with Ghana Trust Bank.
+
+YOUR APPLICATION DETAILS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Reference Number: ${formData.reference}
+Loan Type: ${loanTypeDisplay} Loan
+Amount Requested: GH₵${formData.loanAmount}
+Loan Term: ${formData.loanTerm} months
+Estimated Monthly Payment: GH₵${monthlyPayment}
+Purpose: ${formData.loanPurpose || 'Not specified'}
+Application Date: ${new Date(formData.submittedAt).toLocaleDateString()}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT HAPPENS NEXT?
+1. Our loan team will review your application within 24-48 hours
+2. We may contact you for additional documentation if needed
+3. You will receive an email notification once a decision is made
+4. If approved, funds will be disbursed to your account
+
+CONTACT INFORMATION:
+If you have any questions about your application, please contact us:
+- Phone: 030 221 2222
+- Email: loans@ghanatrustbank.com
+- Reference Number (required for inquiries): ${formData.reference}
+
+Thank you for choosing Ghana Trust Bank.
+
+Best regards,
+Ghana Trust Bank Loan Team`,
+                    html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+<h2 style="color: #1e3a8a;">Loan Application Received</h2>
+<p>Dear ${formData.firstName} ${formData.lastName},</p>
+<p>Thank you for submitting your <strong>${loanTypeDisplay} Loan</strong> application with Ghana Trust Bank.</p>
+
+<div style="background: #f0f9ff; border-left: 4px solid #3b82f6; padding: 16px; margin: 20px 0;">
+<h3 style="margin-top: 0; color: #1e3a8a;">Your Application Details</h3>
+<table style="width: 100%; border-collapse: collapse;">
+<tr><td style="padding: 6px 0; color: #64748b;"><strong>Reference Number:</strong></td><td style="padding: 6px 0; text-align: right; font-family: monospace; font-size: 1.1em;">${formData.reference}</td></tr>
+<tr><td style="padding: 6px 0; color: #64748b;"><strong>Loan Type:</strong></td><td style="padding: 6px 0; text-align: right;">${loanTypeDisplay} Loan</td></tr>
+<tr><td style="padding: 6px 0; color: #64748b;"><strong>Amount Requested:</strong></td><td style="padding: 6px 0; text-align: right; font-weight: bold;">GH₵${formData.loanAmount}</td></tr>
+<tr><td style="padding: 6px 0; color: #64748b;"><strong>Loan Term:</strong></td><td style="padding: 6px 0; text-align: right;">${formData.loanTerm} months</td></tr>
+<tr><td style="padding: 6px 0; color: #64748b;"><strong>Est. Monthly Payment:</strong></td><td style="padding: 6px 0; text-align: right; color: #059669;">GH₵${monthlyPayment}</td></tr>
+<tr><td style="padding: 6px 0; color: #64748b;"><strong>Application Date:</strong></td><td style="padding: 6px 0; text-align: right;">${new Date(formData.submittedAt).toLocaleDateString()}</td></tr>
+</table>
+</div>
+
+<h3 style="color: #1e3a8a;">What Happens Next?</h3>
+<ol style="line-height: 1.8;">
+<li>Our loan team will review your application within <strong>24-48 hours</strong></li>
+<li>We may contact you for additional documentation if needed</li>
+<li>You will receive an email notification once a decision is made</li>
+<li>If approved, funds will be disbursed to your account</li>
+</ol>
+
+<div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px; margin: 20px 0;">
+<p style="margin: 0;"><strong>Reference Number:</strong> <span style="font-family: monospace; font-size: 1.1em;">${formData.reference}</span></p>
+<p style="margin: 8px 0 0 0; font-size: 0.9em; color: #92400e;">Please save this number for your records.</p>
+</div>
+
+<h3 style="color: #1e3a8a;">Contact Information</h3>
+<p>If you have any questions about your application:</p>
+<ul>
+<li><strong>Phone:</strong> 030 221 2222</li>
+<li><strong>Email:</strong> <a href="mailto:loans@ghanatrustbank.com">loans@ghanatrustbank.com</a></li>
+<li><strong>Reference Number (required):</strong> ${formData.reference}</li>
+</ul>
+
+<p>Thank you for choosing Ghana Trust Bank.</p>
+<p style="margin-top: 24px;">Best regards,<br><strong>Ghana Trust Bank Loan Team</strong></p>
+</div>`
+                };
+
+                // Send email via server API
+                fetch(`${API_BASE_URL}/api/send-custom-email`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(emailData)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        console.log('Loan confirmation email sent to:', formData.email);
+                    }
+                    resolve();
+                })
+                .catch(error => {
+                    console.error('Error sending email:', error);
+                    resolve(); // Resolve anyway to not block user experience
+                });
+            });
+        }
+    </script>
+</body>
+</html>
