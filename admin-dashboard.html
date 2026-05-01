@@ -246,10 +246,31 @@
             border-bottom-left-radius: 4px;
         }
         
+        /* AI Message styling */
+        .message.representative.ai-message .message-bubble {
+            background: #eff6ff;
+            border-color: #3b82f6;
+            border-left: 3px solid #3b82f6;
+        }
+        
+        .ai-indicator {
+            font-size: 0.7rem;
+            color: #3b82f6;
+            margin-bottom: 4px;
+            display: block;
+            font-weight: 600;
+        }
+        
         .message-time {
             font-size: 0.75rem;
             color: #94a3b8;
             margin-top: 0.25rem;
+        }
+        
+        .message-time .ai-tag {
+            color: #3b82f6;
+            font-weight: 600;
+            margin-left: 4px;
         }
         
         .chat-input-area {
@@ -577,6 +598,7 @@
         <div class="nav-tabs">
             <button class="nav-tab active" onclick="switchTab('chats')">Live Chat Sessions</button>
             <button class="nav-tab" onclick="switchTab('users')">User Management</button>
+            <button class="nav-tab" onclick="switchTab('loans')">Loan Applications</button>
         </div>
 
         <!-- Stats Grid -->
@@ -596,6 +618,10 @@
             <div class="stat-card" id="cardBlockedUsers" onclick="switchTab('users')">
                 <h3 id="blockedUsers">0</h3>
                 <p>Blocked Accounts</p>
+            </div>
+            <div class="stat-card" id="cardLoanApplications" onclick="switchTab('loans')">
+                <h3 id="loanApplications">0</h3>
+                <p>Loan Applications</p>
             </div>
         </div>
 
@@ -643,6 +669,30 @@
                             <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                         </svg>
                         <p>No registered users found</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loan Applications Tab Content -->
+        <div id="loansTab" class="tab-content">
+            <div class="users-section">
+                <div class="users-header">
+                    <h2>Loan Applications</h2>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button onclick="filterLoans('all')" class="btn-action btn-email" id="filterAll">All</button>
+                        <button onclick="filterLoans('pending')" class="btn-action" id="filterPending">Pending</button>
+                        <button onclick="filterLoans('approved')" class="btn-action btn-unblock" id="filterApproved">Approved</button>
+                        <button onclick="filterLoans('rejected')" class="btn-action btn-block" id="filterRejected">Rejected</button>
+                    </div>
+                </div>
+                <div class="users-list" id="loansList">
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <p>No loan applications found</p>
                     </div>
                 </div>
             </div>
@@ -717,7 +767,7 @@
     <div class="email-modal" id="passwordModal">
         <div class="email-modal-content">
             <div class="email-modal-header">
-                <h3>Reset User Password</h3>
+                <h3>Send Password Reset Code</h3>
                 <button onclick="closePasswordModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
             </div>
             <div class="email-modal-body">
@@ -725,17 +775,17 @@
                     <label>User Email:</label>
                     <input type="email" id="resetEmail" readonly>
                 </div>
-                <div class="email-form-group">
-                    <label>New Password:</label>
-                    <input type="text" id="newPassword" placeholder="Enter new password">
+                <div id="resetCodeInfo" style="display: none; background: #f0fdf4; border-left: 4px solid #22c55e; padding: 1rem; margin: 1rem 0; border-radius: 0 8px 8px 0;">
+                    <p style="margin: 0; color: #166534;"><strong>✓ Reset code sent!</strong></p>
+                    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #15803d;">A 6-digit reset code has been sent to the user's email. The code expires in 30 minutes.</p>
                 </div>
                 <p style="color: #64748b; font-size: 0.85rem; margin-top: 0.5rem;">
-                    <strong>Note:</strong> The user will be notified via email about the password change.
+                    <strong>Note:</strong> A reset code will be generated and sent to the user's email. They must use this code on the login page to set a new password.
                 </p>
             </div>
             <div class="email-modal-footer">
-                <button class="btn-secondary" onclick="closePasswordModal()">Cancel</button>
-                <button class="btn-primary" onclick="confirmPasswordReset()">Reset Password</button>
+                <button class="btn-secondary" onclick="closePasswordModal()">Close</button>
+                <button class="btn-primary" id="sendResetCodeBtn" onclick="generateAndSendResetCode()">Send Reset Code</button>
             </div>
         </div>
     </div>
@@ -772,6 +822,11 @@
   appId: "1:1059519432349:web:a40c6fee6357651c6af674",
   measurementId: "G-W8CFYEYHJ4"
 };
+
+        // API Server URL - dynamically determine based on environment
+        const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000'
+            : window.location.origin; // Use same origin for live hosting
 
         let database;
         let chatsRef;
@@ -936,7 +991,7 @@
             
             messageListener = currentChatRef.on('child_added', (snapshot) => {
                 const message = snapshot.val();
-                addMessageToUI(message.text, message.sender, new Date(message.timestamp).toLocaleTimeString());
+                addMessageToUI(message.text, message.sender, new Date(message.timestamp).toLocaleTimeString(), message.isAI);
             });
         }
 
@@ -962,11 +1017,11 @@
             Object.keys(messages).forEach(key => {
                 const message = messages[key];
                 const time = new Date(message.timestamp).toLocaleTimeString();
-                addMessageToUI(message.text, message.sender, time);
+                addMessageToUI(message.text, message.sender, time, message.isAI);
             });
         }
 
-        function addMessageToUI(text, sender, time) {
+        function addMessageToUI(text, sender, time, isAI = false) {
             const messagesContainer = document.getElementById('chatMessages');
             
             // Remove empty state if present
@@ -976,10 +1031,23 @@
             }
             
             const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}`;
+            // Add AI class for AI messages
+            const aiClass = (sender === 'representative' && isAI) ? ' ai-message' : '';
+            messageDiv.className = `message ${sender}${aiClass}`;
+            
+            // Format message text with line breaks
+            const formattedText = text.replace(/\n/g, '<br>');
+            
+            // Add AI indicator for AI messages
+            const aiLabel = (sender === 'representative' && isAI) ? 
+                '<span class="ai-indicator">🤖 AI Response</span>' : '';
+            
+            const aiTag = isAI ? '<span class="ai-tag">(AI)</span>' : '';
+            
             messageDiv.innerHTML = `
-                <div class="message-bubble">${text}</div>
-                <div class="message-time">${time}</div>
+                ${aiLabel}
+                <div class="message-bubble">${formattedText}</div>
+                <div class="message-time">${time}${aiTag}</div>
             `;
             
             messagesContainer.appendChild(messageDiv);
@@ -1176,6 +1244,8 @@
             } else if (tab === 'users') {
                 document.getElementById('cardTotalUsers').classList.add('active-tab-indicator');
                 document.getElementById('cardBlockedUsers').classList.add('active-tab-indicator');
+            } else if (tab === 'loans') {
+                document.getElementById('cardLoanApplications').classList.add('active-tab-indicator');
             }
             
             // Load data if switching to tab
@@ -1183,6 +1253,8 @@
                 loadUsers();
             } else if (tab === 'chats') {
                 refreshChats();
+            } else if (tab === 'loans') {
+                loadLoanApplications();
             }
         }
 
@@ -1190,6 +1262,7 @@
             // Determine which tab is active
             const usersTab = document.getElementById('usersTab');
             const chatsTab = document.getElementById('chatsTab');
+            const loansTab = document.getElementById('loansTab');
             
             if (usersTab.classList.contains('active')) {
                 loadUsers();
@@ -1197,6 +1270,9 @@
             } else if (chatsTab.classList.contains('active')) {
                 refreshChats();
                 alert('Chat sessions refreshed!');
+            } else if (loansTab.classList.contains('active')) {
+                loadLoanApplications();
+                alert('Loan applications refreshed!');
             }
         }
 
@@ -1311,13 +1387,201 @@
             list.innerHTML = html;
         }
 
-        // Password Reset
+        // Loan Applications Management
+        let currentLoanFilter = 'all';
+        let allLoanApplications = {};
+
+        function loadLoanApplications() {
+            const loansRef = database.ref('loanApplications');
+            loansRef.once('value', (snapshot) => {
+                allLoanApplications = snapshot.val() || {};
+                updateLoanApplicationsList();
+                updateLoanStats();
+            });
+        }
+
+        function updateLoanApplicationsList() {
+            const loansList = document.getElementById('loansList');
+            
+            const filteredLoans = {};
+            Object.keys(allLoanApplications).forEach(key => {
+                const loan = allLoanApplications[key];
+                if (currentLoanFilter === 'all' || loan.status === currentLoanFilter) {
+                    filteredLoans[key] = loan;
+                }
+            });
+            
+            if (Object.keys(filteredLoans).length === 0) {
+                loansList.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                        <p>No ${currentLoanFilter === 'all' ? '' : currentLoanFilter} loan applications found</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            Object.keys(filteredLoans).sort((a, b) => {
+                return new Date(filteredLoans[b].submittedAt) - new Date(filteredLoans[a].submittedAt);
+            }).forEach(loanId => {
+                const loan = filteredLoans[loanId];
+                const statusClass = loan.status || 'pending';
+                const statusText = (loan.status || 'pending').charAt(0).toUpperCase() + (loan.status || 'pending').slice(1);
+                
+                html += `
+                    <div class="user-item" style="border-left: 4px solid ${getLoanStatusColor(loan.status)};">
+                        <div class="user-info">
+                            <div class="user-name">${loan.firstName} ${loan.lastName}</div>
+                            <div class="user-email">${loan.email} | ${loan.phone}</div>
+                            <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem;">
+                                Ref: ${loanId} | ${loan.loanType} Loan | GH₵${loan.loanAmount} | ${loan.loanTerm} months
+                            </div>
+                            <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.5rem;">
+                                Purpose: ${loan.loanPurpose || 'N/A'} | Income: GH₵${loan.monthlyIncome}/month | Submitted: ${new Date(loan.submittedAt).toLocaleDateString()}
+                            </div>
+                        </div>
+                        <div class="user-meta">
+                            <span class="user-status ${statusClass}">${statusText}</span>
+                            <div class="user-actions">
+                                <button class="btn-action btn-email" onclick="viewLoanDetails('${loanId}')">View Details</button>
+                                ${loan.status === 'pending' ? `
+                                    <button class="btn-action btn-unblock" onclick="approveLoan('${loanId}')">Approve</button>
+                                    <button class="btn-action btn-block" onclick="rejectLoan('${loanId}')">Reject</button>
+                                ` : ''}
+                                <button class="btn-action btn-email" onclick="sendLoanEmail('${loan.email}', '${loanId}')">Send Email</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            loansList.innerHTML = html;
+        }
+
+        function getLoanStatusColor(status) {
+            switch(status) {
+                case 'approved': return '#10b981';
+                case 'rejected': return '#dc2626';
+                default: return '#f59e0b';
+            }
+        }
+
+        function updateLoanStats() {
+            const totalLoans = Object.keys(allLoanApplications).length;
+            document.getElementById('loanApplications').textContent = totalLoans;
+        }
+
+        function filterLoans(status) {
+            currentLoanFilter = status;
+            
+            // Update button styles
+            document.getElementById('filterAll').className = status === 'all' ? 'btn-action btn-email' : 'btn-action';
+            document.getElementById('filterPending').className = status === 'pending' ? 'btn-action btn-email' : 'btn-action';
+            document.getElementById('filterApproved').className = status === 'approved' ? 'btn-action btn-unblock' : 'btn-action';
+            document.getElementById('filterRejected').className = status === 'rejected' ? 'btn-action btn-block' : 'btn-action';
+            
+            updateLoanApplicationsList();
+        }
+
+        function approveLoan(loanId) {
+            if (!confirm('Are you sure you want to approve this loan application?')) return;
+            
+            database.ref('loanApplications/' + loanId).update({ status: 'approved', approvedAt: new Date().toISOString() })
+                .then(() => {
+                    alert('Loan application approved successfully.');
+                    const loan = allLoanApplications[loanId];
+                    sendLoanStatusEmail(loan.email, loan.firstName, loanId, 'approved');
+                    loadLoanApplications();
+                })
+                .catch((error) => {
+                    console.error('Error approving loan:', error);
+                    alert('Failed to approve loan: ' + error.message);
+                });
+        }
+
+        function rejectLoan(loanId) {
+            const reason = prompt('Please enter the reason for rejection:');
+            if (!reason) return;
+            
+            database.ref('loanApplications/' + loanId).update({ status: 'rejected', rejectedAt: new Date().toISOString(), rejectionReason: reason })
+                .then(() => {
+                    alert('Loan application rejected.');
+                    const loan = allLoanApplications[loanId];
+                    sendLoanStatusEmail(loan.email, loan.firstName, loanId, 'rejected', reason);
+                    loadLoanApplications();
+                })
+                .catch((error) => {
+                    console.error('Error rejecting loan:', error);
+                    alert('Failed to reject loan: ' + error.message);
+                });
+        }
+
+        function sendLoanStatusEmail(email, firstName, loanId, status, reason = '') {
+            const subject = status === 'approved' 
+                ? 'Loan Application Approved - Ghana Trust Bank'
+                : 'Loan Application Update - Ghana Trust Bank';
+            
+            const body = status === 'approved'
+                ? `Dear ${firstName},\n\nWe are pleased to inform you that your loan application (Reference: ${loanId}) has been APPROVED.\n\nOur team will contact you shortly with next steps for disbursement.\n\nBest regards,\nGhana Trust Bank Team`
+                : `Dear ${firstName},\n\nWe regret to inform you that your loan application (Reference: ${loanId}) has been rejected.\n\nReason: ${reason}\n\nIf you have any questions, please contact our support team.\n\nBest regards,\nGhana Trust Bank Team`;
+            
+            fetch(`${API_BASE_URL}/api/send-custom-email`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ to: email, subject: subject, body: body })
+            }).catch(error => console.error('Error sending email:', error));
+        }
+
+        function viewLoanDetails(loanId) {
+            const loan = allLoanApplications[loanId];
+            if (!loan) return;
+            
+            const details = `
+Reference: ${loanId}
+Name: ${loan.firstName} ${loan.lastName}
+Email: ${loan.email}
+Phone: ${loan.phone}
+Ghana Card: ${loan.ghanaCard}
+Date of Birth: ${loan.dob}
+
+LOAN DETAILS:
+Type: ${loan.loanType}
+Amount: GH₵${loan.loanAmount}
+Term: ${loan.loanTerm} months
+Purpose: ${loan.loanPurpose || 'N/A'}
+
+EMPLOYMENT:
+Status: ${loan.employment}
+Employer: ${loan.employer || 'N/A'}
+Monthly Income: GH₵${loan.monthlyIncome}
+Duration: ${loan.employmentDuration || 'N/A'}
+
+ADDRESS:
+${loan.address}, ${loan.city}, ${loan.region}
+
+STATUS: ${loan.status || 'pending'}
+Submitted: ${new Date(loan.submittedAt).toLocaleString()}
+            `;
+            
+            alert(details);
+        }
+
+        function sendLoanEmail(email, loanId) {
+            openEmailModal(email);
+        }
+
+        // Password Reset with Code
         let currentResetUserId = null;
 
         function openPasswordModal(email, userId) {
             currentResetUserId = userId;
             document.getElementById('resetEmail').value = email;
-            document.getElementById('newPassword').value = '';
+            document.getElementById('resetCodeInfo').style.display = 'none';
+            document.getElementById('sendResetCodeBtn').style.display = 'inline-block';
             document.getElementById('passwordModal').classList.add('active');
         }
 
@@ -1326,26 +1590,121 @@
             currentResetUserId = null;
         }
 
-        function confirmPasswordReset() {
-            const newPassword = document.getElementById('newPassword').value.trim();
+        function generateResetCode() {
+            // Generate 6-digit code
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+
+        async function generateAndSendResetCode() {
             const email = document.getElementById('resetEmail').value;
+            const btn = document.getElementById('sendResetCodeBtn');
             
-            if (!newPassword || newPassword.length < 6) {
-                alert('Password must be at least 6 characters long.');
-                return;
-            }
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
             
-            usersRef.child(currentResetUserId).update({ password: newPassword })
-                .then(() => {
-                    alert('Password has been reset successfully. The user will be notified via email.');
-                    closePasswordModal();
-                    // Send password reset notification email
-                    notifyPasswordReset(email, newPassword);
-                })
-                .catch((error) => {
-                    console.error('Error resetting password:', error);
-                    alert('Failed to reset password: ' + error.message);
+            // Generate reset code
+            const resetCode = generateResetCode();
+            const expiryTime = new Date().getTime() + (30 * 60 * 1000); // 30 minutes from now
+            
+            // Save to Firebase
+            try {
+                await usersRef.child(currentResetUserId).update({
+                    resetCode: resetCode,
+                    resetCodeExpiry: expiryTime,
+                    resetCodeCreated: new Date().toISOString()
                 });
+                
+                // Clear login lockout if exists
+                const lockoutKey = 'loginAttempts_' + email;
+                const lockoutData = localStorage.getItem(lockoutKey);
+                if (lockoutData) {
+                    localStorage.removeItem(lockoutKey);
+                }
+                
+                // Send email with reset code
+                await sendResetCodeEmail(email, resetCode);
+                
+                // Show success
+                document.getElementById('resetCodeInfo').style.display = 'block';
+                btn.style.display = 'none';
+                
+                console.log('Reset code sent to:', email, 'Code:', resetCode);
+                
+            } catch (error) {
+                console.error('Error sending reset code:', error);
+                alert('Failed to send reset code: ' + error.message);
+                btn.disabled = false;
+                btn.textContent = 'Send Reset Code';
+            }
+        }
+
+        async function sendResetCodeEmail(email, resetCode) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/send-custom-email`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        to: email,
+                        subject: 'Password Reset Code - GhanaTrust Bank',
+                        body: `Dear Valued Customer,\n\nYou have requested a password reset for your GhanaTrust Bank account.\n\nYour password reset code is: ${resetCode}\n\nThis code will expire in 30 minutes.\n\nPlease enter this code on the login page to reset your password.\n\nIf you did not request this reset, please contact our support team immediately:\n• Phone: 030 221 2222\n• Email: support@ghanatrustbank.com\n\nBest regards,\nGhanaTrust Bank Security Team`,
+                        html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                            <div style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); padding: 30px; text-align: center; border-radius: 16px 16px 0 0;">
+                                <h1 style="color: white; margin: 0; font-size: 24px;">GhanaTrust Bank</h1>
+                            </div>
+                            <div style="background: #f8fafc; padding: 30px; border: 1px solid #e2e8f0; border-radius: 0 0 16px 16px;">
+                                <h2 style="color: #1e40af; margin-top: 0;">Password Reset Code</h2>
+                                <p>Dear Valued Customer,</p>
+                                <p>You have requested a password reset for your GhanaTrust Bank account.</p>
+                                
+                                <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; text-align: center;">
+                                    <p style="margin: 0 0 10px 0; color: #92400e; font-size: 14px;">Your Reset Code</p>
+                                    <p style="margin: 0; color: #1e40af; font-size: 36px; font-weight: bold; letter-spacing: 8px; font-family: monospace;">${resetCode}</p>
+                                </div>
+                                
+                                <p style="color: #64748b;">This code will expire in <strong>30 minutes</strong>.</p>
+                                <p style="color: #64748b;">Please enter this code on the login page to reset your password.</p>
+                                
+                                <div style="background: #fee2e2; border-left: 4px solid #dc2626; padding: 15px; margin: 20px 0;">
+                                    <p style="margin: 0; color: #991b1b; font-size: 14px;"><strong>Security Alert:</strong> If you did not request this reset, please contact our support team immediately.</p>
+                                </div>
+                                
+                                <p style="color: #64748b;">• Phone: <strong>030 221 2222</strong><br>• Email: <strong>support@ghanatrustbank.com</strong></p>
+                                
+                                <p style="margin-top: 24px;">Best regards,<br><strong>GhanaTrust Bank Security Team</strong></p>
+                            </div>
+                        </div>`
+                    })
+                });
+                
+                const result = await response.json();
+                if (!result.success) {
+                    throw new Error(result.message);
+                }
+                
+            } catch (error) {
+                console.error('Error sending reset code email:', error);
+                throw error;
+            }
+        }
+
+        // Legacy function - kept for compatibility but no longer used
+        function confirmPasswordReset() {
+            alert('Please use the new "Send Reset Code" button to generate a reset code.');
+        }
+
+        // Admin function to clear login lockout for any user
+        function clearUserLockout(email) {
+            const lockoutKey = 'loginAttempts_' + email;
+            const lockoutData = localStorage.getItem(lockoutKey);
+            
+            if (lockoutData) {
+                localStorage.removeItem(lockoutKey);
+                console.log('Cleared lockout for:', email);
+                return true;
+            }
+            return false;
         }
 
         // Email Functions
