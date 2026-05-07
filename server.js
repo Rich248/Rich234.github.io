@@ -30,37 +30,46 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Brevo API configuration
-const BREVO_API_KEY = process.env.BREVO_API_KEY;
-const emailFrom = process.env.EMAIL_USER || 'cwesyrizy49957@gmail.com';
+// Gmail configuration with Nodemailer
+const emailUser = process.env.EMAIL_USER || 'cwesyrizy49957@gmail.com';
+const emailPassword = process.env.EMAIL_PASSWORD; // Google App Password
 
-// Function to send email via Brevo API
-async function sendBrevoEmail(to, subject, htmlContent, textContent = '') {
-    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
-        method: 'POST',
-        headers: {
-            'accept': 'application/json',
-            'api-key': BREVO_API_KEY,
-            'content-type': 'application/json'
-        },
-        body: JSON.stringify({
-            sender: {
-                name: 'GhanaTrust Bank',
-                email: emailFrom
-            },
-            to: [{ email: to }],
-            subject: subject,
-            htmlContent: htmlContent,
-            textContent: textContent || htmlContent.replace(/<[^>]*>/g, '')
-        })
-    });
-    
-    if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`Brevo API error: ${error}`);
+// Create Nodemailer transporter
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: emailUser,
+        pass: emailPassword
     }
-    
-    return await response.json();
+});
+
+// Verify transporter connection
+transporter.verify((error, success) => {
+    if (error) {
+        console.log('Email configuration error:', error);
+    } else {
+        console.log('Email server configured and ready. Using:', emailUser);
+    }
+});
+
+// Function to send email via Nodemailer
+async function sendEmail(to, subject, htmlContent, textContent = '') {
+    try {
+        const mailOptions = {
+            from: `GhanaTrust Bank <${emailUser}>`,
+            to: to,
+            subject: subject,
+            html: htmlContent,
+            text: textContent || htmlContent.replace(/<[^>]*>/g, '')
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email sent:', info.response);
+        return info;
+    } catch (error) {
+        console.error('Error sending email:', error);
+        throw error;
+    }
 }
 
 // API endpoint to send confirmation email
@@ -72,110 +81,103 @@ app.post('/api/send-email', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Email is required' });
         }
 
-        const mailOptions = {
-            from: emailFrom,
-            to: email,
-            subject: 'Account Application Confirmation - GhanaTrust Bank',
-            html: `
-                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
-                    <!-- Header with gradient -->
-                    <div style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); padding: 40px 30px; text-align: center; border-radius: 16px 16px 0 0;">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 60px; height: 60px; margin-bottom: 15px;">
-                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                        </svg>
-                        <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">GhanaTrust Bank</h1>
-                        <p style="color: #dbeafe; margin: 15px 0 0 0; font-size: 16px;">Account Application Confirmation</p>
+        const htmlContent = `
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+                <!-- Header with gradient -->
+                <div style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); padding: 40px 30px; text-align: center; border-radius: 16px 16px 0 0;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 60px; height: 60px; margin-bottom: 15px;">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                    <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">GhanaTrust Bank</h1>
+                    <p style="color: #dbeafe; margin: 15px 0 0 0; font-size: 16px;">Account Application Confirmation</p>
+                </div>
+                
+                <!-- Main content -->
+                <div style="background: #f8fafc; padding: 40px 30px; border: 1px solid #e2e8f0; border-radius: 0 0 16px 16px;">
+                    <h2 style="color: #1e40af; margin-top: 0; font-size: 24px;">Dear ${firstName} ${lastName},</h2>
+                    <p style="color: #64748b; line-height: 1.8; font-size: 16px; margin: 20px 0;">Thank you for choosing GhanaTrust Bank! We have received your account application and are excited to help you get started with us.</p>
+                    
+                    <!-- Application Details Card -->
+                    <div style="background: white; padding: 25px; border-left: 4px solid #3b82f6; margin: 25px 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <h3 style="color: #1e40af; margin: 0 0 15px 0; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                            Application Details
+                        </h3>
+                        <p style="margin: 10px 0; color: #475569; font-size: 15px;"><strong>Application Date:</strong> ${applicationDate}</p>
+                        <p style="margin: 10px 0; color: #475569; font-size: 15px;"><strong>Account Type:</strong> ${accountType}</p>
+                        <p style="margin: 10px 0; color: #475569; font-size: 15px;"><strong>Email:</strong> ${email}</p>
                     </div>
                     
-                    <!-- Main content -->
-                    <div style="background: #f8fafc; padding: 40px 30px; border: 1px solid #e2e8f0; border-radius: 0 0 16px 16px;">
-                        <h2 style="color: #1e40af; margin-top: 0; font-size: 24px;">Dear ${firstName} ${lastName},</h2>
-                        <p style="color: #64748b; line-height: 1.8; font-size: 16px; margin: 20px 0;">Thank you for choosing GhanaTrust Bank! We have received your account application and are excited to welcome you to our banking family.</p>
-                        
-                        <!-- Application Details Card -->
-                        <div style="background: white; padding: 25px; border-left: 4px solid #3b82f6; margin: 25px 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                            <h3 style="color: #1e40af; margin: 0 0 15px 0; font-size: 18px; display: flex; align-items: center; gap: 8px;">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                    <polyline points="14 2 14 8 20 8"></polyline>
-                                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                                    <polyline points="10 9 9 9 8 9"></polyline>
-                                </svg>
-                                Application Details
-                            </h3>
-                            <p style="margin: 10px 0; color: #475569; font-size: 15px;"><strong>Application Date:</strong> ${applicationDate}</p>
-                            <p style="margin: 10px 0; color: #475569; font-size: 15px;"><strong>Account Type:</strong> ${accountType}</p>
-                            <p style="margin: 10px 0; color: #475569; font-size: 15px;"><strong>Email:</strong> ${email}</p>
-                        </div>
-                        
-                        <p style="color: #64748b; line-height: 1.8; font-size: 16px; margin: 20px 0;">Your application is currently being processed. Our dedicated team will review your documents and contact you within 24-48 hours.</p>
-                        
-                        <!-- Timeline Card -->
-                        <div style="background: #dbeafe; padding: 25px; border-radius: 12px; margin: 25px 0; border: 1px solid #bfdbfe;">
-                            <h3 style="color: #1e40af; margin: 0 0 20px 0; font-size: 18px; display: flex; align-items: center; gap: 8px;">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg>
-                                What happens next?
-                            </h3>
-                            <ul style="color: #475569; margin: 0; padding-left: 20px; font-size: 15px;">
-                                <li style="margin: 12px 0; line-height: 1.6;">Document verification</li>
-                                <li style="margin: 12px 0; line-height: 1.6;">Application review</li>
-                                <li style="margin: 12px 0; line-height: 1.6;">Account approval</li>
-                                <li style="margin: 12px 0; line-height: 1.6;">Account activation notification</li>
-                            </ul>
-                        </div>
-                        
-                        <p style="color: #64748b; line-height: 1.8; font-size: 16px; margin: 20px 0;">If you have any questions, please contact our support team:</p>
-                        
-                        <!-- Contact Information -->
-                        <div style="background: white; padding: 25px; border-radius: 12px; margin: 25px 0; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                            <div style="margin: 15px 0; display: flex; align-items: center; gap: 15px;">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; flex-shrink: 0;">
-                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                                </svg>
-                                <div>
-                                    <p style="margin: 0; color: #475569; font-size: 14px;"><strong>Phone:</strong></p>
-                                    <a href="tel:+233302212222" style="color: #3b82f6; text-decoration: none; font-size: 16px; font-weight: 600;">030 221 2222</a>
-                                </div>
-                            </div>
-                            <div style="margin: 15px 0; display: flex; align-items: center; gap: 15px;">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; flex-shrink: 0;">
-                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                                    <polyline points="22,6 12,13 2,6"></polyline>
-                                </svg>
-                                <div>
-                                    <p style="margin: 0; color: #475569; font-size: 14px;"><strong>Email:</strong></p>
-                                    <a href="cwesyrizy49957@gmail.com" style="color: #3b82f6; text-decoration: none; font-size: 16px; font-weight: 600;">support@ghanatrustbank.com</a>
-                                </div>
-                            </div>
-                            <div style="margin: 15px 0; display: flex; align-items: center; gap: 15px;">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; flex-shrink: 0;">
-                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                    <circle cx="12" cy="10" r="3"></circle>
-                                </svg>
-                                <div>
-                                    <p style="margin: 0; color: #475569; font-size: 14px;"><strong>Address:</strong></p>
-                                    <p style="margin: 5px 0 0 0; color: #475569; font-size: 16px;">Ring Road Central, Accra, Ghana</p>
-                                </div>
+                    <p style="color: #64748b; line-height: 1.8; font-size: 16px; margin: 20px 0;">Your application is currently being processed. Our dedicated team will review your documents and contact you within 2-3 business days.</p>
+                    
+                    <!-- Timeline Card -->
+                    <div style="background: #dbeafe; padding: 25px; border-radius: 12px; margin: 25px 0; border: 1px solid #bfdbfe;">
+                        <h3 style="color: #1e40af; margin: 0 0 20px 0; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            What happens next?
+                        </h3>
+                        <ul style="color: #475569; margin: 0; padding-left: 20px; font-size: 15px;">
+                            <li style="margin: 12px 0; line-height: 1.6;">Document verification</li>
+                            <li style="margin: 12px 0; line-height: 1.6;">Application review</li>
+                            <li style="margin: 12px 0; line-height: 1.6;">Account approval</li>
+                            <li style="margin: 12px 0; line-height: 1.6;">Account activation notification</li>
+                        </ul>
+                    </div>
+                    
+                    <p style="color: #64748b; line-height: 1.8; font-size: 16px; margin: 20px 0;">If you have any questions, please contact our support team:</p>
+                    
+                    <!-- Contact Information -->
+                    <div style="background: white; padding: 25px; border-radius: 12px; margin: 25px 0; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="margin: 15px 0; display: flex; align-items: center; gap: 15px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; flex-shrink: 0;">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 3.47 3.47 2 2 0 0 0 1.72 2h3a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                            <div>
+                                <p style="margin: 0; color: #475569; font-size: 14px;"><strong>Phone:</strong></p>
+                                <a href="tel:+233302212222" style="color: #3b82f6; text-decoration: none; font-size: 16px; font-weight: 600;">030 221 2222</a>
                             </div>
                         </div>
-                        
-                        <div style="text-align: center; margin-top: 40px; padding-top: 25px; border-top: 2px solid #e2e8f0;">
-                            <p style="color: #64748b; font-size: 14px; margin: 0;">&copy; 2026 GhanaTrust Bank. All rights reserved.</p>
-                            <p style="color: #94a3b8; font-size: 12px; margin: 10px 0 0 0;">Bank of Ghana regulated. Member of Ghana Association of Banks.</p>
+                        <div style="margin: 15px 0; display: flex; align-items: center; gap: 15px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; flex-shrink: 0;">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                            <div>
+                                <p style="margin: 0; color: #475569; font-size: 14px;"><strong>Email:</strong></p>
+                                <a href="mailto:support@ghanatrustbank.com" style="color: #3b82f6; text-decoration: none; font-size: 16px; font-weight: 600;">support@ghanatrustbank.com</a>
+                            </div>
+                        </div>
+                        <div style="margin: 15px 0; display: flex; align-items: center; gap: 15px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; flex-shrink: 0;">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <div>
+                                <p style="margin: 0; color: #475569; font-size: 14px;"><strong>Address:</strong></p>
+                                <p style="margin: 5px 0 0 0; color: #475569; font-size: 16px;">Ring Road Central, Accra, Ghana</p>
+                            </div>
                         </div>
                     </div>
+                    
+                    <div style="text-align: center; margin-top: 40px; padding-top: 25px; border-top: 2px solid #e2e8f0;">
+                        <p style="color: #64748b; font-size: 14px; margin: 0;">&copy; 2026 GhanaTrust Bank. All rights reserved.</p>
+                        <p style="color: #94a3b8; font-size: 12px; margin: 10px 0 0 0;">Bank of Ghana regulated. Member of Ghana Association of Banks.</p>
+                    </div>
                 </div>
-            `
-        };
+            </div>
+        `;
 
-        const info = await sendBrevoEmail(email, mailOptions.subject, mailOptions.html);
-        console.log(`Email sent to: ${email}`);
-        console.log(`Message ID: ${info.messageId}`);
+        await sendEmail(email, 'Account Application Confirmation - GhanaTrust Bank', htmlContent);
         
         res.json({ 
             success: true, 
@@ -200,87 +202,80 @@ app.post('/api/send-otp', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Email and OTP are required' });
         }
 
-        const mailOptions = {
-            from: emailFrom,
-            to: email,
-            subject: 'Your Login OTP - GhanaTrust Bank',
-            html: `
-                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
-                    <!-- Header with gradient -->
-                    <div style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); padding: 40px 30px; text-align: center; border-radius: 16px 16px 0 0;">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 60px; height: 60px; margin-bottom: 15px;">
-                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                        </svg>
-                        <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">GhanaTrust Bank</h1>
-                        <p style="color: #dbeafe; margin: 15px 0 0 0; font-size: 16px;">One-Time Password (OTP)</p>
+        const htmlContent = `
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+                <!-- Header with gradient -->
+                <div style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); padding: 40px 30px; text-align: center; border-radius: 16px 16px 0 0;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 60px; height: 60px; margin-bottom: 15px;">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                    <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">GhanaTrust Bank</h1>
+                    <p style="color: #dbeafe; margin: 15px 0 0 0; font-size: 16px;">One-Time Password (OTP)</p>
+                </div>
+                
+                <!-- Main content -->
+                <div style="background: #f8fafc; padding: 40px 30px; border: 1px solid #e2e8f0; border-radius: 0 0 16px 16px;">
+                    <h2 style="color: #1e40af; margin-top: 0; font-size: 24px;">Dear ${firstName || 'Valued Customer'},</h2>
+                    <p style="color: #64748b; line-height: 1.8; font-size: 16px; margin: 20px 0;">We received a login request for your account. Please use the following One-Time Password (OTP) to complete your login.</p>
+                    
+                    <!-- OTP Display Card -->
+                    <div style="background: white; padding: 30px; border-left: 4px solid #3b82f6; margin: 25px 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center;">
+                        <p style="margin: 0 0 15px 0; color: #64748b; font-size: 14px; font-weight: 600;">YOUR OTP CODE</p>
+                        <p style="margin: 0; color: #1e40af; font-size: 36px; font-weight: 700; letter-spacing: 8px;">${otp}</p>
                     </div>
                     
-                    <!-- Main content -->
-                    <div style="background: #f8fafc; padding: 40px 30px; border: 1px solid #e2e8f0; border-radius: 0 0 16px 16px;">
-                        <h2 style="color: #1e40af; margin-top: 0; font-size: 24px;">Dear ${firstName || 'Valued Customer'},</h2>
-                        <p style="color: #64748b; line-height: 1.8; font-size: 16px; margin: 20px 0;">We received a login request for your account. Please use the following One-Time Password (OTP) to complete your authentication:</p>
-                        
-                        <!-- OTP Display Card -->
-                        <div style="background: white; padding: 30px; border-left: 4px solid #3b82f6; margin: 25px 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center;">
-                            <p style="margin: 0 0 15px 0; color: #64748b; font-size: 14px; font-weight: 600;">YOUR OTP CODE</p>
-                            <p style="margin: 0; color: #1e40af; font-size: 36px; font-weight: 700; letter-spacing: 8px;">${otp}</p>
-                        </div>
-                        
-                        <p style="color: #64748b; line-height: 1.8; font-size: 16px; margin: 20px 0;">This OTP will expire in <strong>10 minutes</strong>. For your security, please do not share this code with anyone.</p>
-                        
-                        <!-- Security Notice -->
-                        <div style="background: #fef3c7; padding: 25px; border-radius: 12px; margin: 25px 0; border: 1px solid #fcd34d;">
-                            <h3 style="color: #92400e; margin: 0 0 15px 0; font-size: 18px; display: flex; align-items: center; gap: 8px;">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="#92400e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;">
-                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                                </svg>
-                                Security Notice
-                            </h3>
-                            <ul style="color: #92400e; margin: 0; padding-left: 20px; font-size: 15px;">
-                                <li style="margin: 10px 0; line-height: 1.6;">If you did not request this login, please ignore this email</li>
-                                <li style="margin: 10px 0; line-height: 1.6;">Never share your OTP with anyone, including bank staff</li>
-                                <li style="margin: 10px 0; line-height: 1.6;">GhanaTrust Bank will never ask for your OTP via phone or email</li>
-                            </ul>
-                        </div>
-                        
-                        <p style="color: #64748b; line-height: 1.8; font-size: 16px; margin: 20px 0;">If you have any concerns about your account security, please contact our support team immediately:</p>
-                        
-                        <!-- Contact Information -->
-                        <div style="background: white; padding: 25px; border-radius: 12px; margin: 25px 0; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                            <div style="margin: 15px 0; display: flex; align-items: center; gap: 15px;">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; flex-shrink: 0;">
-                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                                </svg>
-                                <div>
-                                    <p style="margin: 0; color: #475569; font-size: 14px;"><strong>Phone:</strong></p>
-                                    <a href="tel:+233302212222" style="color: #3b82f6; text-decoration: none; font-size: 16px; font-weight: 600;">030 221 2222</a>
-                                </div>
-                            </div>
-                            <div style="margin: 15px 0; display: flex; align-items: center; gap: 15px;">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; flex-shrink: 0;">
-                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                                    <polyline points="22,6 12,13 2,6"></polyline>
-                                </svg>
-                                <div>
-                                    <p style="margin: 0; color: #475569; font-size: 14px;"><strong>Email:</strong></p>
-                                    <a href="mailto:support@ghanatrustbank.com" style="color: #3b82f6; text-decoration: none; font-size: 16px; font-weight: 600;">support@ghanatrustbank.com</a>
-                                </div>
+                    <p style="color: #64748b; line-height: 1.8; font-size: 16px; margin: 20px 0;">This OTP will expire in <strong>10 minutes</strong>. For your security, please do not share this code with anyone.</p>
+                    
+                    <!-- Security Notice -->
+                    <div style="background: #fef3c7; padding: 25px; border-radius: 12px; margin: 25px 0; border: 1px solid #fcd34d;">
+                        <h3 style="color: #92400e; margin: 0 0 15px 0; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#92400e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            </svg>
+                            Security Notice
+                        </h3>
+                        <ul style="color: #92400e; margin: 0; padding-left: 20px; font-size: 15px;">
+                            <li style="margin: 10px 0; line-height: 1.6;">If you did not request this login, please ignore this email</li>
+                            <li style="margin: 10px 0; line-height: 1.6;">Never share your OTP with anyone, including bank staff</li>
+                            <li style="margin: 10px 0; line-height: 1.6;">GhanaTrust Bank will never ask for your OTP via phone or email</li>
+                        </ul>
+                    </div>
+                    
+                    <p style="color: #64748b; line-height: 1.8; font-size: 16px; margin: 20px 0;">If you have any concerns about your account security, please contact our support team immediately.</p>
+                    
+                    <!-- Contact Information -->
+                    <div style="background: white; padding: 25px; border-radius: 12px; margin: 25px 0; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="margin: 15px 0; display: flex; align-items: center; gap: 15px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; flex-shrink: 0;">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 3.47 3.47 2 2 0 0 0 1.72 2h3a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                            <div>
+                                <p style="margin: 0; color: #475569; font-size: 14px;"><strong>Phone:</strong></p>
+                                <a href="tel:+233302212222" style="color: #3b82f6; text-decoration: none; font-size: 16px; font-weight: 600;">030 221 2222</a>
                             </div>
                         </div>
-                        
-                        <div style="text-align: center; margin-top: 40px; padding-top: 25px; border-top: 2px solid #e2e8f0;">
-                            <p style="color: #64748b; font-size: 14px; margin: 0;">&copy; 2026 GhanaTrust Bank. All rights reserved.</p>
-                            <p style="color: #94a3b8; font-size: 12px; margin: 10px 0 0 0;">Bank of Ghana regulated. Member of Ghana Association of Banks.</p>
+                        <div style="margin: 15px 0; display: flex; align-items: center; gap: 15px;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; flex-shrink: 0;">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                            <div>
+                                <p style="margin: 0; color: #475569; font-size: 14px;"><strong>Email:</strong></p>
+                                <a href="mailto:support@ghanatrustbank.com" style="color: #3b82f6; text-decoration: none; font-size: 16px; font-weight: 600;">support@ghanatrustbank.com</a>
+                            </div>
                         </div>
-                    </div>  
-                </div>
-            `
-        };
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 40px; padding-top: 25px; border-top: 2px solid #e2e8f0;">
+                        <p style="color: #64748b; font-size: 14px; margin: 0;">&copy; 2026 GhanaTrust Bank. All rights reserved.</p>
+                        <p style="color: #94a3b8; font-size: 12px; margin: 10px 0 0 0;">Bank of Ghana regulated. Member of Ghana Association of Banks.</p>
+                    </div>
+                </div>  
+            </div>
+        `;
 
-        const info = await sendBrevoEmail(email, mailOptions.subject, mailOptions.html);
-        console.log(`OTP email sent to: ${email}`);
-        console.log(`Message ID: ${info.messageId}`);
+        await sendEmail(email, 'Your Login OTP - GhanaTrust Bank', htmlContent);
         
         res.json({ 
             success: true, 
@@ -305,31 +300,23 @@ app.post('/api/send-custom-email', async (req, res) => {
             return res.status(400).json({ success: false, message: 'To, subject, and body are required' });
         }
 
-        const mailOptions = {
-            from: emailFrom,
-            to: to,
-            subject: subject,
-            text: body,
-            html: `
-                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
-                    <div style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); padding: 30px; text-align: center; border-radius: 16px 16px 0 0;">
-                        <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 700;">GhanaTrust Bank</h1>
-                    </div>
-                    <div style="background: #f8fafc; padding: 30px; border: 1px solid #e2e8f0; border-radius: 0 0 16px 16px;">
-                        <h2 style="color: #1e40af; margin-top: 0; font-size: 20px;">${subject}</h2>
-                        <div style="color: #64748b; line-height: 1.8; font-size: 15px; white-space: pre-wrap;">${body.replace(/\n/g, '<br>')}</div>
-                        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e2e8f0;">
-                            <p style="color: #64748b; font-size: 13px; margin: 0;">&copy; 2026 GhanaTrust Bank. All rights reserved.</p>
-                            <p style="color: #94a3b8; font-size: 12px; margin: 10px 0 0 0;">Bank of Ghana regulated. Member of Ghana Association of Banks.</p>
-                        </div>
+        const htmlContent = `
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+                <div style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); padding: 30px; text-align: center; border-radius: 16px 16px 0 0;">
+                    <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 700;">GhanaTrust Bank</h1>
+                </div>
+                <div style="background: #f8fafc; padding: 30px; border: 1px solid #e2e8f0; border-radius: 0 0 16px 16px;">
+                    <h2 style="color: #1e40af; margin-top: 0; font-size: 20px;">${subject}</h2>
+                    <div style="color: #64748b; line-height: 1.8; font-size: 15px; white-space: pre-wrap;">${body.replace(/\n/g, '<br>')}</div>
+                    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e2e8f0;">
+                        <p style="color: #64748b; font-size: 13px; margin: 0;">&copy; 2026 GhanaTrust Bank. All rights reserved.</p>
+                        <p style="color: #94a3b8; font-size: 12px; margin: 10px 0 0 0;">Bank of Ghana regulated. Member of Ghana Association of Banks.</p>
                     </div>
                 </div>
-            `
-        };
+            </div>
+        `;
 
-        const info = await transporter.sendMail(mailOptions);
-        console.log(`Custom email sent to: ${to}`);
-        console.log(`Message ID: ${info.messageId}`);
+        await sendEmail(to, subject, htmlContent, body);
         
         res.json({ 
             success: true, 
@@ -354,40 +341,31 @@ app.post('/api/send-to-admin', async (req, res) => {
             return res.status(400).json({ success: false, message: 'From, subject, and body are required' });
         }
 
-        const mailOptions = {
-            from: emailFrom,
-            to: 'cwesyrizy49957@gmail.com', // Admin email
-            replyTo: from,
-            subject: `[User Support] ${subject}`,
-            text: `From: ${firstName} ${lastName} <${from}>\nAccount: ${accountNumber}\n\nMessage:\n${body}`,
-            html: `
-                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
-                    <div style="background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); padding: 30px; text-align: center; border-radius: 16px 16px 0 0;">
-                        <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 700;">GhanaTrust Bank - User Support</h1>
+        const htmlContent = `
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+                <div style="background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); padding: 30px; text-align: center; border-radius: 16px 16px 0 0;">
+                    <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 700;">GhanaTrust Bank - User Support</h1>
+                </div>
+                <div style="background: #f8fafc; padding: 30px; border: 1px solid #e2e8f0; border-radius: 0 0 16px 16px;">
+                    <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; margin-bottom: 20px; border-radius: 0 8px 8px 0;">
+                        <p style="margin: 0; color: #1e40af; font-weight: 600;">Sender Information</p>
+                        <p style="margin: 5px 0 0 0; color: #475569; font-size: 14px;">
+                            <strong>Name:</strong> ${firstName} ${lastName}<br>
+                            <strong>Email:</strong> ${from}<br>
+                            <strong>Account:</strong> ${accountNumber}
+                        </p>
                     </div>
-                    <div style="background: #f8fafc; padding: 30px; border: 1px solid #e2e8f0; border-radius: 0 0 16px 16px;">
-                        <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; margin-bottom: 20px; border-radius: 0 8px 8px 0;">
-                            <p style="margin: 0; color: #1e40af; font-weight: 600;">Sender Information</p>
-                            <p style="margin: 5px 0 0 0; color: #475569; font-size: 14px;">
-                                <strong>Name:</strong> ${firstName} ${lastName}<br>
-                                <strong>Email:</strong> ${from}<br>
-                                <strong>Account:</strong> ${accountNumber}
-                            </p>
-                        </div>
-                        <h2 style="color: #1e40af; margin-top: 0; font-size: 18px;">${subject}</h2>
-                        <div style="color: #334155; line-height: 1.8; font-size: 15px; white-space: pre-wrap; background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">${body.replace(/\n/g, '<br>')}</div>
-                        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e2e8f0;">
-                            <p style="color: #64748b; font-size: 13px; margin: 0;">Reply directly to this email to respond to the user.</p>
-                            <p style="color: #94a3b8; font-size: 12px; margin: 10px 0 0 0;">&copy; 2026 GhanaTrust Bank. All rights reserved.</p>
-                        </div>
+                    <h2 style="color: #1e40af; margin-top: 0; font-size: 18px;">${subject}</h2>
+                    <div style="color: #334155; line-height: 1.8; font-size: 15px; white-space: pre-wrap; background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">${body.replace(/\n/g, '<br>')}</div>
+                    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #e2e8f0;">
+                        <p style="color: #64748b; font-size: 13px; margin: 0;">Reply directly to this email to respond to the user.</p>
+                        <p style="color: #94a3b8; font-size: 12px; margin: 10px 0 0 0;">&copy; 2026 GhanaTrust Bank. All rights reserved.</p>
                     </div>
                 </div>
-            `
-        };
+            </div>
+        `;
 
-        const info = await sendBrevoEmail('cwesyrizy49957@gmail.com', mailOptions.subject, mailOptions.html);
-        console.log(`Support email from ${from} sent to admin`);
-        console.log(`Message ID: ${info.messageId}`);
+        await sendEmail('cwesyrizy49957@gmail.com', `[User Support] ${subject}`, htmlContent);
         
         res.json({ 
             success: true, 
@@ -414,14 +392,19 @@ app.get('/', (req, res) => {
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'OK', message: 'Server is running', email: process.env.EMAIL_USER ? 'configured' : 'not configured' });
+    res.json({ 
+        status: 'OK', 
+        message: 'Server is running', 
+        email: emailPassword ? 'configured' : 'not configured' 
+    });
 });
 
-// Verify Brevo API key is configured
-if (!BREVO_API_KEY) {
-    console.log('Warning: BREVO_API_KEY not set. Emails will not work.');
+// Verify email credentials are configured
+if (!emailPassword) {
+    console.log('Warning: EMAIL_PASSWORD not set. Emails will not work.');
+    console.log('Please set EMAIL_PASSWORD environment variable with your Google App Password.');
 } else {
-    console.log('Brevo API key configured. Email server ready.');
+    console.log('Gmail email server configured and ready.');
 }
 
 app.listen(PORT, () => {
