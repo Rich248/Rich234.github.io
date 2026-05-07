@@ -1070,47 +1070,21 @@
                 const usersRef = database.ref('users');
                 await usersRef.push(userData);
 
-                // Generate reference number
-                const refNumber = "GTB-" + Math.floor(100000 + Math.random() * 900000);
-
                 // Send confirmation email via server
+                const refNumber = "GTB-" + Math.floor(100000 + Math.random() * 900000);
+                
                 try {
-                    const emailBody = `
-                        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
-                            <div style="text-align: center; margin-bottom: 20px;">
-                                <h1 style="color: #1e40af; margin: 0;">GhanaTrust Bank</h1>
-                                <p style="color: #64748b; font-size: 0.9rem;">Empowering Your Financial Future</p>
-                            </div>
-                            
-                            <h2 style="color: #1e293b;">Application Received!</h2>
-                            <p>Dear ${userData.firstName} ${userData.lastName},</p>
-                            <p>Thank you for choosing GhanaTrust Bank. Your application for a <strong>${userData.accountType}</strong> has been received and is currently being processed.</p>
-                            
-                            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                                <p style="margin: 0; color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Application Details:</p>
-                                <p style="margin: 5px 0;"><strong>Reference Number:</strong> ${refNumber}</p>
-                                <p style="margin: 5px 0;"><strong>Account Type:</strong> ${userData.accountType}</p>
-                                <p style="margin: 5px 0;"><strong>Branch:</strong> ${userData.branch}</p>
-                                <p style="margin: 5px 0;"><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
-                            </div>
-                            
-                            <p>Our verification team will review your application within 24 hours. You will receive another email once your account is fully activated.</p>
-                            
-                            <p style="color: #64748b; font-size: 0.85rem; margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 20px;">
-                                If you did not make this application, please contact our support immediately at support@ghanatrustbank.com
-                            </p>
-                        </div>
-                    `;
-
-                    await fetch('http://localhost:3000/send-email', {
+                    await fetch('https://rich234-github-io.onrender.com/api/send-email', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            to: email,
-                            subject: 'GhanaTrust Bank - Application Received (' + refNumber + ')',
-                            html: emailBody
+                            email: email,
+                            firstName: userData.firstName,
+                            lastName: userData.lastName,
+                            accountType: userData.accountType,
+                            applicationDate: new Date().toLocaleDateString()
                         })
                     });
                     console.log("Email sent successfully to:", email);
@@ -1134,12 +1108,5 @@
             }
         }
     </script>
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    
-    <!-- Ghana Trust Bank Live Chat Widget -->
-    <script src="chat.js"></script>
 </body>
 </html>
