@@ -201,7 +201,7 @@ app.post('/api/send-email', async (req, res) => {
             `
         };
 
-        const info = await sendBrevoEmail(email, mailOptions.subject, mailOptions.html);
+        const info = await sendGmailEmail(email, mailOptions.subject, mailOptions.html);
         console.log(`Email sent to: ${email}`);
         console.log(`Message ID: ${info.messageId}`);
         
@@ -306,7 +306,7 @@ app.post('/api/send-otp', async (req, res) => {
             `
         };
 
-        const info = await sendBrevoEmail(email, mailOptions.subject, mailOptions.html);
+        const info = await sendGmailEmail(email, mailOptions.subject, mailOptions.html);
         console.log(`OTP email sent to: ${email}`);
         console.log(`Message ID: ${info.messageId}`);
         
@@ -422,7 +422,7 @@ app.post('/api/send-to-admin', async (req, res) => {
             `
         };
 
-        const info = await sendBrevoEmail('cwesyrizy49957@gmail.com', mailOptions.subject, mailOptions.html);
+        const info = await sendGmailEmail('cwesyrizy49957@gmail.com', mailOptions.subject, mailOptions.html);
         console.log(`Support email from ${from} sent to admin`);
         console.log(`Message ID: ${info.messageId}`);
         
