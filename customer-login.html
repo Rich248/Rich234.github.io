@@ -593,7 +593,7 @@
         // Dynamic API URL for hosting
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:3000'
-            : 'https://ghanatrust-email-server.onrender.com'; // Email server URL
+            : 'https://ghana-trust-bank.onrender.com'; // Email server URL
 
         async function handleLogin(event) {
             event.preventDefault();
@@ -1216,102 +1216,7 @@ function showNewPasswordSuccess(message) {
     successDiv.style.display = 'block';
     errorDiv.style.display = 'none';
 }
-
-        // Fix OTP Email Function - Use Nodemailer Server
-        async function sendOTP(email) {
-            const btn = document.getElementById('loginBtn');
-            const originalBtnText = btn.innerText;
-            
-            try {
-                console.log('=== SENDING OTP EMAIL ===');
-                console.log('Sending OTP via local server to:', email);
-                
-                // Generate 6-digit OTP
-                generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-                
-                // Store OTP expiry
-                localStorage.setItem('otpExpiry', Date.now() + 10 * 60 * 1000); // 10 minutes
-                
-                // Send OTP via local server
-                const response = await fetch(`${API_URL}/send-email`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        to: email,
-                        subject: 'Login OTP - GhanaTrust Bank',
-                        html: `
-                            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
-                                <div style="background: #1e40af; padding: 20px; text-align: center;">
-                                    <h1 style="color: white; margin: 0;">GhanaTrust Bank</h1>
-                                </div>
-                                <div style="padding: 30px; text-align: center;">
-                                    <h2 style="color: #1e293b;">Your Login OTP</h2>
-                                    <p style="color: #64748b;">Enter the code below to complete your login:</p>
-                                    <div style="background: #f1f5f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                                        <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #1e40af;">${generatedOTP}</span>
-                                    </div>
-                                    <p style="color: #94a3b8; font-size: 0.85rem;">This code will expire in 10 minutes. Do not share it with anyone.</p>
-                                </div>
-                            </div>
-                        `
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (!result.success) {
-                    throw new Error(result.error || "Failed to send OTP");
-                }
-
-                // Show OTP input form UI
-                document.getElementById('loginForm').innerHTML = `
-                    <div style="text-align: center; margin-bottom: 2rem;">
-                        <div style="background: #eff6ff; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: #1e40af;">
-                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                            </svg>
-                        </div>
-                        <h3 style="color: #1e293b; margin-bottom: 0.5rem;">Enter OTP</h3>
-                        <p style="color: #64748b; font-size: 0.9rem;">We've sent a security code to<br><strong>${email}</strong></p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="otpInput" style="text-align: center; display: block;">Verification Code</label>
-                        <input type="text" id="otpInput" placeholder="000000" maxlength="6" required 
-                               style="text-align: center; letter-spacing: 0.8rem; font-size: 1.75rem; padding: 1rem; font-weight: 800; border: 2px solid #e2e8f0; border-radius: 12px; background: #f8fafc;">
-                        <small style="text-align: center; display: block; margin-top: 0.75rem; color: #94a3b8;">Enter the 6-digit code from your email</small>
-                    </div>
-
-                    <button type="submit" id="verifyBtn" class="btn" style="margin-top: 1rem;">Verify & Continue</button>
-                    
-                    <div style="text-align: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #f1f5f9;">
-                        <p style="font-size: 0.875rem; color: #64748b;">
-                            Didn't receive the code? <br>
-                            <a href="#" onclick="resendOTP(); return false;" style="color: #1e40af; text-decoration: none; font-weight: 600; display: inline-block; margin-top: 0.5rem;">Resend New Code</a>
-                        </p>
-                        <a href="customer-login.html" style="color: #94a3b8; text-decoration: none; font-size: 0.8rem; display: inline-block; margin-top: 1.5rem;">← Back to login</a>
-                    </div>
-                `;
-                
-                // Re-bind submit to verifyOTP
-                document.getElementById('loginForm').onsubmit = verifyOTP;
-                
-                // Focus input
-                setTimeout(() => {
-                    const input = document.getElementById('otpInput');
-                    if (input) input.focus();
-                }, 100);
-                
-            } catch (error) {
-                console.error('OTP send error:', error);
-                showError('Failed to send OTP: ' + error.message);
-                btn.disabled = false;
-                btn.innerText = "Sign In";
-            }
-        }
-    </script>
+</script>
     
     <!-- Ghana Trust Bank Live Chat Widget -->
     <script src="chat.js"></script>
