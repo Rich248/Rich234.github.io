@@ -6,12 +6,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Gmail transporter setup with your credentials
+// Gmail transporter setup with environment variables
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'cwesyrizy49957@gmail.com',
-        pass: 'cvlnvgcfhzrapiqe' // Your Gmail app password
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD
     }
 });
 
@@ -39,7 +39,7 @@ app.post('/send-email', async (req, res) => {
         }
         
         const mailOptions = {
-            from: 'GhanaTrust Bank <cwesyrizy49957@gmail.com>',
+            from: 'GhanaTrust Bank <' + process.env.GMAIL_USER + '>',
             to: to,
             subject: subject,
             html: html
@@ -76,7 +76,7 @@ app.get('/health', (req, res) => {
     });
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log('=== NODEMAILER EMAIL SERVER STARTED ===');
     console.log(`Server running on http://localhost:${PORT}`);
