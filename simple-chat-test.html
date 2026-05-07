@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Chat Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            min-height: 200vh;
+            background: #f5f5f5;
+        }
+        
+        .test-info {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        /* Simple Chat Button Styles */
+        #simpleChatButton {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.4);
+            display: flex !important;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 99999 !important;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            visibility: visible !important;
+            opacity: 1 !important;
+            border: none;
+        }
+        
+        #simpleChatButton:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(30, 58, 138, 0.5);
+        }
+        
+        /* Simple Chat Modal */
+        #simpleChatModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 100000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #simpleChatModal.active {
+            display: flex;
+        }
+        
+        .simple-chat-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 450px;
+            max-height: 80vh;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .simple-chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            color: white;
+        }
+        
+        .simple-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: #f8fafc;
+            min-height: 300px;
+            max-height: 400px;
+        }
+        
+        .simple-chat-input-area {
+            padding: 1rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 0.5rem;
+            background: white;
+        }
+        
+        .simple-chat-input-area input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        
+        .simple-send-btn {
+            width: 44px;
+            height: 44px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.75rem;
+            cursor: pointer;
+            color: white;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message.user {
+            align-items: flex-end;
+        }
+        
+        .message.bot {
+            align-items: flex-start;
+        }
+        
+        .message-bubble {
+            max-width: 85%;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .message.user .message-bubble {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .message.bot .message-bubble {
+            background: white;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-info">
+        <h1>Simple Chat Widget Test</h1>
+        <p>This is a minimal test to verify the chat widget works without any dependencies.</p>
+        <p>The chat button should appear in the bottom-right corner.</p>
+        <p>Open browser console (F12) to see debug messages.</p>
+        
+        <button onclick="manualTest()" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+            Manual Test - Add Chat Button
+        </button>
+    </div>
+
+    <div style="height: 100vh;">
+        <p>Scroll down to test fixed positioning...</p>
+        <br><br><br><br><br><br><br><br><br><br>
+        <p>More content...</p>
+        <br><br><br><br><br><br><br><br><br><br>
+        <p>Even more content...</p>
+    </div>
+
+    <!-- Simple Chat HTML -->
+    <button id="simpleChatButton" onclick="openSimpleChat()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <span>Chat with Us</span>
+    </button>
+
+    <div id="simpleChatModal">
+        <div class="simple-chat-content">
+            <div class="simple-chat-header">
+                <div>
+                    <h3 style="margin: 0; font-size: 1rem;">Ghana Trust Bank</h3>
+                    <span style="font-size: 0.75rem; opacity: 0.9;">Online Representative</span>
+                </div>
+                <button class="close-btn" onclick="closeSimpleChat()">&times;</button>
+            </div>
+            <div class="simple-chat-messages" id="simpleChatMessages">
+                <div class="message bot">
+                    <div class="message-bubble">Hello! Welcome to Ghana Trust Bank. How can I help you today?</div>
+                </div>
+            </div>
+            <div class="simple-chat-input-area">
+                <input type="text" id="simpleChatInput" placeholder="Type your message..." onkeypress="handleSimpleKeyPress(event)">
+                <button class="simple-send-btn" onclick="sendSimpleMessage()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('Simple chat test page loaded');
+        
+        // Test if button exists
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                const chatButton = document.getElementById('simpleChatButton');
+                if (chatButton) {
+                    console.log('✅ Simple chat button found:', chatButton);
+                    console.log('Button styles:', window.getComputedStyle(chatButton));
+                    console.log('Button visible:', chatButton.offsetWidth > 0 && chatButton.offsetHeight > 0);
+                } else {
+                    console.error('❌ Simple chat button NOT found');
+                }
+            }, 1000);
+        });
+        
+        function manualTest() {
+            console.log('Manual test triggered');
+            const existingButton = document.getElementById('simpleChatButton');
+            if (existingButton) {
+                console.log('Button already exists, showing styles:', window.getComputedStyle(existingButton));
+                existingButton.style.background = 'red';
+                setTimeout(() => {
+                    existingButton.style.background = '';
+                }, 2000);
+            } else {
+                console.log('Creating button manually');
+                const button = document.createElement('button');
+                button.id = 'simpleChatButton';
+                button.innerHTML = 'TEST CHAT';
+                button.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    background: red;
+                    color: white;
+                    padding: 20px;
+                    z-index: 999999;
+                    display: block !important;
+                `;
+                document.body.appendChild(button);
+            }
+        }
+        
+        function openSimpleChat() {
+            console.log('Opening simple chat');
+            document.getElementById('simpleChatModal').classList.add('active');
+        }
+        
+        function closeSimpleChat() {
+            console.log('Closing simple chat');
+            document.getElementById('simpleChatModal').classList.remove('active');
+        }
+        
+        function sendSimpleMessage() {
+            const input = document.getElementById('simpleChatInput');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            // Add user message
+            addMessage(message, 'user');
+            input.value = '';
+            
+            // Simulate bot response
+            setTimeout(() => {
+                addMessage('Thank you for your message! This is a test response from the simple chat widget.', 'bot');
+            }, 1000);
+        }
+        
+        function handleSimpleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendSimpleMessage();
+            }
+        }
+        
+        function addMessage(text, sender) {
+            const messagesContainer = document.getElementById('simpleChatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = `<div class="message-bubble">${text}</div>`;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+    </script>
+</body>
+</html>

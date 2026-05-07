@@ -390,6 +390,15 @@
             color: #dc2626;
         }
 
+        .user-item.blocked-user {
+            background: #fef2f2;
+            border-left: 4px solid #dc2626;
+        }
+
+        .user-item.blocked-user:hover {
+            background: #fee2e2;
+        }
+
         .user-actions {
             display: flex;
             gap: 0.5rem;
@@ -596,8 +605,9 @@
     <div class="dashboard-content">
         <!-- Navigation Tabs -->
         <div class="nav-tabs">
-            <button class="nav-tab active" onclick="switchTab('chats')">Live Chat Sessions</button>
+            <button class="nav-tab" onclick="switchTab('chats')">Live Chat Sessions</button>
             <button class="nav-tab" onclick="switchTab('users')">User Management</button>
+            <button class="nav-tab" onclick="switchTab('login-activity')">Login Activity</button>
             <button class="nav-tab" onclick="switchTab('loans')">Loan Applications</button>
         </div>
 
@@ -622,6 +632,17 @@
             <div class="stat-card" id="cardLoanApplications" onclick="switchTab('loans')">
                 <h3 id="loanApplications">0</h3>
                 <p>Loan Applications</p>
+            </div>
+        </div>
+
+        <!-- Admin Notifications Section -->
+        <div style="margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3 style="color: #1e293b; font-size: 1.1rem; font-weight: 600;">📢 Recent Notifications</h3>
+                <button onclick="clearNotifications()" style="background: #ef4444; border: none; color: white; padding: 0.25rem 0.75rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Clear All</button>
+            </div>
+            <div id="adminNotifications" style="max-height: 300px; overflow-y: auto; background: #f8fafc; border-radius: 8px; padding: 1rem; border: 1px solid #e2e8f0;">
+                <p style="color: #94a3b8; text-align: center;">Loading notifications...</p>
             </div>
         </div>
 
@@ -658,7 +679,12 @@
         <div id="usersTab" class="tab-content">
             <div class="users-section">
                 <div class="users-header">
-                    <h2>Registered Users</h2>
+                    <h2>User Management</h2>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button onclick="filterUsers('all')" class="btn-action btn-email" id="filterAllUsers">All</button>
+                        <button onclick="filterUsers('active')" class="btn-action btn-unblock" id="filterActiveUsers">Active</button>
+                        <button onclick="filterUsers('blocked')" class="btn-action btn-block" id="filterBlockedUsers">Blocked</button>
+                    </div>
                 </div>
                 <div class="users-list" id="usersList">
                     <div class="empty-state">
@@ -669,6 +695,49 @@
                             <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                         </svg>
                         <p>No registered users found</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Users Tab Content -->
+        <div id="active-usersTab" class="tab-content">
+            <div class="users-section">
+                <div class="users-header">
+                    <h2>✅ Active User Accounts</h2>
+                    <div class="users-actions">
+                        <button onclick="loadActiveUsers()" class="btn-action btn-unblock">Refresh Active Users</button>
+                    </div>
+                </div>
+                <div class="users-list" id="activeUsersList">
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path>
+                        </svg>
+                        <p>No active users found</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Activity Tab Content -->
+        <div id="login-activityTab" class="tab-content">
+            <div class="users-section">
+                <div class="users-header">
+                    <h2>User Login Activity</h2>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button onclick="filterLoginActivity('all')" class="btn-action btn-email" id="filterAllActivity">All</button>
+                        <button onclick="filterLoginActivity('success')" class="btn-action btn-unblock" id="filterSuccessActivity">Success</button>
+                        <button onclick="filterLoginActivity('failed')" class="btn-action btn-block" id="filterFailedActivity">Failed</button>
+                        <button onclick="filterLoginActivity('blocked')" class="btn-action btn-block" id="filterBlockedActivity">Blocked</button>
+                    </div>
+                </div>
+                <div class="users-list" id="loginActivityList">
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 11H3v2h6v-2zm0-4H3v2h6V7zm0 8H3v2h6v-2zm12-8h-6v2h6V7zm0 4h-6v2h6v-2zm0 4h-6v2h6v-2z"></path>
+                        </svg>
+                        <p>No login activity found</p>
                     </div>
                 </div>
             </div>
@@ -785,7 +854,7 @@
             </div>
             <div class="email-modal-footer">
                 <button class="btn-secondary" onclick="closePasswordModal()">Close</button>
-                <button class="btn-primary" id="sendResetCodeBtn" onclick="generateAndSendResetCode()">Send Reset Code</button>
+                <button class="btn-primary" id="sendResetCodeBtn" onclick="generateResetCodeFromModal()">Send Reset Code</button>
             </div>
         </div>
     </div>
@@ -834,6 +903,10 @@
         let currentChatId = null;
         let messageListener = null;
 
+        // Global Firebase Functions variables
+        let functions, sendOTPFirebase, sendPasswordResetFirebase, sendLoanStatusFirebase, sendEmailFirebase;
+        const USE_FIREBASE_EMAIL = true; // Use Firebase Functions for email
+
         function initFirebase() {
             try {
                 // Check if Firebase is already initialized
@@ -841,6 +914,14 @@
                     firebase.initializeApp(firebaseConfig);
                 }
                 database = firebase.database();
+                
+                // Initialize Firebase Functions
+                functions = firebase.functions();
+                sendOTPFirebase = functions.httpsCallable('sendOTPEmail');
+                sendPasswordResetFirebase = functions.httpsCallable('sendPasswordResetEmail');
+                sendLoanStatusFirebase = functions.httpsCallable('sendLoanStatusEmail');
+                sendEmailFirebase = functions.httpsCallable('sendEmail');
+                
                 chatsRef = database.ref('chats');
                 
                 // Listen for new chats
@@ -854,10 +935,85 @@
                 document.getElementById('connectionStatus').style.color = '#10b981';
                 
                 console.log('Firebase initialized successfully');
+                
+                // Add Firebase connection monitor
+                database.ref('.info/connected').on('value', (snapshot) => {
+                    const connected = snapshot.val();
+                    console.log('Firebase connection status:', connected);
+                    
+                    const statusElement = document.getElementById('connectionStatus');
+                    if (connected) {
+                        statusElement.innerHTML = '● Connected';
+                        statusElement.style.color = '#10b981';
+                    } else {
+                        statusElement.innerHTML = '● Disconnected';
+                        statusElement.style.color = '#ef4444';
+                    }
+                });
+                // Listen for admin notifications (including account unblocking)
+                listenForAdminNotifications();
+                
             } catch (error) {
                 console.error('Firebase initialization error:', error);
                 document.getElementById('connectionStatus').innerHTML = '● Disconnected';
                 document.getElementById('connectionStatus').style.color = '#ef4444';
+                
+                // Still enable reset code buttons - they'll initialize when clicked
+                const resetCodeButtons = document.querySelectorAll('.btn-action[onclick*="generateResetCodeForUser"]');
+                resetCodeButtons.forEach(button => {
+                    button.style.opacity = '0.7';
+                    button.title = 'Click to initialize Firebase and generate reset code';
+                });
+            }
+        }
+        
+        // Listen for admin notifications (including account unblocking)
+        function listenForAdminNotifications() {
+            const notificationsRef = database.ref('adminNotifications');
+            notificationsRef.orderByChild('timestamp').limitToLast(10).on('value', (snapshot) => {
+                const notifications = snapshot.val() || {};
+                displayAdminNotifications(notifications);
+            });
+        }
+        
+        function displayAdminNotifications(notifications) {
+            const notificationContainer = document.getElementById('adminNotifications');
+            if (!notificationContainer) return;
+            
+            let html = '';
+            Object.values(notifications).reverse().forEach(notification => {
+                const typeColor = notification.type === 'ACCOUNT_UNBLOCKED' ? '#10b981' : '#3b82f6';
+                const typeIcon = notification.type === 'ACCOUNT_UNBLOCKED' ? '✓' : '📧';
+                
+                html += `
+                    <div style="padding: 1rem; margin-bottom: 0.5rem; background: white; border-radius: 8px; border-left: 4px solid ${typeColor}; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <span style="font-size: 1.2rem;">${typeIcon}</span>
+                            <span style="font-weight: 600; color: #1e293b;">${notification.title}</span>
+                            <span style="font-size: 0.75rem; color: #94a3b8; margin-left: auto;">${new Date(notification.timestamp).toLocaleString()}</span>
+                        </div>
+                        <div style="color: #64748b; font-size: 0.9rem;">${notification.message}</div>
+                        ${notification.email ? `<div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem;">Email: ${notification.email}</div>` : ''}
+                    </div>
+                `;
+            });
+            
+            notificationContainer.innerHTML = html || '<p style="color: #94a3b8; text-align: center;">No new notifications</p>';
+        }
+        
+        // Clear all notifications
+        function clearNotifications() {
+            if (confirm('Are you sure you want to clear all notifications?')) {
+                database.ref('adminNotifications').remove()
+                    .then(() => {
+                        console.log('All notifications cleared');
+                        if (document.getElementById('adminNotifications')) {
+                            document.getElementById('adminNotifications').innerHTML = '<p style="color: #94a3b8; text-align: center;">No new notifications</p>';
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error clearing notifications:', error);
+                    });
             }
         }
 
@@ -1109,9 +1265,17 @@
                 }).then(() => {
                     console.log('Test write successful');
                     alert('Database write test successful! Check Firebase Console.');
+                    
+                    // Update connection status to connected
+                    document.getElementById('connectionStatus').innerHTML = '● Connected';
+                    document.getElementById('connectionStatus').style.color = '#10b981';
                 }).catch((error) => {
                     console.error('Test write failed:', error);
                     alert('Database write failed: ' + error.message);
+                    
+                    // Update connection status to disconnected
+                    document.getElementById('connectionStatus').innerHTML = '● Disconnected';
+                    document.getElementById('connectionStatus').style.color = '#dc2626';
                 });
             }
         }
@@ -1130,9 +1294,25 @@
             
             // Listen for user changes
             usersRef.on('value', (snapshot) => {
+                allUsers = snapshot.val() || {};
                 updateUsersList(snapshot);
                 updateUserStats(snapshot);
             });
+        }
+
+        // Filter Users Function
+        let currentFilter = 'all';
+        
+        function filterUsers(filterType) {
+            currentFilter = filterType;
+            
+            // Update button styles
+            document.getElementById('filterAllUsers').className = filterType === 'all' ? 'btn-action btn-email' : 'btn-action';
+            document.getElementById('filterActiveUsers').className = filterType === 'active' ? 'btn-action btn-unblock' : 'btn-action';
+            document.getElementById('filterBlockedUsers').className = filterType === 'blocked' ? 'btn-action btn-block' : 'btn-action';
+            
+            // Reload users with filter
+            loadUsers();
         }
 
         function loadUsers() {
@@ -1168,9 +1348,34 @@
                 const isBlocked = user.blocked === true;
                 const statusClass = isBlocked ? 'blocked' : 'active';
                 const statusText = isBlocked ? 'Blocked' : 'Active';
-                const blockBtnClass = isBlocked ? 'btn-unblock' : 'btn-block';
-                const blockBtnText = isBlocked ? 'Unblock' : 'Block';
-                const blockAction = isBlocked ? `unblockUser('${userId}')` : `blockUser('${userId}')`;
+                
+                // Apply filter
+                console.log('=== FILTER DEBUG ===');
+                console.log('Current filter:', currentFilter);
+                console.log('User:', {
+                    userId: userId,
+                    email: user.email,
+                    isBlocked: isBlocked,
+                    blocked: user.blocked
+                });
+                
+                if (currentFilter === 'active' && isBlocked) {
+                    console.log('SKIPPING BLOCKED USER from Active filter:', user.email);
+                    return;
+                }
+                if (currentFilter === 'blocked' && !isBlocked) {
+                    console.log('SKIPPING ACTIVE USER from Blocked filter:', user.email);
+                    return;
+                }
+                
+                // Simple status check for blocked users
+                if (isBlocked) {
+                    console.log(' Blocked user found in list:', user.email);
+                }
+                // Show different button for already blocked users
+                const blockBtnClass = isBlocked ? 'btn-reset' : 'btn-block';
+                const blockBtnText = isBlocked ? 'Reset Password' : 'Block';
+                const blockAction = isBlocked ? `openPasswordModal('${user.email}', '${userId}')` : `blockUser('${userId}')`;
                 
                 // Mask account number for admin (show only last 4 digits)
                 const accNum = user.accountNumber || 'Not Generated';
@@ -1179,7 +1384,9 @@
                 html += `
                     <div class="user-item">
                         <div class="user-info">
-                            <div class="user-name">${user.firstName || ''} ${user.lastName || ''}</div>
+                            <div class="user-name">
+                                ${user.firstName || ''} ${user.lastName || ''}
+                            </div>
                             <div class="user-email">${user.email || 'No email'}</div>
                             <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem;">
                                 ${user.accountType || 'Unknown'} | Acc: ${maskedAcc} | Branch: ${user.branch || 'N/A'}
@@ -1190,7 +1397,6 @@
                             <div class="user-actions">
                                 <button class="btn-action btn-email" onclick="openAccountModal('${userId}')">View Account</button>
                                 <button class="btn-action btn-reset" onclick="openPasswordModal('${user.email}', '${userId}')">Reset Password</button>
-                                <button class="btn-action ${blockBtnClass}" onclick="${blockAction}">${blockBtnText}</button>
                                 <button class="btn-action btn-email" onclick="openEmailModal('${user.email}')">Send Email</button>
                             </div>
                         </div>
@@ -1236,24 +1442,24 @@
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             document.getElementById(tab + 'Tab').classList.add('active');
             
-            // Update stat card highlighting
-            document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('active-tab-indicator'));
-            if (tab === 'chats') {
-                document.getElementById('cardActiveChats').classList.add('active-tab-indicator');
-                document.getElementById('cardTotalMessages').classList.add('active-tab-indicator');
-            } else if (tab === 'users') {
-                document.getElementById('cardTotalUsers').classList.add('active-tab-indicator');
-                document.getElementById('cardBlockedUsers').classList.add('active-tab-indicator');
-            } else if (tab === 'loans') {
-                document.getElementById('cardLoanApplications').classList.add('active-tab-indicator');
-            }
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.add('active');
             
-            // Load data if switching to tab
-            if (tab === 'users') {
+            // Add active class to clicked nav tab
+            event.target.classList.add('active');
+            
+            // Load data based on tab
+            if (tabName === 'users') {
                 loadUsers();
-            } else if (tab === 'chats') {
-                refreshChats();
-            } else if (tab === 'loans') {
+            } else if (tabName === 'active-users') {
+                loadActiveUsers();
+            } else if (tabName === 'blocked-users') {
+                loadBlockedUsers();
+            } else if (tabName === 'chats') {
+                loadChatSessions();
+            } else if (tabName === 'login-activity') {
+                loadLoginActivity();
+            } else if (tabName === 'loans') {
                 loadLoanApplications();
             }
         }
@@ -1262,6 +1468,7 @@
             // Determine which tab is active
             const usersTab = document.getElementById('usersTab');
             const chatsTab = document.getElementById('chatsTab');
+            const loginActivityTab = document.getElementById('login-activityTab');
             const loansTab = document.getElementById('loansTab');
             
             if (usersTab.classList.contains('active')) {
@@ -1270,9 +1477,15 @@
             } else if (chatsTab.classList.contains('active')) {
                 refreshChats();
                 alert('Chat sessions refreshed!');
+            } else if (loginActivityTab.classList.contains('active')) {
+                loadLoginActivity();
+                alert('Login activity refreshed!');
             } else if (loansTab.classList.contains('active')) {
                 loadLoanApplications();
                 alert('Loan applications refreshed!');
+            } else if (activeUsersTab.classList.contains('active')) {
+                loadActiveUsers();
+                alert('Active users list refreshed!');
             }
         }
 
@@ -1382,9 +1595,6 @@
                     </div>
                 `;
             });
-            
-            html += '</div>';
-            list.innerHTML = html;
         }
 
         // Loan Applications Management
@@ -1574,20 +1784,120 @@ Submitted: ${new Date(loan.submittedAt).toLocaleString()}
             openEmailModal(email);
         }
 
+        // Login Activity Management
+        let currentActivityFilter = 'all';
+        let allLoginActivities = {};
+
+        function loadLoginActivity() {
+            const activityRef = database.ref('loginActivity');
+            activityRef.once('value', (snapshot) => {
+                allLoginActivities = snapshot.val() || {};
+                updateLoginActivityList();
+            });
+        }
+
+        function updateLoginActivityList() {
+            const activityList = document.getElementById('loginActivityList');
+            const activities = Object.entries(allLoginActivities).reverse(); // Show newest first
+            
+            if (activities.length === 0) {
+                activityList.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 11H3v2h6v-2zm0-4H3v2h6V7zm0 8H3v2h6v-2zm12-8h-6v2h6V7zm0 4h-6v2h6v-2zm0 4h-6v2h6v-2z"></path>
+                        </svg>
+                        <p>No login activity found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            activities.forEach(([id, activity]) => {
+                // Apply filter
+                if (currentActivityFilter !== 'all' && activity.status !== currentActivityFilter) {
+                    return;
+                }
+
+                const statusClass = getStatusClass(activity.status);
+                const statusText = getStatusText(activity.status);
+                const time = new Date(activity.timestamp).toLocaleString();
+                
+                html += `
+                    <div class="user-item">
+                        <div class="user-info">
+                            <div class="user-name">${activity.userName}</div>
+                            <div class="user-email">${activity.email}</div>
+                            <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem;">
+                                IP: ${activity.ipAddress || 'Unknown'} | ${time}
+                            </div>
+                        </div>
+                        <div class="user-meta">
+                            <span class="user-status ${statusClass}">${statusText}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            activityList.innerHTML = html || `
+                <div class="empty-state">
+                    <p>No ${currentActivityFilter} login activity found</p>
+                </div>
+            `;
+        }
+
+        function getStatusClass(status) {
+            switch(status) {
+                case 'success': return 'active';
+                case 'failed': return 'blocked';
+                case 'blocked': return 'blocked';
+                default: return 'blocked';
+            }
+        }
+
+        function getStatusText(status) {
+            switch(status) {
+                case 'success': return 'Success';
+                case 'failed': return 'Failed';
+                case 'blocked': return 'Blocked';
+                default: return 'Unknown';
+            }
+        }
+
+        function filterLoginActivity(status) {
+            currentActivityFilter = status;
+            
+            // Update button styles
+            document.getElementById('filterAllActivity').className = status === 'all' ? 'btn-action btn-email' : 'btn-action';
+            document.getElementById('filterSuccessActivity').className = status === 'success' ? 'btn-action btn-unblock' : 'btn-action';
+            document.getElementById('filterFailedActivity').className = status === 'failed' ? 'btn-action btn-block' : 'btn-action';
+            document.getElementById('filterBlockedActivity').className = status === 'blocked' ? 'btn-action btn-block' : 'btn-action';
+            
+            updateLoginActivityList();
+        }
+
         // Password Reset with Code
         let currentResetUserId = null;
+        let currentResetEmail = null;
 
         function openPasswordModal(email, userId) {
             currentResetUserId = userId;
+            currentResetEmail = email;
             document.getElementById('resetEmail').value = email;
             document.getElementById('resetCodeInfo').style.display = 'none';
-            document.getElementById('sendResetCodeBtn').style.display = 'inline-block';
+            
+            const btn = document.getElementById('sendResetCodeBtn');
+            btn.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Send Reset Code';
+            
             document.getElementById('passwordModal').classList.add('active');
         }
 
         function closePasswordModal() {
             document.getElementById('passwordModal').classList.remove('active');
             currentResetUserId = null;
+            currentResetEmail = null;
         }
 
         function generateResetCode() {
@@ -1595,40 +1905,272 @@ Submitted: ${new Date(loan.submittedAt).toLocaleString()}
             return Math.floor(100000 + Math.random() * 900000).toString();
         }
 
-        async function generateAndSendResetCode() {
+        async function generateResetCodeFromModal() {
             const email = document.getElementById('resetEmail').value;
             const btn = document.getElementById('sendResetCodeBtn');
+            
+            if (!email) {
+                alert('Please enter an email address');
+                return;
+            }
             
             btn.disabled = true;
             btn.textContent = 'Sending...';
             
-            // Generate reset code
+            console.log('=== ADMIN CLICKED RESET PASSWORD ===');
+            console.log('Email:', email);
+            console.log('Generating ONE reset code NOW...');
+            
+            try {
+                // GENERATE ONE CODE - This is the ONLY code used for everything
+                const resetCode = generateResetCode();
+                console.log('=== GENERATED CODE (SINGLE SOURCE OF TRUTH) ===');
+                console.log('Code:', resetCode);
+                console.log('This code will be:');
+                console.log('1. Stored in Firebase database');
+                console.log('2. Sent to customer via email');
+                console.log('3. Used by customer for validation');
+                
+                // Find user by email
+                const snapshot = await database.ref('users').orderByChild('email').equalTo(email).once('value');
+                
+                if (!snapshot.exists()) {
+                    throw new Error('No account found with this email');
+                }
+                
+                let userId = null;
+                snapshot.forEach((childSnapshot) => {
+                    userId = childSnapshot.key;
+                });
+                
+                console.log('User ID:', userId);
+                console.log('=== STORING CODE IN FIREBASE DATABASE ===');
+                console.log('Storing code:', resetCode);
+                
+                // Store THE SAME CODE in Firebase database
+                await database.ref('users').child(userId).update({
+                    resetCode: resetCode,
+                    resetCodeExpiry: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
+                    blocked: true
+                });
+                
+                console.log('✅ Code stored in database:', resetCode);
+                
+                // Verify it was stored correctly
+                const verifySnapshot = await database.ref('users').child(userId).once('value');
+                const verifyData = verifySnapshot.val();
+                
+                console.log('Database verification:');
+                console.log('Stored in DB:', verifyData.resetCode);
+                console.log('Generated code:', resetCode);
+                console.log('Match:', verifyData.resetCode === resetCode ? 'YES' : 'NO');
+                
+                if (verifyData.resetCode !== resetCode) {
+                    throw new Error('Database storage verification failed');
+                }
+                
+                console.log('=== SENDING EMAIL WITH SAME CODE ===');
+                console.log('Email will contain:', resetCode);
+                
+                // Use local server endpoint
+                try {
+                    const emailResponse = await fetch('http://localhost:3000/send-email', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            to: email,
+                            subject: 'Password Reset Code - GhanaTrust Bank',
+                            html: `
+                                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+                                    <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 30px; text-align: center;">
+                                        <h1 style="color: white; margin: 0; font-size: 24px;">GhanaTrust Bank</h1>
+                                    </div>
+                                    <div style="padding: 30px; background: #f8fafc;">
+                                        <h2 style="color: #1e40af; margin-top: 0;">Password Reset Code</h2>
+                                        <p>Dear Valued Customer,</p>
+                                        <p>You have requested a password reset for your GhanaTrust Bank account.</p>
+                                        <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; margin: 20px 0; text-align: center;">
+                                            <p style="margin: 0 0 10px 0; color: #92400e; font-size: 14px;">Your Reset Code</p>
+                                            <p style="margin: 0; color: #1e40af; font-size: 36px; font-weight: bold; letter-spacing: 8px; font-family: monospace;">${resetCode}</p>
+                                        </div>
+                                        <p style="color: #64748b;">This code will expire in <strong>30 minutes</strong>.</p>
+                                        <p style="color: #64748b;">Please enter this code on the login page to reset your password.</p>
+                                    </div>
+                                </div>
+                            `
+                        })
+                    });
+                    
+                    const emailResult = await emailResponse.json();
+                    if (!emailResult.success) {
+                        throw new Error(emailResult.error || 'Failed to send email');
+                    }
+                    console.log('✅ Email sent with code:', resetCode);
+                } catch (emailErr) {
+                    console.error('Email sending failed:', emailErr);
+                    // We don't throw here as the DB was already updated, but we alert the user
+                    alert('Note: Reset code was saved to DB, but email failed to send: ' + emailErr.message);
+                }
+                console.log('=== SUMMARY ===');
+                console.log('Generated code:', resetCode);
+                console.log('Stored in DB:', verifyData.resetCode);
+                console.log('Sent in email:', resetCode);
+                console.log('All codes are IDENTICAL:', resetCode === verifyData.resetCode);
+                
+                document.getElementById('resetCodeInfo').style.display = 'block';
+                btn.style.display = 'none';
+                
+                alert(`Reset code generated successfully!\n\nEmail: ${email}\nReset Code: ${resetCode}\n\n✅ This code is now:\n- Stored in Firebase database\n- Sent to customer via email\n- Ready for customer validation`);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to generate reset code: ' + error.message);
+                btn.disabled = false;
+                btn.textContent = 'Send Reset Code';
+            }
+        }
+
+        async function generateAndSendResetCode() {
+            console.log('=== RESET PASSWORD DEBUG ===');
+            console.log('Current reset user ID:', currentResetUserId);
+            console.log('Current reset user ID type:', typeof currentResetUserId);
+            console.log('Modal already open?', document.getElementById('passwordModal').classList.contains('active'));
+            
+            if (!currentResetUserId) {
+                console.error('CRITICAL: currentResetUserId is null or undefined!');
+                alert('Error: User ID not set. Please try again.');
+                return;
+            }
+            
+            const email = document.getElementById('resetEmail').value;
+            const btn = document.getElementById('sendResetCodeBtn');
+            
+            // Prevent multiple clicks
+            if (btn.disabled) {
+                console.log('Reset already in progress, ignoring duplicate request');
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+            
+            // Generate reset code (auto-generated and synchronized)
             const resetCode = generateResetCode();
             const expiryTime = new Date().getTime() + (30 * 60 * 1000); // 30 minutes from now
             
+            console.log('=== RESET CODE GENERATION ===');
+            console.log('Generated Reset Code:', resetCode);
+            console.log('Code Type:', typeof resetCode);
+            console.log('Code Length:', resetCode.length);
+            console.log('SYNCED: This code will be used for database, email, and customer validation');
+            
             // Save to Firebase
             try {
-                await usersRef.child(currentResetUserId).update({
+                console.log('=== SAVING RESET CODE TO FIREBASE ===');
+                console.log('User ID:', currentResetUserId);
+                console.log('Reset Code to Store:', resetCode);
+                console.log('Expiry Time:', expiryTime);
+                console.log('usersRef exists:', !!usersRef);
+                
+                const updateData = {
                     resetCode: resetCode,
                     resetCodeExpiry: expiryTime,
                     resetCodeCreated: new Date().toISOString()
-                });
+                };
+                
+                console.log('Firebase update data:', updateData);
+                
+                try {
+                    const updateResult = await usersRef.child(currentResetUserId).update(updateData);
+                    console.log('Firebase update result:', updateResult);
+                    console.log('Firebase update successful');
+                } catch (updateError) {
+                    console.error('Firebase update failed:', updateError);
+                    throw new Error('Failed to save reset code to database: ' + updateError.message);
+                }
+                
+                // Verify the save worked by reading back
+                console.log('=== VERIFYING RESET CODE SAVE ===');
+                try {
+                    const verifySnapshot = await usersRef.child(currentResetUserId).once('value');
+                    const verifyData = verifySnapshot.val();
+                    console.log('Raw verification data:', verifyData);
+                    console.log('Saved user data:', {
+                        resetCode: verifyData.resetCode ? '***' + verifyData.resetCode.substring(3) : 'NOT_FOUND',
+                        resetCodeExpiry: verifyData.resetCodeExpiry ? 'EXISTS' : 'NOT_FOUND',
+                        resetCodeCreated: verifyData.resetCodeCreated ? 'EXISTS' : 'NOT_FOUND',
+                        userId: currentResetUserId ? currentResetUserId.substring(0, 6) + '***' : 'NOT_FOUND',
+                        email: email ? email.replace(/(.{2}).*(@.*)/, '$1***$2') : 'NOT_FOUND'
+                    });
+                    
+                    if (!verifyData.resetCode) {
+                        console.error('CRITICAL: Reset code not saved to database!');
+                        throw new Error('Reset code was not saved to database properly');
+                    }
+                } catch (verifyError) {
+                    console.error('Verification failed:', verifyError);
+                    throw new Error('Failed to verify reset code save: ' + verifyError.message);
+                }
+                
+                // Also test retrieval by email (like customer does)
+                console.log('=== TESTING EMAIL RETRIEVAL (LIKE CUSTOMER) ===');
+                const emailTestSnapshot = await database.ref('users').orderByChild('email').equalTo(email).once('value');
+                if (emailTestSnapshot.exists()) {
+                    let testUserData = null;
+                    let testUserId = null;
+                    emailTestSnapshot.forEach((childSnapshot) => {
+                        testUserData = childSnapshot.val();
+                        testUserId = childSnapshot.key;
+                    });
+                    console.log('Email retrieval test:', {
+                        foundUserId: testUserId ? testUserId.substring(0, 6) + '***' : 'NOT_FOUND',
+                        resetCodeFound: testUserData.resetCode ? '***' + testUserData.resetCode.substring(3) : 'NOT_FOUND',
+                        resetCodeFull: testUserData.resetCode,
+                        generatedCodeFull: resetCode,
+                        resetCodeType: typeof testUserData.resetCode,
+                        generatedCodeType: typeof resetCode,
+                        resetCodeLength: testUserData.resetCode ? testUserData.resetCode.length : 'NULL',
+                        generatedCodeLength: resetCode.length,
+                        matchTest: testUserData.resetCode === resetCode ? 'MATCH' : 'NO_MATCH',
+                        trimmedMatch: testUserData.resetCode ? testUserData.resetCode.trim() === resetCode.trim() : 'FALSE',
+                        resetCodeJSON: JSON.stringify(testUserData.resetCode),
+                        generatedCodeJSON: JSON.stringify(resetCode)
+                    });
+                } else {
+                    console.log('ERROR: Email retrieval test failed - user not found by email');
+                }
                 
                 // Clear login lockout if exists
                 const lockoutKey = 'loginAttempts_' + email;
                 const lockoutData = localStorage.getItem(lockoutKey);
                 if (lockoutData) {
                     localStorage.removeItem(lockoutKey);
+                    console.log('Cleared lockout for:', email);
                 }
                 
-                // Send email with reset code
+                // Send reset code email to user
+                console.log('=== SENDING RESET CODE EMAIL ===');
+                console.log('Email Reset Code:', resetCode);
+                console.log('Code Type for Email:', typeof resetCode);
+                console.log('Code Length for Email:', resetCode.length);
+                
+                // TEST: Log the exact reset code being sent
+                console.log('=== CRITICAL TEST ===');
+                console.log('Database will store:', resetCode);
+                console.log('Email will contain:', resetCode);
+                console.log('These should be IDENTICAL!');
+                
                 await sendResetCodeEmail(email, resetCode);
                 
                 // Show success
                 document.getElementById('resetCodeInfo').style.display = 'block';
                 btn.style.display = 'none';
+                btn.disabled = false; // Re-enable button after successful reset
+                btn.textContent = 'Send Reset Code'; // Reset button text
                 
                 console.log('Reset code sent to:', email, 'Code:', resetCode);
+                console.log('Button re-enabled and text reset');
                 
             } catch (error) {
                 console.error('Error sending reset code:', error);
@@ -1640,16 +2182,13 @@ Submitted: ${new Date(loan.submittedAt).toLocaleString()}
 
         async function sendResetCodeEmail(email, resetCode) {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/send-custom-email`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        to: email,
-                        subject: 'Password Reset Code - GhanaTrust Bank',
-                        body: `Dear Valued Customer,\n\nYou have requested a password reset for your GhanaTrust Bank account.\n\nYour password reset code is: ${resetCode}\n\nThis code will expire in 30 minutes.\n\nPlease enter this code on the login page to reset your password.\n\nIf you did not request this reset, please contact our support team immediately:\n• Phone: 030 221 2222\n• Email: support@ghanatrustbank.com\n\nBest regards,\nGhanaTrust Bank Security Team`,
-                        html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                console.log('=== SERVER EMAIL DEBUG ===');
+                console.log('Sending reset code via server to:', email);
+                console.log('Reset Code:', resetCode);
+                
+                // Use server endpoint to avoid CORS issues
+                const emailHtml = `
+                        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                             <div style="background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); padding: 30px; text-align: center; border-radius: 16px 16px 0 0;">
                                 <h1 style="color: white; margin: 0; font-size: 24px;">GhanaTrust Bank</h1>
                             </div>
@@ -1672,20 +2211,55 @@ Submitted: ${new Date(loan.submittedAt).toLocaleString()}
                                 
                                 <p style="color: #64748b;">• Phone: <strong>030 221 2222</strong><br>• Email: <strong>support@ghanatrustbank.com</strong></p>
                                 
-                                <p style="margin-top: 24px;">Best regards,<br><strong>GhanaTrust Bank Security Team</strong></p>
-                            </div>
-                        </div>`
+                                <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                                    <p style="margin: 0; color: #94a3b8; font-size: 12px;">This is an automated message from GhanaTrust Bank. Please do not reply to this email.</p>
+                        </div>
+                `;
+
+                console.log('Request URL:', 'http://localhost:3000/send-email');
+                console.log('Request Data:', {
+                    to: email,
+                    subject: 'Password Reset Code - GhanaTrust Bank',
+                    html: emailHtml
+                });
+                console.log('=== EMAIL SERVER DEBUG ===');
+                console.log('Reset Code in HTML:', resetCode);
+                console.log('Reset Code Type:', typeof resetCode);
+                console.log('Reset Code Length:', resetCode.length);
+
+                // Send email via Nodemailer server
+                const response = await fetch('http://localhost:3000/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        to: email,
+                        subject: 'Password Reset Code - GhanaTrust Bank',
+                        html: emailHtml
                     })
                 });
-                
+
+                console.log('Response Status:', response.status);
+
                 const result = await response.json();
-                if (!result.success) {
-                    throw new Error(result.message);
-                }
+                console.log('=== NODEMAILER RESPONSE ===');
+                console.log('Full Response:', JSON.stringify(result, null, 2));
+                console.log('Success:', result.success ? 'YES' : 'NO');
                 
+                if (result.success) {
+                    console.log('Reset code sent successfully via Nodemailer');
+                    console.log('Message ID:', result.messageId);
+                    console.log('Check your email inbox for the reset code');
+                    console.log('Also check spam/junk folder');
+                    alert('Password reset code sent successfully! Please check your email (including spam folder).');
+                } else {
+                    console.error('Nodemailer error:', result);
+                    alert('Failed to send reset code: ' + (result.error || 'Unknown error'));
+                }
             } catch (error) {
-                console.error('Error sending reset code email:', error);
-                throw error;
+                console.error('Nodemailer error:', error);
+                alert('Failed to send reset code: ' + error.message);
             }
         }
 
@@ -1732,7 +2306,7 @@ Submitted: ${new Date(loan.submittedAt).toLocaleString()}
             }
             
             try {
-                const response = await fetch('http://localhost:3000/api/send-custom-email', {
+                const response = await fetch('http://localhost:3000/send-email', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1740,7 +2314,17 @@ Submitted: ${new Date(loan.submittedAt).toLocaleString()}
                     body: JSON.stringify({
                         to: to,
                         subject: subject,
-                        body: body
+                        html: `
+                            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+                                <div style="background: #1e40af; padding: 30px; text-align: center;">
+                                    <h1 style="color: white; margin: 0; font-size: 24px;">GhanaTrust Bank</h1>
+                                </div>
+                                <div style="padding: 30px; background: #f8fafc;">
+                                    <h2 style="color: #1e40af; margin-top: 0;">Support Message</h2>
+                                    <p>${body.replace(/\n/g, '<br>')}</p>
+                                </div>
+                            </div>
+                        `
                     })
                 });
                 
@@ -1754,32 +2338,176 @@ Submitted: ${new Date(loan.submittedAt).toLocaleString()}
                 }
             } catch (error) {
                 console.error('Error sending email:', error);
-                alert('Failed to send email. Please check if the server is running.');
+                alert('Failed to send email. Please try again.');
+            }
+        }
+
+        // Generate Reset Code for User
+        async function generateResetCodeForUser(email) {
+            try {
+                console.log('=== GENERATING RESET CODE FOR USER ===');
+                console.log('Email:', email ? email.replace(/(.{2}).*(@.*)/, '$1***$2') : 'NOT_FOUND');
+                
+                // Check if Firebase is initialized
+                if (!database) {
+                    console.log('Firebase not initialized, initializing now...');
+                    initFirebase();
+                    // Wait a moment for initialization to complete
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                }
+                
+                // Test Firebase connection first
+                console.log('Testing Firebase connection...');
+                const testRef = database.ref('.info/connected');
+                const connectedSnapshot = await testRef.once('value');
+                const isConnected = connectedSnapshot.val();
+                console.log('Firebase connected:', isConnected);
+                
+                if (!isConnected) {
+                    console.log('Firebase disconnected, attempting reconnection...');
+                    // Force reconnection by reinitializing
+                    if (typeof firebase !== 'undefined') {
+                        firebase.apps.forEach(app => app.delete());
+                    }
+                    initFirebase();
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    
+                    // Test connection again
+                    const reconnectedSnapshot = await database.ref('.info/connected').once('value');
+                    if (!reconnectedSnapshot.val()) {
+                        throw new Error('Firebase connection failed after reconnection attempt');
+                    }
+                    console.log('Firebase reconnected successfully');
+                }
+                
+                // Generate 6-digit reset code (single source of truth)
+                const resetCode = generateResetCode();
+                console.log('=== ADMIN RESET CODE GENERATION ===');
+                console.log('Generated Code:', resetCode);
+                console.log('This code will be stored in database and sent to customer');
+                
+                // Find user by email
+                const snapshot = await database.ref('users').orderByChild('email').equalTo(email).once('value');
+                
+                if (snapshot.exists()) {
+                    let userId = null;
+                    let userData = null;
+                    snapshot.forEach((childSnapshot) => {
+                        userData = childSnapshot.val();
+                        userId = childSnapshot.key;
+                    });
+                    
+                    console.log("=== ADMIN SAVING RESET CODE ===");
+                    console.log("User ID:", userId ? userId.substring(0, 6) + '***' : 'NOT_FOUND');
+                    console.log("Generated Code:", resetCode ? '***' + resetCode.substring(3) : 'NOT_FOUND');
+                    console.log("Email:", email ? email.replace(/(.{2}).*(@.*)/, '$1***$2') : 'NOT_FOUND');
+
+                    // Check current user data before update
+                    const beforeSnapshot = await database.ref('users').child(userId).once('value');
+                    const beforeData = beforeSnapshot.val();
+                    console.log("=== BEFORE UPDATE ===");
+                    console.log("Current reset code:", beforeData.resetCode ? '***' + beforeData.resetCode.substring(3) : 'NOT_FOUND');
+                    console.log("Current blocked status:", beforeData.blocked ? 'TRUE' : 'FALSE');
+
+                    // Simple Firebase update to store reset code
+                    console.log('=== STORING RESET CODE TO FIREBASE ===');
+                    console.log('User ID:', userId);
+                    console.log('Reset Code to store:', resetCode);
+                    
+                    try {
+                        // Store reset code in Firebase database
+                        await database.ref('users').child(userId).update({
+                            resetCode: resetCode,
+                            resetCodeExpiry: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
+                            blocked: true
+                        });
+                        
+                        console.log('✅ Reset code stored in Firebase database');
+                        console.log('Stored code:', resetCode);
+                        
+                        // Verify it was actually saved
+                        const verifySnapshot = await database.ref('users').child(userId).once('value');
+                        const verifyData = verifySnapshot.val();
+                        console.log("=== VERIFICATION ===");
+                        console.log("Stored reset code:", verifyData.resetCode ? '***' + verifyData.resetCode.substring(3) : 'NOT_FOUND');
+                        console.log("Stored expiry:", verifyData.resetCodeExpiry ? 'EXISTS' : 'NOT_FOUND');
+                        console.log("User blocked:", verifyData.blocked ? 'TRUE' : 'FALSE');
+                        console.log("Match check:", verifyData.resetCode === resetCode ? 'MATCH' : 'NO_MATCH');
+                        
+                        if (!verifyData.resetCode) {
+                            throw new Error('Reset code was not saved to Firebase');
+                        }
+                    } catch (updateError) {
+                        console.error('❌ FIREBASE UPDATE FAILED:', updateError);
+                        console.error('Error details:', JSON.stringify(updateError, null, 2));
+                        throw new Error('Failed to save reset code to Firebase: ' + updateError.message);
+                    }
+                    
+                    // Log reset code generation
+                    console.log('=== RESET CODE SUCCESSFULLY STORED ===');
+                    console.log('Database now contains:', resetCode);
+                    console.log('Customer should enter:', resetCode);
+                    console.log('These codes are IDENTICAL!');
+                    
+                    const logData = {
+                        userId: userId,
+                        email: email,
+                        userName: `${userData.firstName} ${userData.lastName}`,
+                        action: 'RESET_CODE_GENERATED',
+                        resetCode: resetCode,
+                        generatedAt: new Date().toISOString(),
+                        generatedBy: 'ADMIN',
+                        expiryTime: new Date(Date.now() + 10 * 60 * 1000).toISOString()
+                    };
+                    
+                    await database.ref('accountActivity').push(logData);
+                    
+                    // Final verification - ensure code is stored in database
+                    const finalSnapshot = await database.ref('users').child(userId).once('value');
+                    const finalData = finalSnapshot.val();
+                    
+                    console.log('=== FINAL VERIFICATION ===');
+                    console.log('Database reset code:', finalData.resetCode);
+                    console.log('Expected reset code:', resetCode);
+                    
+                    if (finalData.resetCode === resetCode) {
+                        console.log('✅ SUCCESS: Reset code stored in database');
+                        console.log('Database contains:', finalData.resetCode);
+                        console.log('Customer can now use:', resetCode);
+                        
+                        // Send reset code email to customer
+                        console.log('=== SENDING RESET CODE EMAIL TO CUSTOMER ===');
+                        await sendResetCodeEmail(email, resetCode);
+                        console.log('✅ Reset code email sent to:', email);
+                        
+                        alert(`Reset code generated successfully!\n\nEmail: ${email}\nReset Code: ${resetCode}\n\n✅ Stored in database and email sent to customer.`);
+                        return resetCode;
+                    } else {
+                        console.error('❌ FAILED: Reset code not stored properly');
+                        console.error('Database has:', finalData.resetCode);
+                        console.error('Expected:', resetCode);
+                        throw new Error('Reset code storage failed');
+                    }
+                } else {
+                    throw new Error('No account found with this email');
+                }
+            } catch (error) {
+                console.error('Error generating reset code:', error);
+                alert('Failed to generate reset code: ' + error.message);
+                throw error;
             }
         }
 
         // Notification Emails
         async function notifyPasswordReset(email, newPassword) {
-            try {
-                await fetch('http://localhost:3000/api/send-custom-email', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        to: email,
-                        subject: 'Your GhanaTrust Bank Password Has Been Reset',
-                        body: `Dear Valued Customer,\n\nYour password has been reset by the administrator.\n\nYour new password is: ${newPassword}\n\nFor security reasons, please login and change your password immediately.\n\nIf you did not request this change, please contact our support team immediately at support@ghanatrustbank.com or call 030 221 2222.\n\nBest regards,\nGhanaTrust Bank Team`
-                    })
-                });
-            } catch (error) {
-                console.error('Error sending password reset notification:', error);
-            }
+            console.log('=== PASSWORD RESET EMAIL DISABLED - PREVENTING DUPLICATES ===');
+            console.log('Password reset notification not sent to:', email ? email.replace(/(.{2}).*(@.*)/, '$1***$2') : 'NOT_FOUND');
+            // Email sending disabled to prevent duplicate notifications
         }
 
         async function notifyUserBlocked(email, firstName) {
             try {
-                await fetch('http://localhost:3000/api/send-custom-email', {
+                await fetch('http://localhost:3000/send-email', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1787,7 +2515,24 @@ Submitted: ${new Date(loan.submittedAt).toLocaleString()}
                     body: JSON.stringify({
                         to: email,
                         subject: 'Important: Your GhanaTrust Bank Account Has Been Suspended',
-                        body: `Dear ${firstName || 'Valued Customer'},\n\nWe regret to inform you that your GhanaTrust Bank account has been temporarily suspended due to security concerns or policy violations.\n\nTo resolve this issue, please contact our support team immediately:\n\n• Email: support@ghanatrustbank.com\n• Phone: 030 221 2222\n• Visit any of our branches\n\nWe apologize for any inconvenience caused.\n\nBest regards,\nGhanaTrust Bank Security Team`
+                        html: `
+                            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+                                <div style="background: #dc2626; padding: 30px; text-align: center;">
+                                    <h1 style="color: white; margin: 0; font-size: 24px;">GhanaTrust Bank</h1>
+                                </div>
+                                <div style="padding: 30px; background: #f8fafc;">
+                                    <h2 style="color: #dc2626; margin-top: 0;">Account Suspended</h2>
+                                    <p>Dear ${firstName || 'Valued Customer'},</p>
+                                    <p>We regret to inform you that your GhanaTrust Bank account has been temporarily suspended due to security concerns or policy violations.</p>
+                                    <p>To resolve this issue, please contact our support team immediately:</p>
+                                    <div style="background: #f1f5f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                                        <p style="margin: 5px 0;"><strong>Email:</strong> support@ghanatrustbank.com</p>
+                                        <p style="margin: 5px 0;"><strong>Phone:</strong> 030 221 2222</p>
+                                    </div>
+                                    <p style="color: #64748b;">We apologize for any inconvenience caused.</p>
+                                </div>
+                            </div>
+                        `
                     })
                 });
             } catch (error) {
@@ -1799,9 +2544,44 @@ Submitted: ${new Date(loan.submittedAt).toLocaleString()}
         document.addEventListener('DOMContentLoaded', () => {
             checkAuthentication();
             initFirebase();
-            // Initialize users after a short delay to ensure Firebase is ready
-            setTimeout(initUsers, 1000);
+            // Auto-test database connection and initialize users
+            setTimeout(() => {
+                autoTestDatabaseConnection();
+                setTimeout(initUsers, 1000);
+            }, 2000);
         });
+
+        // Auto-test database connection on load
+        async function autoTestDatabaseConnection() {
+            if (!database) {
+                console.log('Database not initialized, skipping auto-test');
+                return;
+            }
+            
+            try {
+                console.log('=== AUTO-TESTING DATABASE CONNECTION ===');
+                const testRef = database.ref('connectionTest');
+                await testRef.set({
+                    message: 'Auto-connection test',
+                    timestamp: Date.now(),
+                    connected: true
+                });
+                
+                console.log('✅ Database auto-connection successful');
+                document.getElementById('connectionStatus').innerHTML = '● Connected';
+                document.getElementById('connectionStatus').style.color = '#10b981';
+                
+                // Clean up test data
+                setTimeout(() => {
+                    testRef.remove().catch(e => console.log('Cleanup failed:', e));
+                }, 1000);
+                
+            } catch (error) {
+                console.error('❌ Database auto-connection failed:', error);
+                document.getElementById('connectionStatus').innerHTML = '● Disconnected';
+                document.getElementById('connectionStatus').style.color = '#dc2626';
+            }
+        }
     </script>
 </body>
 </html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Standalone Chat Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            min-height: 200vh;
+            background: #f5f5f5;
+        }
+        
+        .test-info {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .debug-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-info">
+        <h1>Standalone Chat Widget Test</h1>
+        <p>This page tests the standalone chat widget with no dependencies.</p>
+        
+        <div class="debug-info">
+            <h3>Debug Information:</h3>
+            <p>1. Open browser console (F12) to see debug messages</p>
+            <p>2. The chat button should appear in bottom-right corner</p>
+            <p>3. Click the button to test the chat functionality</p>
+            <p>4. This version has no Firebase or external dependencies</p>
+        </div>
+        
+        <button onclick="checkChatWidget()" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px;">
+            Check Chat Widget Status
+        </button>
+        
+        <button onclick="forceShowChat()" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px;">
+            Force Show Chat Button
+        </button>
+    </div>
+
+    <div style="height: 100vh;">
+        <p>Scroll down to test fixed positioning...</p>
+        <br><br><br><br><br><br><br><br><br><br>
+        <p>More content to test scrolling...</p>
+        <br><br><br><br><br><br><br><br><br><br>
+        <p>Even more content...</p>
+    </div>
+
+    <!-- Standalone Chat Widget -->
+    <script src="standalone-chat.js"></script>
+
+    <script>
+        function checkChatWidget() {
+            const chatButton = document.getElementById('standaloneChatButton');
+            const chatModal = document.getElementById('standaloneChatModal');
+            
+            console.log('=== Chat Widget Status Check ===');
+            console.log('Chat button exists:', !!chatButton);
+            console.log('Chat modal exists:', !!chatModal);
+            
+            if (chatButton) {
+                const styles = window.getComputedStyle(chatButton);
+                console.log('Button display:', styles.display);
+                console.log('Button visibility:', styles.visibility);
+                console.log('Button opacity:', styles.opacity);
+                console.log('Button z-index:', styles.zIndex);
+                console.log('Button position:', styles.position);
+                console.log('Button dimensions:', chatButton.offsetWidth + 'x' + chatButton.offsetHeight);
+                console.log('Button position on page:', chatButton.getBoundingClientRect());
+            }
+            
+            if (chatModal) {
+                console.log('Modal display:', window.getComputedStyle(chatModal).display);
+            }
+            
+            // Update status display
+            updateStatusDisplay(chatButton, chatModal);
+        }
+        
+        function forceShowChat() {
+            console.log('Force showing chat button...');
+            
+            let chatButton = document.getElementById('standaloneChatButton');
+            if (!chatButton) {
+                console.log('Chat button not found, creating it...');
+                chatButton = document.createElement('button');
+                chatButton.id = 'standaloneChatButton';
+                chatButton.innerHTML = 'TEST CHAT';
+                chatButton.style.cssText = `
+                    position: fixed !important;
+                    bottom: 20px !important;
+                    right: 20px !important;
+                    background: red !important;
+                    color: white !important;
+                    padding: 15px 20px !important;
+                    z-index: 999999 !important;
+                    display: block !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                    border: none !important;
+                    border-radius: 25px !important;
+                    font-weight: bold !important;
+                    cursor: pointer !important;
+                `;
+                chatButton.onclick = function() {
+                    alert('Test chat button clicked! The standalone chat is working.');
+                };
+                document.body.appendChild(chatButton);
+            } else {
+                // Make existing button more visible
+                chatButton.style.background = 'red';
+                chatButton.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    chatButton.style.background = '';
+                    chatButton.style.transform = '';
+                }, 2000);
+            }
+            
+            checkChatWidget();
+        }
+        
+        function updateStatusDisplay(chatButton, chatModal) {
+            let statusDiv = document.getElementById('statusDisplay');
+            if (!statusDiv) {
+                statusDiv = document.createElement('div');
+                statusDiv.id = 'statusDisplay';
+                statusDiv.style.cssText = `
+                    position: fixed;
+                    top: 10px;
+                    right: 10px;
+                    background: white;
+                    padding: 10px;
+                    border-radius: 5px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                    font-size: 12px;
+                    z-index: 999999;
+                    max-width: 300px;
+                `;
+                document.body.appendChild(statusDiv);
+            }
+            
+            let statusHTML = '<h4>Chat Widget Status:</h4>';
+            statusHTML += `Button: ${chatButton ? '✅ Found' : '❌ Not Found'}<br>`;
+            statusHTML += `Modal: ${chatModal ? '✅ Found' : '❌ Not Found'}<br>`;
+            
+            if (chatButton) {
+                const rect = chatButton.getBoundingClientRect();
+                statusHTML += `Button Position: ${Math.round(rect.left)},${Math.round(rect.top)}<br>`;
+                statusHTML += `Button Size: ${Math.round(rect.width)}x${Math.round(rect.height)}<br>`;
+                statusHTML += `Button Visible: ${rect.width > 0 && rect.height > 0 ? '✅' : '❌'}`;
+            }
+            
+            statusDiv.innerHTML = statusHTML;
+        }
+        
+        // Auto-check after page loads
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                console.log('Auto-checking chat widget status...');
+                checkChatWidget();
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

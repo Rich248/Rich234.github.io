@@ -1,3 +1,6 @@
+// Test that script is loading immediately
+console.log('Chat.js script loaded successfully');
+
 /**
  * Ghana Trust Bank - Live Chat Widget with AI Representative
  * Works on both desktop and mobile
@@ -36,13 +39,15 @@ let isChatOpen = false;
 let isTyping = false;
 let messageListener = null;
 let conversationHistory = []; // Store conversation for AI context
+let isAdminActive = false; // Track if admin has taken over
+let adminTakeoverListener = null; // Listen for admin takeover events
 
 // OpenAI API Configuration
 const OPENAI_API_KEY = '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';
 const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
 
 // Ghana Trust Bank System Prompt for AI
-const SYSTEM_PROMPT = `You are a helpful, professional banking assistant for Ghana Trust Bank, a leading bank in Ghana. You provide accurate information about banking products and services.
+const SYSTEM_PROMPT = `You are a helpful, professional banking assistant for Ghana Trust Bank, a leading bank in Ghana. You provide accurate, detailed information about banking products and services with practical, actionable guidance.
 
 **About Ghana Trust Bank:**
 - Established in 2026, regulated by Bank of Ghana
@@ -50,79 +55,108 @@ const SYSTEM_PROMPT = `You are a helpful, professional banking assistant for Gha
 - 500,000+ customers, GH¢10B+ assets under management
 - Member of Ghana Association of Banks
 
-**Account Types:**
+**Account Types with Complete Details:**
 
 1. **Personal Checking Account**
-   - GH¢0 minimum balance
-   - Free Visa Debit Card
-   - No monthly maintenance fees
-   - Mobile banking access
-   - Overdraft protection available
-   - Requirements: Ghana Card, proof of address
+   - GH¢0 minimum balance requirement
+   - Free Visa Debit Card issued same day
+   - No monthly maintenance fees forever
+   - Full mobile banking access with app
+   - Overdraft protection available upon application
+   - Requirements: Valid Ghana Card, proof of address, passport photo
+   - Processing time: 15-20 minutes at branch
+   - Opening deposit: Any amount (even GH¢1)
 
 2. **Personal Savings Account**
-   - 5% Annual Percentage Yield (APY)
+   - 5% Annual Percentage Yield (APY) paid quarterly
    - GH₵200 minimum opening deposit
-   - No monthly fees with GH₵500 balance
-   - Automatic savings tools
-   - Free digital statements
+   - No monthly fees with GH₵500 minimum balance
+   - Monthly fee of GH¢5 if balance below GH₵500
+   - Automatic savings tools and standing orders available
+   - Free digital statements and mobile banking
+   - Interest calculation examples provided on request
 
 3. **Student Account**
-   - GH¢0 minimum balance
-   - No monthly fees
-   - Free student debit card
-   - Requirements: Ghana Card, Student ID, proof of enrollment
-   - Educational loans available
+   - GH¢0 minimum balance required
+   - No monthly fees for entire student period
+   - Free student debit card with university branding
+   - Requirements: Ghana Card, current Student ID, proof of enrollment
+   - Educational loans with preferential rates available
+   - Special student rewards and discounts program
+   - Career development workshops available
 
 4. **Business Starter Account**
-   - GH₵500 minimum deposit
-   - Low transaction costs
-   - Mobile merchant portal
-   - Business debit card
+   - GH₵500 minimum opening deposit
+   - Low transaction costs (GH¢1 per internal transfer)
+   - Mobile merchant portal for business payments
+   - Business debit card with higher withdrawal limits
+   - Basic online banking platform
+   - Monthly fee: GH¢10
 
 5. **Business Premium Account**
-   - GH¢50/month
-   - Dedicated relationship manager
-   - Advanced online banking
-   - Priority support
-   - Business analytics tools
+   - GH¢2,000 minimum opening deposit
+   - Monthly fee: GH¢50
+   - Dedicated relationship manager assigned
+   - Advanced online banking with bulk payments
+   - Priority customer support (dedicated phone line)
+   - Business analytics and reporting tools
+   - Preferential loan rates and faster approvals
 
-**Loans & Credit:**
-- Personal loans with quick approval
-- Business loans (working capital, equipment financing)
-- Educational loans for students
-- Competitive interest rates
-- Flexible repayment terms
+**Loans & Credit Products:**
+- Personal loans: GH₵1,000 - GH₵100,000, 18-25% APR, 3-5 days approval
+- Salary loans: Up to 6 months gross salary, 24-48 hours approval
+- Business loans: GH₵10,000 - GH₵500,000, collateral requirements vary
+- Educational loans: Up to GH₵20,000 per year, flexible repayment
+- Equipment financing: Up to GH₵1,000,000, 7-year terms available
+- All loans require: Ghana Card, income proof, bank statements, guarantors
 
-**Digital Banking:**
-- Mobile app (Android/iOS) with biometric login
-- 24/7 online banking
+**Digital Banking Features:**
+- Mobile app for Android/iOS with fingerprint/face login
+- 24/7 online banking with full functionality
 - Mobile money integration (MTN, Vodafone, AirtelTigo)
-- Cardless ATM withdrawals
-- Real-time notifications
-- Bill payments and transfers
+- Cardless ATM withdrawals using generated codes
+- Real-time SMS/email notifications for all transactions
+- Bill payments: ECG, GWCL, DSTV, school fees, taxes
+- International transfers via SWIFT
+- QR code payments at merchants
 
-**Contact Information:**
-- Phone: 030 221 2222 / 024 123 4567
-- Email: info@ghanatrustbank.com / support@ghanatrustbank.com
-- Head Office: Ring Road Central, Accra
-- Hours: Mon-Fri 8AM-5PM, Sat 9AM-1PM
+**Branch Network and Services:**
+- Accra: Central, Ring Road, East Legon, Accra Mall, Tema, Spintex, Madina, Achimota
+- Other regions: Kumasi (Adum, Ahodwo), Takoradi, Tamale, Cape Coast, Sunyani, Ho
+- All branches: Monday-Friday 8AM-5PM, Saturday 9AM-1PM
+- 50+ ATMs nationwide with 24/7 access
+- Appointment booking available via phone or app
 
-**Security:**
-- 256-bit SSL encryption
-- Two-factor authentication
-- Real-time fraud monitoring
-- Never share PIN or password
+**Complete Contact Information:**
+- Main phone: 030 221 2222 (24/7 for emergencies)
+- Customer service: 024 123 4567 (Mon-Sat 8AM-6PM)
+- Email: info@ghanatrustbank.com (general inquiries)
+- Support: support@ghanatrustbank.com (technical issues)
+- Fraud hotline: 0800 123 456 (toll-free, 24/7)
+- Head Office: Ring Road Central, Opposite DSTV Office, Accra
 
-**Instructions:**
-- Be professional, friendly, and helpful
-- Provide accurate, specific information
-- For account opening, give clear step-by-step instructions
-- If asked about interest rates, fees, or requirements, give exact numbers
-- Always mention required documents when discussing account opening
-- Encourage users to visit branches for final steps
-- If you don't know something specific, suggest contacting customer service
-- Format responses with clear headings and bullet points for readability`;
+**Security and Fraud Protection:**
+- 256-bit SSL encryption on all platforms
+- Two-factor authentication for online banking
+- Real-time fraud monitoring 24/7
+- Card blocking via mobile app instantly
+- SMS alerts for all transactions above GH¢100
+- Never share PIN, password, or OTP codes
+- Regular security updates and patches
+
+**Response Guidelines:**
+- Always provide specific, actionable information with exact numbers and requirements
+- Give step-by-step instructions for complex processes
+- Include realistic timeframes, costs, and document requirements
+- Offer multiple solutions when available (online vs in-person options)
+- Provide practical tips to avoid common problems and delays
+- Include branch locations, contact numbers, and operating hours
+- Format responses with clear headings, bullet points, and numbered steps
+- Always suggest next steps and what users should do next
+- If uncertain about specific details, direct to appropriate contact channel
+- Be proactive in anticipating follow-up questions and answering them
+- Provide examples and scenarios to help users understand better
+- Include warnings about common scams and security best practices
 
 
 // Ghana Trust Bank AI Knowledge Base
@@ -140,41 +174,36 @@ const bankKnowledge = {
     ],
     
     default: [
-        `I'm here to help with your Ghana Trust Bank questions! I can assist with:
+        `I'm here to help with your Ghana Trust Bank questions! I can provide **specific, actionable guidance** on:
 
-• Opening accounts (Personal, Savings, Student, Business)
-• Loan information and applications
-• Digital banking (mobile app, online)
-• Branch locations and contact details
-• Rates, fees, and charges
-• Security and fraud protection
-• ATM and card services
+**Account Opening** - Step-by-step instructions, required documents, exact fees and processing times
+**Loans** - Interest rates, requirements, application process, approval timeframes, and eligibility criteria
+**Digital Banking** - Mobile app setup, online banking features, troubleshooting common issues
+**Branch Services** - Locations, operating hours, required documents, and how to avoid waiting
+**Card Services** - Debit card issuance, PIN management, lost card procedures, and card activation
+**Security** - Fraud protection measures, safe banking practices, and emergency contact procedures
 
-What would you like to know about?`,
+**Ready to get started?** Just tell me what you need help with, and I'll give you practical steps to follow!`,
 
-        `Welcome to Ghana Trust Bank! 💼
+        `Welcome to Ghana Trust Bank! **I provide real solutions, not just information.**
 
-I can help you with detailed information about:
-✓ Account opening (step-by-step guides)
-✓ Student accounts (free, no minimum balance)
-✓ Loans (personal, business, salary)
-✓ Mobile banking setup
-✓ Branches and ATMs near you
-✓ Interest rates and fees
+**Popular topics I can help with right now:**
+**Account Opening** - Which account type fits your needs? What documents are required? How long does the process take?
+**Student Accounts** - Open completely free with just your student ID, receive your debit card the same day
+**Quick Loans** - Personal loans up to GH₵100,000, salary loans approved within 24-48 hours
+**Mobile Banking** - Complete setup in 5 minutes, instant money transfers, bill payments available immediately
 
-Please tell me what you're looking for, or type "help" to see options!`,
+**What's your banking goal today?** I'll give you exact steps to achieve it!`,
 
-        `Hello! I'm your Ghana Trust Bank assistant. 🏦
+        `Hello! I'm your practical banking assistant at Ghana Trust Bank.
 
-Here are things I can help with:
-📋 Open a new account
-💰 Apply for loans
-📱 Set up mobile banking
-📍 Find branches and ATMs
-💳 Card services and PIN issues
-🔒 Security concerns
+**I can help you take action right now:**
+**Open an Account** - I'll tell you exactly which branch to visit, what documents to bring, and how long the entire process takes
+**Apply for a Loan** - Get your complete documents checklist, understand your approval chances, and know the entire process timeline
+**Bank on Your Phone** - Download the app, register instantly, and start banking immediately with full functionality
+**Visit a Branch** - Find the nearest location, know the best times to visit to avoid queues, and what to prepare beforehand
 
-What can I help you with today?`
+**What would you like to accomplish today?** I'll give you a clear action plan!`
     ]
 };
 
@@ -195,15 +224,15 @@ We offer 5 account types:
 
 **STEP 2: Gather Required Documents**
 For ALL accounts you need:
-✓ Valid Ghana Card (original + photocopy)
-✓ Proof of address (utility bill, rent receipt, or employer letter)
-✓ One passport-sized photograph
-✓ Opening deposit cash
+- Valid Ghana Card (original + photocopy)
+- Proof of address (utility bill, rent receipt, or employer letter)
+- One passport-sized photograph
+- Opening deposit cash
 
 For Business accounts, also need:
-✓ Business registration certificate
-✓ TIN certificate
-✓ Company documents (for limited companies)
+- Business registration certificate
+- TIN certificate
+- Company documents (for limited companies)
 
 **STEP 3: Visit Any Branch**
 Locations: Accra Central, Ring Road, Kumasi, Takoradi, Tamale, Cape Coast, Sunyani, Ho
@@ -237,10 +266,10 @@ Hours: Monday-Friday 8AM-5PM, Saturday 9AM-1PM
 **DOCUMENTS NEEDED:**
 1. Ghana Card (must be valid and current)
 2. Proof of address - any of these:
-   • ECG/NWSC water bill (last 3 months)
-   • Tenancy agreement
-   • Employer confirmation letter
-   • Bank statement from another bank
+   - ECG/NWSC water bill (last 3 months)
+   - Tenancy agreement
+   - Employer confirmation letter
+   - Bank statement from another bank
 3. One passport photo
 4. Opening deposit: Any amount (can be GH¢1!)
 
@@ -257,12 +286,19 @@ Step 3: Fill the account opening form with:
    - Next of kin details
    - Your signature
 
-Step 4: Submit documents and deposit
-Step 5: Receive instantly:
-   ✓ Account number
-   ✓ ATM card
-   ✓ PIN number
-   ✓ Mobile banking setup
+Step 4: Submit with your documents:
+   - Completed form
+   - Ghana Card (original + copy)
+   - Proof of address (original + copy)
+   - Passport photo
+
+Step 5: Make deposit: Any amount (GH¢1 or more)
+Step 6: Processing takes 5-10 minutes
+Step 7: Receive same day:
+   - Account number
+   - Free debit card (printed instantly)
+   - PIN for your card
+   - Mobile banking activated
 
 **Questions? Call 030 221 2222**`
         ]
@@ -838,8 +874,8 @@ Bring recipient details and valid ID
 
 **LOST CARD?**
 Block immediately:
-📱 Mobile app → Card Services → Block Card
-📞 Call 030 221 2222 (24/7)`
+ Mobile app → Card Services → Block Card
+ Call 030 221 2222 (24/7)`
         ]
     },
     
@@ -849,11 +885,11 @@ Block immediately:
             `**About Ghana Trust Bank**
 
 **PROFILE:**
-🏦 Established: 2026
-👥 Customers: 500,000+
-🏛️ Branches: 20+ nationwide
-💰 Assets: GH¢10 billion+
-📍 Headquarters: Accra, Ghana
+ Established: 2026
+ Customers: 500,000+
+ Branches: 20+ nationwide
+  Assets: GH¢10 billion+
+Headquarters: Accra, Ghana
 
 **REGULATION:**
 ✓ Licensed by Bank of Ghana
@@ -888,6 +924,7 @@ function initChatFirebase() {
         return true;
     } catch (error) {
         console.error('Firebase initialization error:', error);
+        console.log('Chat widget will continue without Firebase sync');
         return false;
     }
 }
@@ -1167,7 +1204,12 @@ async function handleChatKeyPress(event) {
 // Initialize chat widget when DOM is loaded
 function initChatWidget() {
     // Don't initialize if already exists
-    if (document.getElementById('gtbChatModal')) return;
+    if (document.getElementById('gtbChatModal')) {
+        console.log('Chat widget already exists');
+        return;
+    }
+    
+    console.log('Initializing Ghana Trust Bank Chat Widget...');
     
     // Create chat HTML
     const chatHTML = `
@@ -1183,14 +1225,16 @@ function initChatWidget() {
             text-decoration: none;
             font-weight: 600;
             box-shadow: 0 4px 15px rgba(30, 58, 138, 0.4);
-            display: flex;
+            display: flex !important;
             align-items: center;
             gap: 0.5rem;
-            z-index: 9999;
+            z-index: 99999 !important;
             cursor: pointer;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             font-family: 'Inter', sans-serif;
             font-size: 0.9rem;
+            visibility: visible !important;
+            opacity: 1 !important;
         ">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
@@ -1270,6 +1314,7 @@ function initChatWidget() {
                 display: flex;
                 flex-direction: column;
                 overflow: hidden;
+                position: relative;
             }
 
             .gtb-chat-header {
@@ -1335,6 +1380,8 @@ function initChatWidget() {
                 background: #f8fafc;
                 min-height: 300px;
                 max-height: 400px;
+                scroll-behavior: smooth;
+                -webkit-overflow-scrolling: touch;
             }
 
             .gtb-chat-message {
@@ -1436,6 +1483,9 @@ function initChatWidget() {
                 display: flex;
                 gap: 0.5rem;
                 background: white;
+                position: sticky;
+                bottom: 0;
+                z-index: 10;
             }
 
             .gtb-chat-input-area input {
@@ -1480,27 +1530,83 @@ function initChatWidget() {
             @media (max-width: 480px) {
                 .gtb-chat-content {
                     width: 100%;
-                    height: 100%;
+                    height: 100vh;
                     max-height: 100vh;
                     border-radius: 0;
                     position: fixed;
                     top: 0;
                     left: 0;
+                    margin: 0;
+                }
+
+                .gtb-chat-header {
+                    padding: 0.875rem 1rem;
+                    min-height: 60px;
+                }
+
+                .gtb-chat-header h3 {
+                    font-size: 0.95rem;
+                }
+
+                .gtb-chat-status {
+                    font-size: 0.7rem;
                 }
 
                 .gtb-chat-messages {
-                    max-height: calc(100vh - 150px);
-                    min-height: calc(100vh - 150px);
+                    max-height: calc(100vh - 140px);
+                    min-height: calc(100vh - 140px);
+                    padding: 0.75rem;
+                }
+
+                .gtb-message-bubble {
+                    font-size: 0.85rem;
+                    line-height: 1.4;
+                    padding: 0.625rem 0.875rem;
+                }
+
+                .gtb-chat-input-area {
+                    padding: 0.875rem;
+                    gap: 0.5rem;
+                    min-height: 70px;
+                }
+
+                .gtb-chat-input-area input {
+                    font-size: 1rem;
+                    padding: 0.875rem 1rem;
+                    border-radius: 20px;
+                }
+
+                .gtb-send-btn {
+                    width: 40px;
+                    height: 40px;
+                    flex-shrink: 0;
                 }
 
                 #gtbChatButton {
-                    bottom: 15px;
-                    right: 15px;
-                    padding: 0.75rem 1rem;
+                    bottom: 16px;
+                    right: 16px;
+                    padding: 0.875rem 1.125rem;
+                    font-size: 0.85rem;
                 }
 
                 #gtbChatButtonText {
                     display: none;
+                }
+
+                /* Safari/iOS specific fixes */
+                @supports (-webkit-touch-callout: none) {
+                    .gtb-chat-content {
+                        -webkit-overflow-scrolling: touch;
+                    }
+
+                    .gtb-chat-messages {
+                        -webkit-overflow-scrolling: touch;
+                    }
+
+                    .gtb-chat-input-area input {
+                        -webkit-appearance: none;
+                        border-radius: 20px;
+                    }
                 }
             }
 
@@ -1508,6 +1614,31 @@ function initChatWidget() {
                 .gtb-chat-content {
                     width: 95%;
                     max-width: 400px;
+                    max-height: 85vh;
+                }
+
+                .gtb-chat-messages {
+                    max-height: 50vh;
+                    min-height: 300px;
+                }
+
+                .gtb-message-bubble {
+                    font-size: 0.875rem;
+                }
+
+                .gtb-chat-input-area {
+                    padding: 0.875rem;
+                }
+            }
+
+            /* Tablet landscape */
+            @media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
+                .gtb-chat-content {
+                    max-height: 90vh;
+                }
+
+                .gtb-chat-messages {
+                    max-height: 60vh;
                 }
             }
 
@@ -1537,16 +1668,29 @@ function initChatWidget() {
     div.innerHTML = chatHTML;
     document.body.appendChild(div);
     
-    // Initialize Firebase
-    initChatFirebase();
+    // Verify the chat button was added
+    const chatButton = document.getElementById('gtbChatButton');
+    if (chatButton) {
+        console.log('Chat button successfully added to page');
+        console.log('Chat button element:', chatButton);
+    } else {
+        console.error('Failed to add chat button to page');
+    }
+    
+    // Initialize Firebase (non-blocking)
+    setTimeout(() => {
+        initChatFirebase();
+    }, 1000);
     
     console.log('Ghana Trust Bank Chat Widget initialized');
 }
 
 // Auto-initialize when DOM is ready
 if (document.readyState === 'loading') {
+    console.log('DOM still loading, adding DOMContentLoaded listener');
     document.addEventListener('DOMContentLoaded', initChatWidget);
 } else {
+    console.log('DOM already loaded, initializing immediately');
     initChatWidget();
 }
 

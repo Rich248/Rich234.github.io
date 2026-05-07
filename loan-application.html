@@ -406,7 +406,7 @@
             measurementId: "G-W8CFYEYHJ4"
         };
 
-        // Initialize Firebase
+        // Initialize Firebase  
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
@@ -452,7 +452,7 @@
             const reference = 'LOAN-' + Date.now().toString(36).toUpperCase();
             document.getElementById('referenceNumber').textContent = reference;
 
-            // Collect form data
+            // Collect form data 
             const formData = {
                 reference: reference,
                 loanType: document.getElementById('loanType').value,
@@ -480,26 +480,58 @@
             database.ref('loanApplications/' + reference).set(formData)
                 .then(async () => {
                     console.log('Loan application saved to admin dashboard');
+                    
+                    // Store in Firebase for admin notifications
+                    await storeLoanApplication(formData);
+
+                    // Set reference number in success message
+                    document.getElementById('referenceNumber').textContent = reference;
 
                     // Check server health before sending emails
                     const serverRunning = await checkServerHealth();
+                    let emailStatus = '';
+
                     if (!serverRunning) {
                         console.warn('Server is not running, skipping email sending');
-                        alert('Your loan application has been saved successfully!\n\nHowever, email notifications could not be sent because the email server is temporarily unavailable. The admin will still see your application in the dashboard.\n\nReference Number: ' + reference);
-                        document.getElementById('successMessage').classList.add('show');
-                        document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
-                        document.getElementById('loanForm').reset();
-                        return;
+                        emailStatus = `
+                            <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem; margin: 1rem 0; border-radius: 0 8px 8px 0;">
+                                <p style="margin: 0; color: #92400e;"><strong>⚠️ Email notifications unavailable</strong></p>
+                                <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #78350f;">The email server is temporarily unavailable. However, your application has been saved and the admin will review it in the dashboard.</p>
+                            </div>
+                        `;
+                    } else {
+                        // Send both emails and wait for completion
+                        try {
+                            const adminEmailPromise = sendAdminNotification(formData);
+                            const userEmailPromise = sendLoanConfirmationEmail(formData);
+                            await Promise.all([adminEmailPromise, userEmailPromise]);
+                            console.log('Both confirmation emails sent successfully');
+                            emailStatus = `
+                                <div class="email-confirmation" style="background: #f0fdf4; border-left: 4px solid #22c55e; padding: 1rem; margin: 1rem 0; border-radius: 0 8px 8px 0;">
+                                    <p style="margin: 0; color: #166534;"><strong>📧 Confirmation emails sent!</strong></p>
+                                    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #15803d;">A confirmation email has been sent to your email address. Please check your inbox.</p>
+                                </div>
+                            `;
+                        } catch (emailError) {
+                            console.error('Email sending failed:', emailError);
+                            emailStatus = `
+                                <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem; margin: 1rem 0; border-radius: 0 8px 8px 0;">
+                                    <p style="margin: 0; color: #92400e;"><strong>⚠️ Email notifications failed</strong></p>
+                                    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #78350f;">Your application has been saved, but there was an issue sending confirmation emails. The admin will still review your application.</p>
+                                </div>
+                            `;
+                        }
                     }
 
-                    // Send both emails and wait for completion
-                    const adminEmailPromise = sendAdminNotification(formData);
-                    const userEmailPromise = sendLoanConfirmationEmail(formData);
-
-                    return Promise.all([adminEmailPromise, userEmailPromise]);
-                })
-                .then(() => {
-                    console.log('Both confirmation emails sent successfully');
+                    // Update success message with email status
+                    const emailConfirmationDiv = document.querySelector('.email-confirmation');
+                    if (emailConfirmationDiv) {
+                        emailConfirmationDiv.outerHTML = emailStatus;
+                    } else {
+                        // Insert email status after the reference number
+                        const refElement = document.getElementById('referenceNumber');
+                        refElement.insertAdjacentHTML('afterend', emailStatus);
+                    }
 
                     // Show success message
                     document.getElementById('successMessage').classList.add('show');
@@ -598,6 +630,71 @@ Ghana Trust Bank System`,
                     resolve(); // Resolve anyway to not block user experience
                 });
             });
+        }
+
+        // Store loan application in Firebase and send notifications
+        function storeLoanApplication(formData) {
+            // Initialize Firebase if not already done
+            if (!window.firebase) {
+                console.log('Firebase not loaded, skipping storage');
+                return Promise.resolve();
+            }
+            
+            try {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp({
+                        apiKey: "AIzaSyBC6abatrIxH9gFaXQx8Q4gDdu59dU1U8E",
+                        authDomain: "live-chat-61efd.firebaseapp.com",
+                        databaseURL: "https://live-chat-61efd-default-rtdb.firebaseio.com",
+                        projectId: "live-chat-61efd",
+                        storageBucket: "live-chat-61efd.firebasestorage.app",
+                        messagingSenderId: "1059519432349",
+                        appId: "1:1059519432349:web:a40c6fee6357651c6af674"
+                    });
+                }
+                
+                const database = firebase.database();
+                const loanApplicationsRef = database.ref('loanApplications');
+                
+                // Create loan application record
+                const applicationData = {
+                    ...formData,
+                    submittedAt: new Date().toISOString(),
+                    status: 'pending',
+                    type: 'loan_application',
+                    reference: formData.reference
+                };
+                
+                // Store in Firebase
+                return loanApplicationsRef.push(applicationData)
+                    .then(() => {
+                        console.log('Loan application stored in Firebase');
+                        
+                        // Create admin notification
+                        const notificationsRef = database.ref('adminNotifications');
+                        return notificationsRef.push({
+                            type: 'new_loan_application',
+                            message: `New loan application from ${formData.fullName} (${formData.email})`,
+                            applicantName: formData.fullName,
+                            applicantEmail: formData.email,
+                            loanType: formData.loanType,
+                            loanAmount: formData.loanAmount,
+                            reference: formData.reference,
+                            timestamp: new Date().toISOString(),
+                            read: false
+                        });
+                    })
+                    .then(() => {
+                        console.log('Admin notification created');
+                    })
+                    .catch(error => {
+                        console.error('Error storing loan application:', error);
+                    });
+                    
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                return Promise.resolve();
+            }
         }
 
         // Send loan confirmation email to user
@@ -703,5 +800,12 @@ Ghana Trust Bank Loan Team`,
             });
         }
     </script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    
+    <!-- Chat Widget -->
+    <script src="chat-ai.js"></script>
 </body>
 </html>
