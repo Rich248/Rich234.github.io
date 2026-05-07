@@ -32,9 +32,35 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Brevo API configuration
-const BREVO_API_KEY = process.env.BREVO_API_KEY;
+// Gmail SMTP configuration
+const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
 const emailFrom = process.env.EMAIL_USER || 'cwesyrizy49957@gmail.com';
+
+// Create Gmail transporter
+const transporter = nodemailer.createTransporter({
+    service: 'gmail',
+    auth: {
+        user: emailFrom,
+        pass: EMAIL_PASSWORD
+    }
+});
+
+// Function to send email via Gmail SMTP
+async function sendGmailEmail(to, subject, htmlContent, textContent = '') {
+    const mailOptions = {
+        from: emailFrom,
+        to: to,
+        subject: subject,
+        html: htmlContent,
+        text: textContent || htmlContent.replace(/<[^>]*>/g, '')
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    return info;
+}
+
+// Brevo API configuration (fallback)
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
 
 // Function to send email via Brevo API
 async function sendBrevoEmail(to, subject, htmlContent, textContent = '') {
@@ -437,8 +463,8 @@ app.post('/send-email', async (req, res) => {
             return res.json({ success: false, error: 'Missing required fields: to, subject, html' });
         }
         
-        // Use Brevo API to send email
-        const result = await sendBrevoEmail(to, subject, html);
+        // Use Gmail SMTP to send email
+        const result = await sendGmailEmail(to, subject, html);
         
         res.json({ 
             success: true, 
