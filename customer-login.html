@@ -593,7 +593,7 @@
         // Dynamic API URL for hosting
         const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:3000'
-            : 'https://ghana-trust-bank.onrender.com'; // Updated with your live URL
+            : 'https://ghanatrust-email-server.onrender.com'; // Email server URL
 
         async function handleLogin(event) {
             event.preventDefault();
@@ -725,9 +725,9 @@
             generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
 
             try {
-                // Use local server endpoint to send OTP
-                console.log("Sending OTP via local server to:", email);
-                const response = await fetch('http://localhost:3000/send-email', {
+                // Use dynamic API endpoint to send OTP
+                console.log("Sending OTP via server to:", email);
+                const response = await fetch(`${API_URL}/send-email`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -824,9 +824,9 @@
             generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
             
             try {
-                // Use local server endpoint to send OTP
-                console.log("Resending OTP via local server to:", currentUserData.email);
-                const response = await fetch('http://localhost:3000/send-email', {
+                // Use dynamic API endpoint to send OTP
+                console.log("Resending OTP via server to:", currentUserData.email);
+                const response = await fetch(`${API_URL}/send-email`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
