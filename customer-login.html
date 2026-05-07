@@ -284,17 +284,31 @@
             generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
 
             try {
-                // Use server endpoint to send OTP
+                // Use dynamic API endpoint to send OTP
                 console.log("Sending OTP via server to:", email);
-                const response = await fetch('https://rich234-github-io.onrender.com/api/send-otp', {
+                const response = await fetch(`${API_URL}/send-email`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        email: email,
-                        firstName: currentUserData.firstName || "Valued Customer",
-                        otp: generatedOTP
+                        to: email,
+                        subject: 'Login OTP - GhanaTrust Bank',
+                        html: `
+                            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+                                <div style="background: #1e40af; padding: 20px; text-align: center;">
+                                    <h1 style="color: white; margin: 0;">GhanaTrust Bank</h1>
+                                </div>
+                                <div style="padding: 30px; text-align: center;">
+                                    <h2 style="color: #1e293b;">Your Login OTP</h2>
+                                    <p style="color: #64748b;">Enter the code below to complete your login:</p>
+                                    <div style="background: #f1f5f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                                        <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #1e40af;">${generatedOTP}</span>
+                                    </div>
+                                    <p style="color: #94a3b8; font-size: 0.85rem;">This code will expire in 10 minutes. Do not share it with anyone.</p>
+                                </div>
+                            </div>
+                        `
                     })
                 });
                 
