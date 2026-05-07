@@ -178,7 +178,7 @@
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" placeholder="enter password" required>
+                <input type="password" id="password" placeholder="••••••••" required>
             </div>
             <button type="submit" id="loginBtn" class="btn">Sign In</button>
         </form>
@@ -211,6 +211,11 @@
 
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        
+        // Dynamic API URL for hosting
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000'
+            : 'https://ghana-trust-bank.onrender.com'; // Email server URL
         
         // Initialize Firebase Functions (uncomment after deploying)
         // const functions = firebase.functions();
