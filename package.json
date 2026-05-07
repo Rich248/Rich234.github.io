@@ -4,7 +4,8 @@
   "description": "Backend server for GhanaTrust Bank email services",
   "main": "server/server.js",
   "scripts": {
-    "start": "node server/server.js",
+    "start": "node email-server.js",
+    "email-server": "node email-server.js",
     "dev": "nodemon server/server.js"
   },
   "dependencies": {
